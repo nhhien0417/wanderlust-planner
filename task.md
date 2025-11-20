@@ -1,0 +1,30 @@
+# Task: Smart Travel Planner (Wanderlust)
+
+- [ ] **Project Setup** <!-- id: 0 -->
+  - [x] Initialize Vite + React + TypeScript + Tailwind project <!-- id: 1 -->
+  - [x] Setup folder structure (components, stores, hooks, utils, types) <!-- id: 2 -->
+  - [x] Install dependencies (react-leaflet, leaflet, lucide-react, date-fns, recharts, zustand, @dnd-kit/core @dnd-kit/sortable @dnd-kit/utilities) <!-- id: 3 -->
+- [ ] **Core Architecture & Layout** <!-- id: 4 -->
+  - [ ] Create App Layout (Sidebar/Navigation, Main Area) <!-- id: 5 -->
+  - [x] Implement Global Store (Trip data, User preferences) <!-- id: 6 -->
+- [ ] **Feature: Interactive Map** <!-- id: 7 -->
+  - [ ] Integrate Leaflet Map component <!-- id: 8 -->
+  - [ ] Implement Location Search (using OpenStreetMap Nominatim API) <!-- id: 9 -->
+  - [ ] Add/Remove Markers on Map <!-- id: 10 -->
+- [ ] **Feature: Itinerary Management** <!-- id: 11 -->
+  - [ ] Create Trip Wizard (Name, Dates, Cover Image) <!-- id: 12 -->
+  - [ ] Day-by-Day Itinerary View <!-- id: 13 -->
+  - [ ] Add Activities to Days (linked to Map markers) <!-- id: 14 -->
+  - [ ] Drag & Drop Reordering of Activities <!-- id: 15 -->
+- [ ] **Feature: Trip Kanban Board (Jira-style)** <!-- id: 24 -->
+  - [ ] Create Kanban Board UI (Columns: Todo, In Progress, Done) <!-- id: 25 -->
+  - [ ] Implement Drag & Drop for Task Cards <!-- id: 26 -->
+  - [ ] Task Details Modal (Description, Priority, Due Date) <!-- id: 27 -->
+- [ ] **Feature: Smart Utilities** <!-- id: 16 -->
+  - [ ] Weather Widget (Fetch forecast for trip location/dates) <!-- id: 17 -->
+  - [ ] Budget Tracker (Expense input, Pie chart visualization) <!-- id: 18 -->
+  - [ ] Smart Packing List Generator (Rule-based generation) <!-- id: 19 -->
+- [ ] **UI Polish & Finalization** <!-- id: 20 -->
+  - [ ] Landing/Dashboard Page Design <!-- id: 21 -->
+  - [ ] Responsive Design Adjustments <!-- id: 22 -->
+  - [ ] Final Testing & Bug Fixes <!-- id: 23 -->
