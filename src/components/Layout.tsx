@@ -1,4 +1,5 @@
 import React from "react";
+import Box from "@mui/material/Box";
 import { Sidebar } from "./Sidebar";
 
 interface LayoutProps {
@@ -7,9 +8,18 @@ interface LayoutProps {
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
+    <Box sx={{ display: "flex", height: "100vh", overflow: "hidden" }}>
       <Sidebar />
-      <main className="flex-1 overflow-y-auto">{children}</main>
-    </div>
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          overflow: "auto",
+          backgroundColor: "background.default",
+        }}
+      >
+        {children}
+      </Box>
+    </Box>
   );
 };

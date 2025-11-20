@@ -1,78 +1,173 @@
-import {
-  Map,
-  Layout,
-  Calendar,
-  Settings,
-  PlusCircle,
-} from "lucide-react";
+import React from "react";
+import Box from "@mui/material/Box";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import Typography from "@mui/material/Typography";
+import Divider from "@mui/material/Divider";
+import { Map, Layout, Calendar, Settings, PlusCircle } from "lucide-react";
 import { useTripStore } from "../store/useTripStore";
-import { clsx } from "clsx";
 
 export const Sidebar = () => {
   const { activeTripId, setActiveTrip, trips } = useTripStore();
 
   return (
-    <div className="h-screen w-64 bg-white border-r border-gray-200 flex flex-col">
-      <div className="p-6 flex items-center gap-2">
-        <Map className="w-8 h-8 text-blue-600" />
-        <span className="text-xl font-bold text-gray-900">Wanderlust</span>
-      </div>
+    <Box
+      sx={{
+        width: 280,
+        height: "100vh",
+        backgroundColor: "background.paper",
+        borderRight: 1,
+        borderColor: "divider",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      {/* Header */}
+      <Box sx={{ p: 3, display: "flex", alignItems: "center", gap: 1 }}>
+        <Map size={32} color="#2563eb" />
+        <Typography variant="h5" fontWeight="bold" color="text.primary">
+          Wanderlust
+        </Typography>
+      </Box>
 
-      <div className="flex-1 px-4 space-y-2 overflow-y-auto">
-        <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 mt-4">
-          Menu
-        </div>
-
-        <button
-          onClick={() => setActiveTrip(null)}
-          className={clsx(
-            "w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
-            !activeTripId
-              ? "bg-blue-50 text-blue-700"
-              : "text-gray-600 hover:bg-gray-50"
-          )}
-        >
-          <Layout className="w-5 h-5" />
-          <span className="font-medium">Dashboard</span>
-        </button>
-
-        <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 mt-6">
-          My Trips
-        </div>
-
-        {trips.map((trip) => (
-          <button
-            key={trip.id}
-            onClick={() => setActiveTrip(trip.id)}
-            className={clsx(
-              "w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
-              activeTripId === trip.id
-                ? "bg-blue-50 text-blue-700"
-                : "text-gray-600 hover:bg-gray-50"
-            )}
-          >
-            <Calendar className="w-5 h-5" />
-            <span className="font-medium truncate">{trip.name}</span>
-          </button>
-        ))}
-
-        <button
-          onClick={() => {
-            /* Trigger Create Modal */
+      {/* Navigation */}
+      <Box sx={{ flexGrow: 1, overflowY: "auto", px: 2 }}>
+        <Typography
+          variant="caption"
+          sx={{
+            fontWeight: 600,
+            color: "text.secondary",
+            textTransform: "uppercase",
+            letterSpacing: 1,
+            display: "block",
+            px: 2,
+            mb: 1,
+            mt: 2,
           }}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 border border-dashed border-gray-300 hover:border-blue-300 mt-2"
         >
-          <PlusCircle className="w-5 h-5" />
-          <span className="font-medium">New Trip</span>
-        </button>
-      </div>
+          Menu
+        </Typography>
 
-      <div className="p-4 border-t border-gray-200">
-        <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50">
-          <Settings className="w-5 h-5" />
-          <span className="font-medium">Settings</span>
-        </button>
-      </div>
-    </div>
+        <List disablePadding>
+          <ListItem disablePadding>
+            <ListItemButton
+              selected={!activeTripId}
+              onClick={() => setActiveTrip(null)}
+              sx={{
+                borderRadius: 2,
+                "&.Mui-selected": {
+                  backgroundColor: "primary.light",
+                  color: "primary.dark",
+                  "&:hover": {
+                    backgroundColor: "primary.light",
+                  },
+                },
+              }}
+            >
+              <ListItemIcon sx={{ minWidth: 40 }}>
+                <Layout size={20} />
+              </ListItemIcon>
+              <ListItemText
+                primary="Dashboard"
+                primaryTypographyProps={{ fontWeight: 500 }}
+              />
+            </ListItemButton>
+          </ListItem>
+        </List>
+
+        <Typography
+          variant="caption"
+          sx={{
+            fontWeight: 600,
+            color: "text.secondary",
+            textTransform: "uppercase",
+            letterSpacing: 1,
+            display: "block",
+            px: 2,
+            mb: 1,
+            mt: 3,
+          }}
+        >
+          My Trips
+        </Typography>
+
+        <List disablePadding>
+          {trips.map((trip) => (
+            <ListItem key={trip.id} disablePadding>
+              <ListItemButton
+                selected={activeTripId === trip.id}
+                onClick={() => setActiveTrip(trip.id)}
+                sx={{
+                  borderRadius: 2,
+                  "&.Mui-selected": {
+                    backgroundColor: "primary.light",
+                    color: "primary.dark",
+                    "&:hover": {
+                      backgroundColor: "primary.light",
+                    },
+                  },
+                }}
+              >
+                <ListItemIcon sx={{ minWidth: 40 }}>
+                  <Calendar size={20} />
+                </ListItemIcon>
+                <ListItemText
+                  primary={trip.name}
+                  primaryTypographyProps={{
+                    fontWeight: 500,
+                    noWrap: true,
+                  }}
+                />
+              </ListItemButton>
+            </ListItem>
+          ))}
+
+          <ListItem disablePadding sx={{ mt: 1 }}>
+            <ListItemButton
+              sx={{
+                borderRadius: 2,
+                border: "2px dashed",
+                borderColor: "divider",
+                color: "text.secondary",
+                "&:hover": {
+                  backgroundColor: "primary.light",
+                  color: "primary.dark",
+                  borderColor: "primary.main",
+                },
+              }}
+            >
+              <ListItemIcon sx={{ minWidth: 40 }}>
+                <PlusCircle size={20} />
+              </ListItemIcon>
+              <ListItemText
+                primary="New Trip"
+                primaryTypographyProps={{ fontWeight: 500 }}
+              />
+            </ListItemButton>
+          </ListItem>
+        </List>
+      </Box>
+
+      {/* Footer */}
+      <Divider />
+      <Box sx={{ p: 2 }}>
+        <ListItemButton
+          sx={{
+            borderRadius: 2,
+          }}
+        >
+          <ListItemIcon sx={{ minWidth: 40 }}>
+            <Settings size={20} />
+          </ListItemIcon>
+          <ListItemText
+            primary="Settings"
+            primaryTypographyProps={{ fontWeight: 500 }}
+          />
+        </ListItemButton>
+      </Box>
+    </Box>
   );
 };
