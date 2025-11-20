@@ -1,21 +1,11 @@
 import { useTripStore } from "../../store/useTripStore";
 import { Plus, Calendar, MapPin } from "lucide-react";
+import { useState } from "react";
+import { CreateTripModal } from "../../components/CreateTripModal";
 
 export const Dashboard = () => {
-  const { trips, addTrip } = useTripStore();
-
-  // Mock create trip for testing
-  const handleCreateMockTrip = () => {
-    addTrip({
-      name: "Da Nang Adventure",
-      destination: "Da Nang, Vietnam",
-      startDate: new Date().toISOString(),
-      endDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
-      budget: 10000000,
-      coverImage:
-        "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?auto=format&fit=crop&w=800&q=80",
-    });
-  };
+  const { trips, setActiveTrip } = useTripStore();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
     <div className="p-8 max-w-7xl mx-auto">
@@ -27,7 +17,7 @@ export const Dashboard = () => {
           </p>
         </div>
         <button
-          onClick={handleCreateMockTrip}
+          onClick={() => setIsModalOpen(true)}
           className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20"
         >
           <Plus className="w-5 h-5" />
@@ -47,7 +37,7 @@ export const Dashboard = () => {
             Start by creating your first trip itinerary.
           </p>
           <button
-            onClick={handleCreateMockTrip}
+            onClick={() => setIsModalOpen(true)}
             className="text-blue-600 font-medium hover:underline"
           >
             Create a trip now
@@ -58,6 +48,7 @@ export const Dashboard = () => {
           {trips.map((trip) => (
             <div
               key={trip.id}
+              onClick={() => setActiveTrip(trip.id)}
               className="group bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-xl transition-all duration-300 cursor-pointer"
             >
               <div className="h-48 overflow-hidden relative">
@@ -97,6 +88,11 @@ export const Dashboard = () => {
           ))}
         </div>
       )}
+
+      <CreateTripModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 };
