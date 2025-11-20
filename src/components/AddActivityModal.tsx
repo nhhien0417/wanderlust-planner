@@ -1,4 +1,10 @@
 import { useState } from "react";
+import Dialog from "@mu/material/Dialog";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
+import Paper from "@mui/material/Paper";
 import { X, MapPin, Plus } from "lucide-react";
 import { LocationSearch } from "./LocationSearch";
 import { Map } from "./Map";
@@ -31,8 +37,6 @@ export const AddActivityModal = ({
     zoom: 13,
   });
 
-  if (!isOpen) return null;
-
   const handleLocationSelect = (lat: number, lng: number, name: string) => {
     setViewState({
       center: [lat, lng],
@@ -55,81 +59,132 @@ export const AddActivityModal = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl w-full max-w-4xl h-[600px] shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in duration-200">
-        <div className="p-4 border-b border-gray-100 flex justify-between items-center shrink-0">
-          <h2 className="text-xl font-bold text-gray-900">Add Activity</h2>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-full transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+    <Dialog
+      open={isOpen}
+      onClose={onClose}
+      maxWidth="lg"
+      fullWidth
+      PaperProps={{
+        sx: { height: "80vh", borderRadius: 3 },
+      }}
+    >
+      {/* Header */}
+      <Box
+        sx={{
+          p: 2,
+          borderBottom: 1,
+          borderColor: "divider",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <Typography variant="h6" fontWeight="bold">
+          Add Activity
+        </Typography>
+        <IconButton onClick={onClose} size="small">
+          <X size={20} />
+        </IconButton>
+      </Box>
 
-        <div className="flex-1 flex overflow-hidden">
-          {/* Sidebar */}
-          <div className="w-1/3 border-r border-gray-100 p-4 flex flex-col bg-gray-50">
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Search Location
-              </label>
-              <LocationSearch onLocationSelect={handleLocationSelect} />
-            </div>
+      {/* Content */}
+      <Box sx={{ display: "flex", flexGrow: 1, overflow: "hidden" }}>
+        {/* Sidebar */}
+        <Box
+          sx={{
+            width: "33%",
+            borderRight: 1,
+            borderColor: "divider",
+            p: 2,
+            display: "flex",
+            flexDirection: "column",
+            backgroundColor: "grey.50",
+          }}
+        >
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+              Search Location
+            </Typography>
+            <LocationSearch onLocationSelect={handleLocationSelect} />
+          </Box>
 
-            {selectedLocation ? (
-              <div className="mt-4 p-4 bg-white rounded-xl border border-gray-200 shadow-sm">
-                <div className="flex items-start gap-3 mb-3">
-                  <div className="p-2 bg-blue-50 rounded-lg shrink-0">
-                    <MapPin className="w-5 h-5 text-blue-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-gray-900">
-                      {selectedLocation.name}
-                    </h3>
-                    <p className="text-xs text-gray-500 mt-1 line-clamp-2">
-                      {selectedLocation.address}
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={handleAdd}
-                  className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+          {selectedLocation ? (
+            <Paper elevation={2} sx={{ p: 2 }}>
+              <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+                <Box
+                  sx={{
+                    p: 1,
+                    backgroundColor: "primary.light",
+                    borderRadius: 2,
+                    display: "flex",
+                    alignItems: "center",
+                  }}
                 >
-                  <Plus className="w-4 h-4" />
-                  Add to Itinerary
-                </button>
-              </div>
-            ) : (
-              <div className="mt-auto text-center p-6 text-gray-400">
-                <MapPin className="w-12 h-12 mx-auto mb-2 opacity-20" />
-                <p className="text-sm">
-                  Search for a location to add it to your trip
-                </p>
-              </div>
-            )}
-          </div>
+                  <MapPin size={20} />
+                </Box>
+                <Box sx={{ flexGrow: 1 }}>
+                  <Typography variant="subtitle1" fontWeight="bold">
+                    {selectedLocation.name}
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {selectedLocation.address}
+                  </Typography>
+                </Box>
+              </Box>
+              <Button
+                fullWidth
+                variant="contained"
+                startIcon={<Plus size={16} />}
+                onClick={handleAdd}
+              >
+                Add to Itinerary
+              </Button>
+            </Paper>
+          ) : (
+            <Box
+              sx={{
+                mt: "auto",
+                textAlign: "center",
+                py: 6,
+                color: "text.disabled",
+              }}
+            >
+              <MapPin size={48} opacity={0.2} />
+              <Typography variant="body2" sx={{ mt: 1 }}>
+                Search for a location to add it to your trip
+              </Typography>
+            </Box>
+          )}
+        </Box>
 
-          {/* Map Area */}
-          <div className="flex-1 relative">
-            <Map
-              center={viewState.center}
-              zoom={viewState.zoom}
-              markers={
-                selectedLocation
-                  ? [
-                      {
-                        id: "selected",
-                        position: [selectedLocation.lat, selectedLocation.lng],
-                        title: selectedLocation.name,
-                      },
-                    ]
-                  : []
-              }
-            />
-          </div>
-        </div>
-      </div>
-    </div>
+        {/* Map Area */}
+        <Box sx={{ flexGrow: 1, position: "relative" }}>
+          <Map
+            center={viewState.center}
+            zoom={viewState.zoom}
+            markers={
+              selectedLocation
+                ? [
+                    {
+                      id: "selected",
+                      position: [selectedLocation.lat, selectedLocation.lng],
+                      title: selectedLocation.name,
+                    },
+                  ]
+                : []
+            }
+          />
+        </Box>
+      </Box>
+    </Dialog>
   );
 };
