@@ -1,5 +1,11 @@
 import { useTripStore } from "../../store/useTripStore";
-import { Calendar, MapPin, DollarSign, Clock } from "lucide-react";
+import {
+  Calendar,
+  MapPin,
+  DollarSign,
+  Clock,
+  GripVertical,
+} from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { useState } from "react";
 import { AddActivityModal } from "../../components/AddActivityModal";
@@ -10,17 +16,143 @@ import Container from "@mui/material/Container";
 import Card from "@mui/material/Card";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
+import IconButton from "@mui/material/IconButton";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragOverlay,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 interface TripDetailsProps {
   tripId: string;
 }
+
+// Sortable Activity Card Component
+const SortableActivityCard = ({ activity }: { activity: any }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: activity.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <Card
+      ref={setNodeRef}
+      style={style}
+      variant="outlined"
+      sx={{
+        p: 2,
+        display: "flex",
+        alignItems: "flex-start",
+        gap: 2,
+        backgroundColor: isDragging ? "primary.50" : "grey.50",
+        border: "1px solid",
+        borderColor: isDragging ? "primary.main" : "divider",
+        transition: "all 0.2s",
+        cursor: isDragging ? "grabbing" : "grab",
+        "&:hover": {
+          backgroundColor: "white",
+          borderColor: "primary.main",
+          boxShadow: 2,
+        },
+      }}
+    >
+      {/* Drag Handle */}
+      <IconButton
+        {...attributes}
+        {...listeners}
+        size="small"
+        sx={{
+          cursor: "grab",
+          color: "text.secondary",
+          "&:active": {
+            cursor: "grabbing",
+          },
+          "&:hover": {
+            backgroundColor: "primary.50",
+            color: "primary.main",
+          },
+        }}
+      >
+        <GripVertical size={20} />
+      </IconButton>
+
+      <Box
+        sx={{
+          p: 1.5,
+          backgroundColor: "white",
+          borderRadius: 2,
+          border: "1px solid",
+          borderColor: "divider",
+          color: "primary.main",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <MapPin size={20} />
+      </Box>
+      <Box sx={{ flex: 1 }}>
+        <Typography variant="subtitle1" fontWeight="bold">
+          {activity.location.name}
+        </Typography>
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {activity.location.address}
+        </Typography>
+      </Box>
+    </Card>
+  );
+};
 
 export const TripDetails = ({ tripId }: TripDetailsProps) => {
   const trip = useTripStore((state) =>
     state.trips.find((t) => t.id === tripId)
   );
   const addActivity = useTripStore((state) => state.addActivity);
+  const reorderActivities = useTripStore((state) => state.reorderActivities);
   const [activeDayId, setActiveDayId] = useState<string | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   if (!trip) {
     return (
@@ -55,6 +187,27 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
         type: "other",
       });
     }
+  };
+
+  const handleDragStart = (event: any) => {
+    setActiveId(event.active.id);
+  };
+
+  const handleDragEnd = (event: DragEndEvent, dayId: string) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const day = trip.days.find((d) => d.id === dayId);
+      if (!day) return;
+
+      const oldIndex = day.activities.findIndex((a) => a.id === active.id);
+      const newIndex = day.activities.findIndex((a) => a.id === over.id);
+
+      const newActivities = arrayMove(day.activities, oldIndex, newIndex);
+      reorderActivities(tripId, dayId, newActivities);
+    }
+
+    setActiveId(null);
   };
 
   return (
@@ -225,6 +378,13 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
                   >
                     <Typography variant="h6" fontWeight="bold">
                       Activities
+                      {day.activities.length > 0 && (
+                        <Chip
+                          label={`Drag to reorder`}
+                          size="small"
+                          sx={{ ml: 2, fontSize: "0.75rem" }}
+                        />
+                      )}
                     </Typography>
                     <Button
                       variant="contained"
@@ -264,63 +424,41 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
                       </Typography>
                     </Card>
                   ) : (
-                    <Box
-                      sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+                    <DndContext
+                      sensors={sensors}
+                      collisionDetection={closestCenter}
+                      onDragStart={handleDragStart}
+                      onDragEnd={(e) => handleDragEnd(e, day.id)}
                     >
-                      {day.activities.map((activity: any) => (
-                        <Card
-                          key={activity.id}
-                          variant="outlined"
+                      <SortableContext
+                        items={day.activities.map((a: any) => a.id)}
+                        strategy={verticalListSortingStrategy}
+                      >
+                        <Box
                           sx={{
-                            p: 2,
                             display: "flex",
-                            alignItems: "flex-start",
+                            flexDirection: "column",
                             gap: 2,
-                            backgroundColor: "grey.50",
-                            border: "1px solid",
-                            borderColor: "divider",
-                            transition: "all 0.2s",
-                            "&:hover": {
-                              backgroundColor: "white",
-                              borderColor: "primary.main",
-                              boxShadow: 2,
-                            },
                           }}
                         >
-                          <Box
-                            sx={{
-                              p: 1.5,
-                              backgroundColor: "white",
-                              borderRadius: 2,
-                              border: "1px solid",
-                              borderColor: "divider",
-                              color: "primary.main",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                            }}
-                          >
-                            <MapPin size={20} />
-                          </Box>
-                          <Box sx={{ flex: 1 }}>
-                            <Typography variant="subtitle1" fontWeight="bold">
-                              {activity.location.name}
-                            </Typography>
-                            <Typography
-                              variant="body2"
-                              color="text.secondary"
-                              sx={{
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                whiteSpace: "nowrap",
-                              }}
-                            >
-                              {activity.location.address}
-                            </Typography>
-                          </Box>
-                        </Card>
-                      ))}
-                    </Box>
+                          {day.activities.map((activity: any) => (
+                            <SortableActivityCard
+                              key={activity.id}
+                              activity={activity}
+                            />
+                          ))}
+                        </Box>
+                      </SortableContext>
+                      <DragOverlay>
+                        {activeId ? (
+                          <SortableActivityCard
+                            activity={day.activities.find(
+                              (a: any) => a.id === activeId
+                            )}
+                          />
+                        ) : null}
+                      </DragOverlay>
+                    </DndContext>
                   )}
                 </Card>
               </Box>

@@ -7,7 +7,7 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
 import CardActionArea from "@mui/material/CardActionArea";
-import Grid from "@mui/material/Grid";
+import Stack from "@mui/material/Stack";
 import { Plus, Calendar, MapPin } from "lucide-react";
 import { useTripStore } from "../../store/useTripStore";
 import { CreateTripModal } from "../../components/CreateTripModal";
@@ -90,9 +90,23 @@ export const Dashboard = () => {
           </Button>
         </Card>
       ) : (
-        <Grid container spacing={3}>
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          spacing={3}
+          flexWrap="wrap"
+          useFlexGap
+        >
           {trips.map((trip) => (
-            <Grid item xs={12} sm={6} lg={4} key={trip.id}>
+            <Box
+              key={trip.id}
+              sx={{
+                width: {
+                  xs: "100%",
+                  sm: "calc(50% - 12px)",
+                  lg: "calc(33.333% - 16px)",
+                },
+              }}
+            >
               <Card
                 elevation={1}
                 sx={{
@@ -188,9 +202,9 @@ export const Dashboard = () => {
                   </CardContent>
                 </CardActionArea>
               </Card>
-            </Grid>
+            </Box>
           ))}
-        </Grid>
+        </Stack>
       )}
 
       <CreateTripModal
