@@ -7,7 +7,7 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
 import CardActionArea from "@mui/material/CardActionArea";
-import Grid from "@mui/material/Grid2";
+import Grid from "@mui/material/Grid";
 import { Plus, Calendar, MapPin } from "lucide-react";
 import { useTripStore } from "../../store/useTripStore";
 import { CreateTripModal } from "../../components/CreateTripModal";
@@ -92,7 +92,7 @@ export const Dashboard = () => {
       ) : (
         <Grid container spacing={3}>
           {trips.map((trip) => (
-            <Grid size={{ xs: 12, sm: 6, lg: 4 }} key={trip.id}>
+            <Grid item xs={12} sm={6} lg={4} key={trip.id}>
               <Card
                 elevation={1}
                 sx={{

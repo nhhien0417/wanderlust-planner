@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Dialog from "@mu/material/Dialog";
+import Dialog from "@mui/material/Dialog";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";

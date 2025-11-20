@@ -6,7 +6,7 @@ import DialogActions from "@mui/material/DialogActions";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
-import Grid from "@mui/material/Grid2";
+import Grid from "@mui/material/Grid";
 import InputAdornment from "@mui/material/InputAdornment";
 import { X, MapPin, Image as ImageIcon } from "lucide-react";
 import { useTripStore } from "../store/useTripStore";
@@ -77,7 +77,7 @@ export const CreateTripModal = ({ isOpen, onClose }: CreateTripModalProps) => {
       <form onSubmit={handleSubmit}>
         <DialogContent>
           <Grid container spacing={2}>
-            <Grid size={12}>
+            <Grid item xs={12}>
               <TextField
                 required
                 fullWidth
@@ -90,7 +90,7 @@ export const CreateTripModal = ({ isOpen, onClose }: CreateTripModalProps) => {
               />
             </Grid>
 
-            <Grid size={12}>
+            <Grid item xs={12}>
               <TextField
                 required
                 fullWidth
@@ -110,7 +110,7 @@ export const CreateTripModal = ({ isOpen, onClose }: CreateTripModalProps) => {
               />
             </Grid>
 
-            <Grid size={6}>
+            <Grid item xs={6}>
               <TextField
                 required
                 fullWidth
@@ -124,7 +124,7 @@ export const CreateTripModal = ({ isOpen, onClose }: CreateTripModalProps) => {
               />
             </Grid>
 
-            <Grid size={6}>
+            <Grid item xs={6}>
               <TextField
                 required
                 fullWidth
@@ -139,7 +139,7 @@ export const CreateTripModal = ({ isOpen, onClose }: CreateTripModalProps) => {
               />
             </Grid>
 
-            <Grid size={12}>
+            <Grid item xs={12}>
               <TextField
                 fullWidth
                 type="number"
@@ -152,7 +152,7 @@ export const CreateTripModal = ({ isOpen, onClose }: CreateTripModalProps) => {
               />
             </Grid>
 
-            <Grid size={12}>
+            <Grid item xs={12}>
               <TextField
                 fullWidth
                 type="url"
