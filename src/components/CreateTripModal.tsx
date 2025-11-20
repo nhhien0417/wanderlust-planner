@@ -1,5 +1,14 @@
 import { useState } from "react";
-import { X, Calendar, MapPin, Image as ImageIcon } from "lucide-react";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
+import Grid from "@mui/material/Grid2";
+import InputAdornment from "@mui/material/InputAdornment";
+import { X, MapPin, Image as ImageIcon } from "lucide-react";
 import { useTripStore } from "../store/useTripStore";
 
 interface CreateTripModalProps {
@@ -17,8 +26,6 @@ export const CreateTripModal = ({ isOpen, onClose }: CreateTripModalProps) => {
     budget: "",
     coverImage: "",
   });
-
-  if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,133 +52,137 @@ export const CreateTripModal = ({ isOpen, onClose }: CreateTripModalProps) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
-        <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-          <h2 className="text-xl font-bold text-gray-900">Plan New Trip</h2>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-full transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+    <Dialog
+      open={isOpen}
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+      PaperProps={{
+        sx: { borderRadius: 3 },
+      }}
+    >
+      <DialogTitle
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        Plan New Trip
+        <IconButton onClick={onClose} size="small">
+          <X size={20} />
+        </IconButton>
+      </DialogTitle>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Trip Name
-            </label>
-            <input
-              required
-              type="text"
-              placeholder="e.g., Summer in Tokyo"
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-              value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Destination
-            </label>
-            <div className="relative">
-              <MapPin className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
-              <input
+      <form onSubmit={handleSubmit}>
+        <DialogContent>
+          <Grid container spacing={2}>
+            <Grid size={12}>
+              <TextField
                 required
-                type="text"
+                fullWidth
+                label="Trip Name"
+                placeholder="e.g., Summer in Tokyo"
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
+              />
+            </Grid>
+
+            <Grid size={12}>
+              <TextField
+                required
+                fullWidth
+                label="Destination"
                 placeholder="Where to?"
-                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                 value={formData.destination}
                 onChange={(e) =>
                   setFormData({ ...formData, destination: e.target.value })
                 }
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <MapPin size={20} />
+                    </InputAdornment>
+                  ),
+                }}
               />
-            </div>
-          </div>
+            </Grid>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Start Date
-              </label>
-              <div className="relative">
-                <Calendar className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
-                <input
-                  required
-                  type="date"
-                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                  value={formData.startDate}
-                  onChange={(e) =>
-                    setFormData({ ...formData, startDate: e.target.value })
-                  }
-                />
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                End Date
-              </label>
-              <div className="relative">
-                <Calendar className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
-                <input
-                  required
-                  type="date"
-                  min={formData.startDate}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-                  value={formData.endDate}
-                  onChange={(e) =>
-                    setFormData({ ...formData, endDate: e.target.value })
-                  }
-                />
-              </div>
-            </div>
-          </div>
+            <Grid size={6}>
+              <TextField
+                required
+                fullWidth
+                type="date"
+                label="Start Date"
+                value={formData.startDate}
+                onChange={(e) =>
+                  setFormData({ ...formData, startDate: e.target.value })
+                }
+                InputLabelProps={{ shrink: true }}
+              />
+            </Grid>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Budget (Optional)
-            </label>
-            <input
-              type="number"
-              placeholder="0"
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
-              value={formData.budget}
-              onChange={(e) =>
-                setFormData({ ...formData, budget: e.target.value })
-              }
-            />
-          </div>
+            <Grid size={6}>
+              <TextField
+                required
+                fullWidth
+                type="date"
+                label="End Date"
+                value={formData.endDate}
+                onChange={(e) =>
+                  setFormData({ ...formData, endDate: e.target.value })
+                }
+                inputProps={{ min: formData.startDate }}
+                InputLabelProps={{ shrink: true }}
+              />
+            </Grid>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Cover Image URL (Optional)
-            </label>
-            <div className="relative">
-              <ImageIcon className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
-              <input
+            <Grid size={12}>
+              <TextField
+                fullWidth
+                type="number"
+                label="Budget (Optional)"
+                placeholder="0"
+                value={formData.budget}
+                onChange={(e) =>
+                  setFormData({ ...formData, budget: e.target.value })
+                }
+              />
+            </Grid>
+
+            <Grid size={12}>
+              <TextField
+                fullWidth
                 type="url"
+                label="Cover Image URL (Optional)"
                 placeholder="https://..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                 value={formData.coverImage}
                 onChange={(e) =>
                   setFormData({ ...formData, coverImage: e.target.value })
                 }
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <ImageIcon size={20} />
+                    </InputAdornment>
+                  ),
+                }}
               />
-            </div>
-          </div>
+            </Grid>
+          </Grid>
+        </DialogContent>
 
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white font-medium py-2.5 rounded-lg hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20 mt-2"
-          >
+        <DialogActions sx={{ px: 3, pb: 3 }}>
+          <Button onClick={onClose} variant="outlined">
+            Cancel
+          </Button>
+          <Button type="submit" variant="contained" size="large">
             Create Trip
-          </button>
-        </form>
-      </div>
-    </div>
+          </Button>
+        </DialogActions>
+      </form>
+    </Dialog>
   );
 };
