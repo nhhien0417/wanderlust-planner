@@ -1,6 +1,9 @@
 import { useTripStore } from "../../store/useTripStore";
 import { Calendar, MapPin, DollarSign, Clock } from "lucide-react";
-import { format, eachDayOfInterval, parseISO } from "date-fns";
+import { format, parseISO } from "date-fns";
+import { useState } from "react";
+import { AddActivityModal } from "../../components/AddActivityModal";
+import { v4 as uuidv4 } from "uuid";
 
 interface TripDetailsProps {
   tripId: string;
@@ -10,15 +13,30 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
   const trip = useTripStore((state) =>
     state.trips.find((t) => t.id === tripId)
   );
+  const addActivity = useTripStore((state) => state.addActivity);
+  const [activeDayId, setActiveDayId] = useState<string | null>(null);
 
   if (!trip) {
     return <div>Trip not found</div>;
   }
 
-  const days = eachDayOfInterval({
-    start: parseISO(trip.startDate),
-    end: parseISO(trip.endDate),
-  });
+  const handleAddActivity = (location: {
+    name: string;
+    lat: number;
+    lng: number;
+    address: string;
+  }) => {
+    if (activeDayId) {
+      addActivity(tripId, activeDayId, {
+        id: uuidv4(),
+        name: location.name,
+        lat: location.lat,
+        lng: location.lng,
+        address: location.address,
+        type: "other",
+      });
+    }
+  };
 
   return (
     <div className="h-full flex flex-col bg-gray-50 overflow-hidden">
@@ -61,18 +79,18 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
       <div className="flex-1 overflow-y-auto p-8">
         <div className="max-w-5xl mx-auto">
           <div className="space-y-8">
-            {days.map((day, index) => (
-              <div key={day.toISOString()} className="flex gap-6">
+            {trip.days.map((day: any, index: number) => (
+              <div key={day.id} className="flex gap-6">
                 {/* Day Indicator */}
                 <div className="shrink-0 w-24 text-center pt-2">
                   <div className="text-sm font-bold text-gray-500 uppercase tracking-wider">
                     Day {index + 1}
                   </div>
                   <div className="text-2xl font-bold text-gray-900">
-                    {format(day, "EEE")}
+                    {format(parseISO(day.date), "EEE")}
                   </div>
                   <div className="text-sm text-gray-500">
-                    {format(day, "MMM d")}
+                    {format(parseISO(day.date), "MMM d")}
                   </div>
                 </div>
 
@@ -80,22 +98,53 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
                 <div className="flex-1 bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="font-semibold text-gray-900">Activities</h3>
-                    <button className="text-sm text-blue-600 font-medium hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors">
+                    <button
+                      onClick={() => setActiveDayId(day.id)}
+                      className="text-sm text-blue-600 font-medium hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors"
+                    >
                       + Add Activity
                     </button>
                   </div>
 
-                  {/* Empty State for Day */}
-                  <div className="flex flex-col items-center justify-center py-8 text-gray-400 border-2 border-dashed border-gray-100 rounded-lg">
-                    <Clock className="w-8 h-8 mb-2 opacity-50" />
-                    <p className="text-sm">No activities planned yet</p>
-                  </div>
+                  {day.activities.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-8 text-gray-400 border-2 border-dashed border-gray-100 rounded-lg">
+                      <Clock className="w-8 h-8 mb-2 opacity-50" />
+                      <p className="text-sm">No activities planned yet</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {day.activities.map((activity: any) => (
+                        <div
+                          key={activity.id}
+                          className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100"
+                        >
+                          <div className="p-2 bg-white rounded-md border border-gray-200 text-blue-600">
+                            <MapPin className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <h4 className="font-medium text-gray-900">
+                              {activity.location.name}
+                            </h4>
+                            <p className="text-sm text-gray-500 line-clamp-1">
+                              {activity.location.address}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
           </div>
         </div>
       </div>
+
+      <AddActivityModal
+        isOpen={!!activeDayId}
+        onClose={() => setActiveDayId(null)}
+        onAdd={handleAddActivity}
+      />
     </div>
   );
 };

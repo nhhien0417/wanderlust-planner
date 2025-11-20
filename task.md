@@ -14,7 +14,7 @@
 - [ ] **Feature: Itinerary Management** <!-- id: 11 -->
   - [x] Create Trip Wizard (Name, Dates, Cover Image) <!-- id: 12 -->
   - [x] Day-by-Day Itinerary View <!-- id: 13 -->
-  - [ ] Add Activities to Days (linked to Map markers) <!-- id: 14 -->
+  - [x] Add Activities to Days (linked to Map markers) <!-- id: 14 -->
   - [ ] Drag & Drop Reordering of Activities <!-- id: 15 -->
 - [ ] **Feature: Trip Kanban Board (Jira-style)** <!-- id: 24 -->
   - [ ] Create Kanban Board UI (Columns: Todo, In Progress, Done) <!-- id: 25 -->
