@@ -8,6 +8,8 @@ import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
 import InputAdornment from "@mui/material/InputAdornment";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
 import { X, MapPin, Image as ImageIcon } from "lucide-react";
 import { useTripStore } from "../store/useTripStore";
 
@@ -58,18 +60,39 @@ export const CreateTripModal = ({ isOpen, onClose }: CreateTripModalProps) => {
       maxWidth="sm"
       fullWidth
       PaperProps={{
-        sx: { borderRadius: 3 },
+        sx: {
+          borderRadius: 4,
+          overflow: "hidden",
+        },
       }}
     >
       <DialogTitle
         sx={{
+          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          color: "white",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
+          py: 2.5,
+          px: 3,
         }}
       >
-        Plan New Trip
-        <IconButton onClick={onClose} size="small">
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <MapPin size={24} />
+          <Typography variant="h6" fontWeight="bold">
+            Plan New Trip
+          </Typography>
+        </Box>
+        <IconButton
+          onClick={onClose}
+          size="small"
+          sx={{
+            color: "white",
+            "&:hover": {
+              backgroundColor: "rgba(255, 255, 255, 0.1)",
+            },
+          }}
+        >
           <X size={20} />
         </IconButton>
       </DialogTitle>
@@ -90,7 +113,7 @@ export const CreateTripModal = ({ isOpen, onClose }: CreateTripModalProps) => {
 
             <TextField
               required
-              fullwidth
+              fullWidth
               label="Destination"
               placeholder="Where to?"
               value={formData.destination}
@@ -164,11 +187,29 @@ export const CreateTripModal = ({ isOpen, onClose }: CreateTripModalProps) => {
           </Stack>
         </DialogContent>
 
-        <DialogActions sx={{ px: 3, pb: 3 }}>
-          <Button onClick={onClose} variant="outlined">
+        <DialogActions
+          sx={{ px: 3, py: 2.5, gap: 1.5, backgroundColor: "grey.50" }}
+        >
+          <Button
+            onClick={onClose}
+            variant="outlined"
+            size="large"
+            sx={{
+              minWidth: 120,
+              fontWeight: 600,
+            }}
+          >
             Cancel
           </Button>
-          <Button type="submit" variant="contained" size="large">
+          <Button
+            type="submit"
+            variant="contained"
+            size="large"
+            sx={{
+              minWidth: 150,
+              fontWeight: 700,
+            }}
+          >
             Create Trip
           </Button>
         </DialogActions>

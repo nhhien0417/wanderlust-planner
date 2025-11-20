@@ -65,24 +65,40 @@ export const AddActivityModal = ({
       maxWidth="lg"
       fullWidth
       PaperProps={{
-        sx: { height: "80vh", borderRadius: 3 },
+        sx: {
+          height: "80vh",
+          borderRadius: 4,
+          overflow: "hidden",
+        },
       }}
     >
       {/* Header */}
       <Box
         sx={{
-          p: 2,
-          borderBottom: 1,
-          borderColor: "divider",
+          p: 2.5,
+          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          color: "white",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
         }}
       >
-        <Typography variant="h6" fontWeight="bold">
-          Add Activity
-        </Typography>
-        <IconButton onClick={onClose} size="small">
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <MapPin size={24} />
+          <Typography variant="h6" fontWeight="bold">
+            Add Activity
+          </Typography>
+        </Box>
+        <IconButton
+          onClick={onClose}
+          size="small"
+          sx={{
+            color: "white",
+            "&:hover": {
+              backgroundColor: "rgba(255, 255, 255, 0.1)",
+            },
+          }}
+        >
           <X size={20} />
         </IconButton>
       </Box>

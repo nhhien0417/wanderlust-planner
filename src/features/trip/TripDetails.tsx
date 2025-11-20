@@ -4,6 +4,12 @@ import { format, parseISO } from "date-fns";
 import { useState } from "react";
 import { AddActivityModal } from "../../components/AddActivityModal";
 import { v4 as uuidv4 } from "uuid";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Container from "@mui/material/Container";
+import Card from "@mui/material/Card";
+import Button from "@mui/material/Button";
+import Chip from "@mui/material/Chip";
 
 interface TripDetailsProps {
   tripId: string;
@@ -17,7 +23,20 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
   const [activeDayId, setActiveDayId] = useState<string | null>(null);
 
   if (!trip) {
-    return <div>Trip not found</div>;
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100vh",
+        }}
+      >
+        <Typography variant="h5" color="text.secondary">
+          Trip not found
+        </Typography>
+      </Box>
+    );
   }
 
   const handleAddActivity = (location: {
@@ -39,112 +58,282 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
   };
 
   return (
-    <div className="h-full flex flex-col bg-gray-50 overflow-hidden">
+    <Box
+      sx={{
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        backgroundColor: "background.default",
+        overflow: "hidden",
+      }}
+    >
       {/* Hero Section */}
-      <div className="relative h-64 shrink-0">
-        <img
+      <Box
+        sx={{
+          position: "relative",
+          height: 280,
+          flexShrink: 0,
+          overflow: "hidden",
+        }}
+      >
+        <Box
+          component="img"
           src={
             trip.coverImage ||
             "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1200&q=80"
           }
           alt={trip.name}
-          className="w-full h-full object-cover"
+          sx={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+          }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
-          <div className="max-w-5xl mx-auto">
-            <h1 className="text-4xl font-bold mb-2">{trip.name}</h1>
-            <div className="flex items-center gap-6 text-sm font-medium">
-              <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4" />
+        <Box
+          sx={{
+            position: "absolute",
+            inset: 0,
+            background:
+              "linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.3) 50%, transparent 100%)",
+          }}
+        />
+        <Container
+          maxWidth="lg"
+          sx={{
+            position: "absolute",
+            bottom: 0,
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: "100%",
+            p: 4,
+            color: "white",
+          }}
+        >
+          <Typography
+            variant="h3"
+            fontWeight="bold"
+            gutterBottom
+            sx={{
+              textShadow: "0 2px 10px rgba(0,0,0,0.3)",
+            }}
+          >
+            {trip.name}
+          </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 3,
+              flexWrap: "wrap",
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <MapPin size={18} />
+              <Typography variant="body1" fontWeight={500}>
                 {trip.destination}
-              </div>
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
+              </Typography>
+            </Box>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Calendar size={18} />
+              <Typography variant="body1" fontWeight={500}>
                 {format(parseISO(trip.startDate), "MMM d")} -{" "}
                 {format(parseISO(trip.endDate), "MMM d, yyyy")}
-              </div>
-              {trip.budget > 0 && (
-                <div className="flex items-center gap-2">
-                  <DollarSign className="w-4 h-4" />
+              </Typography>
+            </Box>
+            {trip.budget > 0 && (
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <DollarSign size={18} />
+                <Typography variant="body1" fontWeight={500}>
                   Budget: ${trip.budget.toLocaleString()}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
+                </Typography>
+              </Box>
+            )}
+          </Box>
+        </Container>
+      </Box>
 
       {/* Itinerary Content */}
-      <div className="flex-1 overflow-y-auto p-8">
-        <div className="max-w-5xl mx-auto">
-          <div className="space-y-8">
+      <Box
+        sx={{
+          flex: 1,
+          overflowY: "auto",
+          py: 4,
+        }}
+      >
+        <Container maxWidth="lg">
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
             {trip.days.map((day: any, index: number) => (
-              <div key={day.id} className="flex gap-6">
+              <Box
+                key={day.id}
+                sx={{
+                  display: "flex",
+                  gap: 3,
+                  alignItems: "flex-start",
+                }}
+              >
                 {/* Day Indicator */}
-                <div className="shrink-0 w-24 text-center pt-2">
-                  <div className="text-sm font-bold text-gray-500 uppercase tracking-wider">
-                    Day {index + 1}
-                  </div>
-                  <div className="text-2xl font-bold text-gray-900">
+                <Box
+                  sx={{
+                    flexShrink: 0,
+                    width: 100,
+                    textAlign: "center",
+                    pt: 1,
+                  }}
+                >
+                  <Chip
+                    label={`Day ${index + 1}`}
+                    size="small"
+                    sx={{
+                      fontWeight: 700,
+                      background:
+                        "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                      color: "white",
+                      mb: 1,
+                    }}
+                  />
+                  <Typography
+                    variant="h4"
+                    fontWeight="bold"
+                    color="text.primary"
+                  >
                     {format(parseISO(day.date), "EEE")}
-                  </div>
-                  <div className="text-sm text-gray-500">
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
                     {format(parseISO(day.date), "MMM d")}
-                  </div>
-                </div>
+                  </Typography>
+                </Box>
 
                 {/* Day Content */}
-                <div className="flex-1 bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-semibold text-gray-900">Activities</h3>
-                    <button
+                <Card
+                  sx={{
+                    flex: 1,
+                    p: 3,
+                    transition: "all 0.3s",
+                    "&:hover": {
+                      boxShadow: 6,
+                      transform: "translateY(-2px)",
+                    },
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      mb: 3,
+                    }}
+                  >
+                    <Typography variant="h6" fontWeight="bold">
+                      Activities
+                    </Typography>
+                    <Button
+                      variant="contained"
+                      size="small"
                       onClick={() => setActiveDayId(day.id)}
-                      className="text-sm text-blue-600 font-medium hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors"
+                      sx={{
+                        fontWeight: 600,
+                        textTransform: "none",
+                      }}
                     >
                       + Add Activity
-                    </button>
-                  </div>
+                    </Button>
+                  </Box>
 
                   {day.activities.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-8 text-gray-400 border-2 border-dashed border-gray-100 rounded-lg">
-                      <Clock className="w-8 h-8 mb-2 opacity-50" />
-                      <p className="text-sm">No activities planned yet</p>
-                    </div>
+                    <Card
+                      variant="outlined"
+                      sx={{
+                        py: 6,
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        borderStyle: "dashed",
+                        borderWidth: 2,
+                        borderColor: "divider",
+                        backgroundColor: "grey.50",
+                      }}
+                    >
+                      <Clock size={32} opacity={0.3} />
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ mt: 1 }}
+                      >
+                        No activities planned yet
+                      </Typography>
+                    </Card>
                   ) : (
-                    <div className="space-y-3">
+                    <Box
+                      sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+                    >
                       {day.activities.map((activity: any) => (
-                        <div
+                        <Card
                           key={activity.id}
-                          className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100"
+                          variant="outlined"
+                          sx={{
+                            p: 2,
+                            display: "flex",
+                            alignItems: "flex-start",
+                            gap: 2,
+                            backgroundColor: "grey.50",
+                            border: "1px solid",
+                            borderColor: "divider",
+                            transition: "all 0.2s",
+                            "&:hover": {
+                              backgroundColor: "white",
+                              borderColor: "primary.main",
+                              boxShadow: 2,
+                            },
+                          }}
                         >
-                          <div className="p-2 bg-white rounded-md border border-gray-200 text-blue-600">
-                            <MapPin className="w-4 h-4" />
-                          </div>
-                          <div>
-                            <h4 className="font-medium text-gray-900">
+                          <Box
+                            sx={{
+                              p: 1.5,
+                              backgroundColor: "white",
+                              borderRadius: 2,
+                              border: "1px solid",
+                              borderColor: "divider",
+                              color: "primary.main",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <MapPin size={20} />
+                          </Box>
+                          <Box sx={{ flex: 1 }}>
+                            <Typography variant="subtitle1" fontWeight="bold">
                               {activity.location.name}
-                            </h4>
-                            <p className="text-sm text-gray-500 line-clamp-1">
+                            </Typography>
+                            <Typography
+                              variant="body2"
+                              color="text.secondary"
+                              sx={{
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
                               {activity.location.address}
-                            </p>
-                          </div>
-                        </div>
+                            </Typography>
+                          </Box>
+                        </Card>
                       ))}
-                    </div>
+                    </Box>
                   )}
-                </div>
-              </div>
+                </Card>
+              </Box>
             ))}
-          </div>
-        </div>
-      </div>
+          </Box>
+        </Container>
+      </Box>
 
       <AddActivityModal
         isOpen={!!activeDayId}
         onClose={() => setActiveDayId(null)}
         onAdd={handleAddActivity}
       />
-    </div>
+    </Box>
   );
 };

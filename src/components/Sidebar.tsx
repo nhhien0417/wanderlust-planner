@@ -17,17 +17,28 @@ export const Sidebar = () => {
       sx={{
         width: 280,
         height: "100vh",
-        backgroundColor: "background.paper",
+        background: "linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)",
         borderRight: 1,
         borderColor: "divider",
         display: "flex",
         flexDirection: "column",
+        boxShadow: "4px 0 20px rgba(0, 0, 0, 0.05)",
       }}
     >
       {/* Header */}
-      <Box sx={{ p: 3, display: "flex", alignItems: "center", gap: 1 }}>
-        <Map size={32} color="#2563eb" />
-        <Typography variant="h5" fontWeight="bold" color="text.primary">
+      <Box
+        sx={{
+          p: 3,
+          display: "flex",
+          alignItems: "center",
+          gap: 1.5,
+          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          color: "white",
+          boxShadow: "0 4px 12px rgba(102, 126, 234, 0.2)",
+        }}
+      >
+        <Map size={32} />
+        <Typography variant="h5" fontWeight="800" letterSpacing="-0.5px">
           Wanderlust
         </Typography>
       </Box>
