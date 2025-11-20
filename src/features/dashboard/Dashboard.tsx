@@ -1,6 +1,15 @@
-import { useTripStore } from "../../store/useTripStore";
-import { Plus, Calendar, MapPin } from "lucide-react";
 import { useState } from "react";
+import Box from "@mui/material/Box";
+import Container from "@mui/material/Container";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import CardMedia from "@mui/material/CardMedia";
+import CardActionArea from "@mui/material/CardActionArea";
+import Grid from "@mui/material/Grid2";
+import { Plus, Calendar, MapPin } from "lucide-react";
+import { useTripStore } from "../../store/useTripStore";
 import { CreateTripModal } from "../../components/CreateTripModal";
 
 export const Dashboard = () => {
@@ -8,91 +17,186 @@ export const Dashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
-      <header className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Welcome back!</h1>
-          <p className="text-gray-500 mt-1">
+    <Container maxWidth="xl" sx={{ py: 4 }}>
+      {/* Header */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 4,
+        }}
+      >
+        <Box>
+          <Typography variant="h3" fontWeight="bold" gutterBottom>
+            Welcome back!
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
             Ready to plan your next adventure?
-          </p>
-        </div>
-        <button
+          </Typography>
+        </Box>
+        <Button
+          variant="contained"
+          size="large"
+          startIcon={<Plus size={20} />}
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20"
+          sx={{
+            boxShadow: 3,
+            "&:hover": { boxShadow: 6 },
+          }}
         >
-          <Plus className="w-5 h-5" />
           Create New Trip
-        </button>
-      </header>
+        </Button>
+      </Box>
 
+      {/* Content */}
       {trips.length === 0 ? (
-        <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-gray-300">
-          <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
-            <MapPin className="w-8 h-8 text-blue-600" />
-          </div>
-          <h3 className="text-lg font-medium text-gray-900">
+        <Card
+          variant="outlined"
+          sx={{
+            py: 10,
+            textAlign: "center",
+            borderStyle: "dashed",
+            borderWidth: 2,
+          }}
+        >
+          <Box
+            sx={{
+              width: 64,
+              height: 64,
+              borderRadius: "50%",
+              backgroundColor: "primary.light",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              mx: "auto",
+              mb: 2,
+            }}
+          >
+            <MapPin size={32} />
+          </Box>
+          <Typography variant="h6" fontWeight="medium" gutterBottom>
             No trips planned yet
-          </h3>
-          <p className="text-gray-500 mt-2 mb-6">
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
             Start by creating your first trip itinerary.
-          </p>
-          <button
+          </Typography>
+          <Button
+            variant="text"
             onClick={() => setIsModalOpen(true)}
-            className="text-blue-600 font-medium hover:underline"
+            sx={{ fontWeight: 600 }}
           >
             Create a trip now
-          </button>
-        </div>
+          </Button>
+        </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Grid container spacing={3}>
           {trips.map((trip) => (
-            <div
-              key={trip.id}
-              onClick={() => setActiveTrip(trip.id)}
-              className="group bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-xl transition-all duration-300 cursor-pointer"
-            >
-              <div className="h-48 overflow-hidden relative">
-                <img
-                  src={
-                    trip.coverImage ||
-                    "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=800&q=80"
-                  }
-                  alt={trip.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                <div className="absolute bottom-4 left-4 text-white">
-                  <h3 className="text-xl font-bold">{trip.name}</h3>
-                  <div className="flex items-center gap-1 text-sm text-gray-200 mt-1">
-                    <MapPin className="w-4 h-4" />
-                    {trip.destination}
-                  </div>
-                </div>
-              </div>
-              <div className="p-4">
-                <div className="flex items-center gap-2 text-gray-600 text-sm mb-4">
-                  <Calendar className="w-4 h-4" />
-                  {new Date(trip.startDate).toLocaleDateString()} -{" "}
-                  {new Date(trip.endDate).toLocaleDateString()}
-                </div>
-                <div className="flex justify-between items-center">
-                  <div className="text-sm text-gray-500">
-                    {trip.days.length} Days • {trip.tasks.length} Tasks
-                  </div>
-                  <button className="text-blue-600 font-medium text-sm hover:bg-blue-50 px-3 py-1 rounded-md transition-colors">
-                    View Details
-                  </button>
-                </div>
-              </div>
-            </div>
+            <Grid size={{ xs: 12, sm: 6, lg: 4 }} key={trip.id}>
+              <Card
+                elevation={1}
+                sx={{
+                  height: "100%",
+                  transition: "all 0.3s",
+                  "&:hover": {
+                    boxShadow: 6,
+                    transform: "translateY(-4px)",
+                  },
+                }}
+              >
+                <CardActionArea onClick={() => setActiveTrip(trip.id)}>
+                  <Box sx={{ position: "relative" }}>
+                    <CardMedia
+                      component="img"
+                      height="200"
+                      image={
+                        trip.coverImage ||
+                        "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=800&q=80"
+                      }
+                      alt={trip.name}
+                      sx={{
+                        transition: "transform 0.5s",
+                        "&:hover": {
+                          transform: "scale(1.05)",
+                        },
+                      }}
+                    />
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        background:
+                          "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%)",
+                        p: 2,
+                        color: "white",
+                      }}
+                    >
+                      <Typography variant="h6" fontWeight="bold">
+                        {trip.name}
+                      </Typography>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 0.5,
+                          mt: 0.5,
+                        }}
+                      >
+                        <MapPin size={16} />
+                        <Typography variant="body2">
+                          {trip.destination}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Box>
+                  <CardContent>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                        mb: 2,
+                        color: "text.secondary",
+                      }}
+                    >
+                      <Calendar size={16} />
+                      <Typography variant="body2">
+                        {new Date(trip.startDate).toLocaleDateString()} -{" "}
+                        {new Date(trip.endDate).toLocaleDateString()}
+                      </Typography>
+                    </Box>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Typography variant="body2" color="text.secondary">
+                        {trip.days.length} Days • {trip.tasks.length} Tasks
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        color="primary"
+                        fontWeight={600}
+                      >
+                        View Details →
+                      </Typography>
+                    </Box>
+                  </CardContent>
+                </CardActionArea>
+              </Card>
+            </Grid>
           ))}
-        </div>
+        </Grid>
       )}
 
       <CreateTripModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
       />
-    </div>
+    </Container>
   );
 };
