@@ -6,7 +6,7 @@ import DialogActions from "@mui/material/DialogActions";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
-import Grid from "@mui/material/Grid";
+import Stack from "@mui/material/Stack";
 import InputAdornment from "@mui/material/InputAdornment";
 import { X, MapPin, Image as ImageIcon } from "lucide-react";
 import { useTripStore } from "../store/useTripStore";
@@ -76,41 +76,37 @@ export const CreateTripModal = ({ isOpen, onClose }: CreateTripModalProps) => {
 
       <form onSubmit={handleSubmit}>
         <DialogContent>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <TextField
-                required
-                fullWidth
-                label="Trip Name"
-                placeholder="e.g., Summer in Tokyo"
-                value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
-              />
-            </Grid>
+          <Stack spacing={2}>
+            <TextField
+              required
+              fullWidth
+              label="Trip Name"
+              placeholder="e.g., Summer in Tokyo"
+              value={formData.name}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
+            />
 
-            <Grid item xs={12}>
-              <TextField
-                required
-                fullWidth
-                label="Destination"
-                placeholder="Where to?"
-                value={formData.destination}
-                onChange={(e) =>
-                  setFormData({ ...formData, destination: e.target.value })
-                }
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <MapPin size={20} />
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </Grid>
+            <TextField
+              required
+              fullwidth
+              label="Destination"
+              placeholder="Where to?"
+              value={formData.destination}
+              onChange={(e) =>
+                setFormData({ ...formData, destination: e.target.value })
+              }
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <MapPin size={20} />
+                  </InputAdornment>
+                ),
+              }}
+            />
 
-            <Grid item xs={6}>
+            <Stack direction="row" spacing={2}>
               <TextField
                 required
                 fullWidth
@@ -122,9 +118,7 @@ export const CreateTripModal = ({ isOpen, onClose }: CreateTripModalProps) => {
                 }
                 InputLabelProps={{ shrink: true }}
               />
-            </Grid>
 
-            <Grid item xs={6}>
               <TextField
                 required
                 fullWidth
@@ -137,41 +131,37 @@ export const CreateTripModal = ({ isOpen, onClose }: CreateTripModalProps) => {
                 inputProps={{ min: formData.startDate }}
                 InputLabelProps={{ shrink: true }}
               />
-            </Grid>
+            </Stack>
 
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                type="number"
-                label="Budget (Optional)"
-                placeholder="0"
-                value={formData.budget}
-                onChange={(e) =>
-                  setFormData({ ...formData, budget: e.target.value })
-                }
-              />
-            </Grid>
+            <TextField
+              fullWidth
+              type="number"
+              label="Budget (Optional)"
+              placeholder="0"
+              value={formData.budget}
+              onChange={(e) =>
+                setFormData({ ...formData, budget: e.target.value })
+              }
+            />
 
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                type="url"
-                label="Cover Image URL (Optional)"
-                placeholder="https://..."
-                value={formData.coverImage}
-                onChange={(e) =>
-                  setFormData({ ...formData, coverImage: e.target.value })
-                }
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <ImageIcon size={20} />
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </Grid>
-          </Grid>
+            <TextField
+              fullWidth
+              type="url"
+              label="Cover Image URL (Optional)"
+              placeholder="https://..."
+              value={formData.coverImage}
+              onChange={(e) =>
+                setFormData({ ...formData, coverImage: e.target.value })
+              }
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <ImageIcon size={20} />
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </Stack>
         </DialogContent>
 
         <DialogActions sx={{ px: 3, pb: 3 }}>
