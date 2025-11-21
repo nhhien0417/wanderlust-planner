@@ -326,11 +326,13 @@ export const useTripStore = create<TripState>()(
           if (tripIndex === -1) return state;
 
           const newTrips = [...state.trips];
-          newTrips[tripIndex].packingList.push({
-            ...item,
-            id: uuidv4(),
-            checked: false,
-          });
+          newTrips[tripIndex] = {
+            ...newTrips[tripIndex],
+            packingList: [
+              ...newTrips[tripIndex].packingList,
+              { ...item, id: uuidv4(), checked: false },
+            ],
+          };
 
           return { trips: newTrips };
         }),
@@ -341,9 +343,12 @@ export const useTripStore = create<TripState>()(
           if (tripIndex === -1) return state;
 
           const newTrips = [...state.trips];
-          newTrips[tripIndex].packingList = newTrips[
-            tripIndex
-          ].packingList.filter((i) => i.id !== itemId);
+          newTrips[tripIndex] = {
+            ...newTrips[tripIndex],
+            packingList: newTrips[tripIndex].packingList.filter(
+              (i) => i.id !== itemId
+            ),
+          };
 
           return { trips: newTrips };
         }),
@@ -354,12 +359,12 @@ export const useTripStore = create<TripState>()(
           if (tripIndex === -1) return state;
 
           const newTrips = [...state.trips];
-          const item = newTrips[tripIndex].packingList.find(
-            (i) => i.id === itemId
-          );
-          if (item) {
-            item.checked = !item.checked;
-          }
+          newTrips[tripIndex] = {
+            ...newTrips[tripIndex],
+            packingList: newTrips[tripIndex].packingList.map((i) =>
+              i.id === itemId ? { ...i, checked: !i.checked } : i
+            ),
+          };
 
           return { trips: newTrips };
         }),
@@ -372,24 +377,88 @@ export const useTripStore = create<TripState>()(
           const newTrips = [...state.trips];
           const trip = newTrips[tripIndex];
 
-          // Basic default items
-          const defaultItems = [
-            { name: "T-Shirts", category: "Clothing" },
-            { name: "Pants/Shorts", category: "Clothing" },
-            { name: "Underwear", category: "Clothing" },
-            { name: "Socks", category: "Clothing" },
-            { name: "Shoes", category: "Clothing" },
-            { name: "Toothbrush", category: "Toiletries" },
-            { name: "Toothpaste", category: "Toiletries" },
-            { name: "Shampoo", category: "Toiletries" },
-            { name: "Deodorant", category: "Toiletries" },
-            { name: "Phone Charger", category: "Electronics" },
-            { name: "Power Bank", category: "Electronics" },
-            { name: "Passport/ID", category: "Documents" },
-            { name: "Wallet", category: "Documents" },
-          ];
+          // Define item pools by category
+          const itemPools = {
+            Clothing: [
+              "T-Shirts",
+              "Pants/Shorts",
+              "Underwear",
+              "Socks",
+              "Shoes",
+              "Sleepwear",
+              "Jacket/Hoodie",
+              "Swimwear",
+              "Formal Wear",
+              "Activewear",
+            ],
+            Toiletries: [
+              "Toothbrush",
+              "Toothpaste",
+              "Shampoo/Conditioner",
+              "Body Wash/Soap",
+              "Deodorant",
+              "Razor/Shaving Kit",
+              "Skincare/Lotion",
+              "Hairbrush/Comb",
+              "Floss",
+              "Cotton Swabs",
+            ],
+            "Health & Wellness": [
+              "First Aid Kit",
+              "Pain Relievers",
+              "Vitamins/Meds",
+              "Hand Sanitizer",
+              "Sunscreen",
+              "Insect Repellent",
+              "Motion Sickness Pills",
+              "Prescriptions",
+            ],
+            Electronics: [
+              "Phone Charger",
+              "Power Bank",
+              "Headphones/Earbuds",
+              "Travel Adapter",
+              "Camera",
+              "Laptop/Tablet",
+              "Smart Watch Charger",
+            ],
+            Documents: [
+              "Passport/ID",
+              "Wallet/Cash/Cards",
+              "Travel Insurance",
+              "Tickets/Reservations",
+              "Visa/Entry Docs",
+              "Emergency Contacts",
+            ],
+            Other: [
+              "Reusable Water Bottle",
+              "Snacks",
+              "Book/E-reader",
+              "Travel Pillow",
+              "Pen/Notebook",
+              "Plastic Bags",
+              "Sunglasses",
+              "Umbrella",
+              "Keys",
+            ],
+          };
 
-          // Weather-based suggestions
+          // Helper to pick random items
+          const pickRandom = (items: string[], min: number, max: number) => {
+            const shuffled = [...items].sort(() => 0.5 - Math.random());
+            const count = Math.floor(Math.random() * (max - min + 1)) + min;
+            return shuffled.slice(0, count);
+          };
+
+          const selectedItems: { name: string; category: string }[] = [];
+
+          // Pick random items from each category
+          Object.entries(itemPools).forEach(([category, items]) => {
+            const picked = pickRandom(items, 3, 5); // Pick 3 to 5 items per category
+            picked.forEach((name) => selectedItems.push({ name, category }));
+          });
+
+          // Weather-based suggestions (Always include relevant ones)
           if (trip.weather) {
             const hasRain = trip.weather.some(
               (d) => d.precipitationProbability > 30 || d.weatherCode >= 51
@@ -398,31 +467,33 @@ export const useTripStore = create<TripState>()(
             const hasCold = trip.weather.some((d) => d.minTemp < 10);
 
             if (hasRain) {
-              defaultItems.push(
-                { name: "Umbrella", category: "Weather Gear" },
-                { name: "Raincoat", category: "Weather Gear" },
-                { name: "Waterproof Shoes", category: "Weather Gear" }
+              selectedItems.push(
+                { name: "Umbrella", category: "Clothing" },
+                { name: "Raincoat/Poncho", category: "Clothing" },
+                { name: "Waterproof Shoes", category: "Clothing" }
               );
             }
             if (hasSun) {
-              defaultItems.push(
-                { name: "Sunscreen", category: "Toiletries" },
-                { name: "Hat", category: "Clothing" },
-                { name: "Sunglasses", category: "Accessories" }
+              selectedItems.push(
+                { name: "Hat/Cap", category: "Clothing" },
+                { name: "Sunglasses", category: "Clothing" },
+                { name: "Swimwear", category: "Clothing" },
+                { name: "Beach Towel", category: "Other" }
               );
             }
             if (hasCold) {
-              defaultItems.push(
-                { name: "Jacket/Coat", category: "Clothing" },
+              selectedItems.push(
+                { name: "Heavy Coat", category: "Clothing" },
                 { name: "Scarf", category: "Clothing" },
-                { name: "Gloves", category: "Clothing" }
+                { name: "Gloves", category: "Clothing" },
+                { name: "Thermal Wear", category: "Clothing" }
               );
             }
           }
 
           // Filter out items that already exist
           const existingNames = new Set(trip.packingList.map((i) => i.name));
-          const newItems = defaultItems
+          const newItems = selectedItems
             .filter((i) => !existingNames.has(i.name))
             .map((i) => ({
               id: uuidv4(),
@@ -432,7 +503,10 @@ export const useTripStore = create<TripState>()(
               isCustom: false,
             }));
 
-          newTrips[tripIndex].packingList = [...trip.packingList, ...newItems];
+          newTrips[tripIndex] = {
+            ...newTrips[tripIndex],
+            packingList: [...trip.packingList, ...newItems],
+          };
 
           return { trips: newTrips };
         }),

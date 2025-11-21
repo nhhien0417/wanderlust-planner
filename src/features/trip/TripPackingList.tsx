@@ -21,6 +21,7 @@ import {
   FileText,
   Bath,
   Package,
+  HeartPulse,
 } from "lucide-react";
 
 interface TripPackingListProps {
@@ -28,11 +29,36 @@ interface TripPackingListProps {
 }
 
 const CATEGORIES = [
-  { id: "Clothing", label: "Clothing", icon: <Shirt size={18} /> },
-  { id: "Toiletries", label: "Toiletries", icon: <Bath size={18} /> },
-  { id: "Electronics", label: "Electronics", icon: <Plug size={18} /> },
-  { id: "Documents", label: "Documents", icon: <FileText size={18} /> },
-  { id: "Other", label: "Other", icon: <Package size={18} /> },
+  {
+    id: "Clothing",
+    label: "Clothing",
+    icon: <Shirt size={18} />,
+  },
+  {
+    id: "Toiletries",
+    label: "Toiletries",
+    icon: <Bath size={18} />,
+  },
+  {
+    id: "Health & Wellness",
+    label: "Health & Wellness",
+    icon: <HeartPulse size={18} />,
+  },
+  {
+    id: "Electronics",
+    label: "Electronics",
+    icon: <Plug size={18} />,
+  },
+  {
+    id: "Documents",
+    label: "Documents",
+    icon: <FileText size={18} />,
+  },
+  {
+    id: "Other",
+    label: "Other",
+    icon: <Package size={18} />,
+  },
 ];
 
 export const TripPackingList = ({ tripId }: TripPackingListProps) => {
@@ -109,7 +135,6 @@ export const TripPackingList = ({ tripId }: TripPackingListProps) => {
           variant="outlined"
           startIcon={<ListChecks />}
           onClick={() => generatePackingList(tripId)}
-          disabled={(trip.packingList?.length || 0) > 0}
         >
           Generate List
         </Button>
@@ -160,8 +185,6 @@ export const TripPackingList = ({ tripId }: TripPackingListProps) => {
       <Grid container spacing={3}>
         {CATEGORIES.map((category) => {
           const items = itemsByCategory[category.id] || [];
-          if (items.length === 0 && category.id === "Other") return null;
-
           return (
             <Grid key={category.id} size={{ xs: 12, md: 6, lg: 4 }}>
               <Paper
