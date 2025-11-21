@@ -9,6 +9,7 @@ import {
   UtensilsCrossed,
   Hotel,
   Car,
+  X,
 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { useEffect, useMemo, useState } from "react";
@@ -25,6 +26,8 @@ import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
+import Dialog from "@mui/material/Dialog";
+import DialogContent from "@mui/material/DialogContent";
 import type { SelectChangeEvent } from "@mui/material/Select";
 import {
   DndContext,
@@ -277,6 +280,7 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
   const [editingPhoto, setEditingPhoto] = useState<Photo | null>(null);
   const [photoDayFilter, setPhotoDayFilter] = useState("");
   const [photoActivityFilter, setPhotoActivityFilter] = useState("");
+  const [showCoverModal, setShowCoverModal] = useState(false);
 
   // Fetch weather data when trip loads
   useEffect(() => {
@@ -409,10 +413,16 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
             "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1200&q=80"
           }
           alt={trip.name}
+          onClick={() => setShowCoverModal(true)}
           sx={{
             width: "100%",
             height: 180,
             objectFit: "cover",
+            cursor: "pointer",
+            transition: "opacity 0.2s",
+            "&:hover": {
+              opacity: 0.9,
+            },
           }}
         />
       </Box>
@@ -799,6 +809,45 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
           onClose={() => setEditingPhoto(null)}
         />
       )}
+
+      {/* Cover Photo Modal */}
+      <Dialog
+        open={showCoverModal}
+        onClose={() => setShowCoverModal(false)}
+        maxWidth="lg"
+        fullWidth
+      >
+        <DialogContent sx={{ p: 0, position: "relative" }}>
+          <IconButton
+            onClick={() => setShowCoverModal(false)}
+            sx={{
+              position: "absolute",
+              top: 8,
+              right: 8,
+              bgcolor: "rgba(0,0,0,0.6)",
+              color: "white",
+              "&:hover": {
+                bgcolor: "rgba(0,0,0,0.8)",
+              },
+              zIndex: 1,
+            }}
+          >
+            <X size={24} />
+          </IconButton>
+          <Box
+            component="img"
+            src={
+              trip.coverImage ||
+              "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1200&q=80"
+            }
+            alt={trip.name}
+            sx={{
+              width: "100%",
+              display: "block",
+            }}
+          />
+        </DialogContent>
+      </Dialog>
 
       <AddActivityModal
         isOpen={!!activeDayId}
