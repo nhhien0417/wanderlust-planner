@@ -101,7 +101,7 @@ export const PhotoUpload = ({
       }))
     );
 
-    setPreviews(newPreviews);
+    setPreviews((prev) => [...prev, ...newPreviews]);
   }, []);
 
   const handleUpload = useCallback(async () => {
