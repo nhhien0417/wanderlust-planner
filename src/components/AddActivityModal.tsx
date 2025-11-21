@@ -43,7 +43,7 @@ export const AddActivityModal = ({
       zoom: 15,
     });
     setSelectedLocation({
-      name: name.split(",")[0], // Simple name extraction
+      name: name.split(",")[0],
       lat,
       lng,
       address: name,
@@ -58,6 +58,26 @@ export const AddActivityModal = ({
     }
   };
 
+  const handleMapClick = async (lat: number, lng: number) => {
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
+      );
+      const data = await response.json();
+      const name =
+        data.display_name || `Location at ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+
+      handleLocationSelect(lat, lng, name);
+    } catch (error) {
+      console.error("Reverse geocoding failed:", error);
+      handleLocationSelect(
+        lat,
+        lng,
+        `Location at ${lat.toFixed(4)}, ${lng.toFixed(4)}`
+      );
+    }
+  };
+
   return (
     <Dialog
       open={isOpen}
@@ -67,7 +87,7 @@ export const AddActivityModal = ({
       PaperProps={{
         sx: {
           height: "80vh",
-          borderRadius: 4,
+          borderRadius: 2,
           overflow: "hidden",
         },
       }}
@@ -187,6 +207,7 @@ export const AddActivityModal = ({
           <Map
             center={viewState.center}
             zoom={viewState.zoom}
+            onLocationSelect={handleMapClick}
             markers={
               selectedLocation
                 ? [
