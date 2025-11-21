@@ -11,9 +11,27 @@ interface DayWeatherCardProps {
 export const DayWeatherCard = ({ date, weather }: DayWeatherCardProps) => {
   if (!weather) return null;
 
-  // Convert date to yyyy-MM-dd format for comparison
-  const dateStr = date.includes("T") ? date.split("T")[0] : date;
+  // Normalize date to yyyy-MM-dd format for comparison
+  const normalizeDateString = (dateInput: string): string => {
+    // If already in yyyy-MM-dd format, return as is
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateInput)) {
+      return dateInput;
+    }
+    // If ISO format (with T), extract date part
+    if (dateInput.includes("T")) {
+      return dateInput.split("T")[0];
+    }
+    // Try parsing as Date and format
+    const d = new Date(dateInput);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  const dateStr = normalizeDateString(date);
   const dayWeather = weather.find((w) => w.date === dateStr);
+
   if (!dayWeather) return null;
 
   return (

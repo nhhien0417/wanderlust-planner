@@ -70,10 +70,16 @@ const generateDays = (start: string, end: string) => {
   const startDate = new Date(start);
   const endDate = new Date(end);
 
-  for (let d = startDate; d <= endDate; d.setDate(d.getDate() + 1)) {
+  for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+    // Use yyyy-MM-dd format in local timezone to match weather API
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    const dateStr = `${year}-${month}-${day}`;
+
     days.push({
       id: uuidv4(),
-      date: new Date(d).toISOString(),
+      date: dateStr,
       activities: [],
     });
   }
@@ -440,6 +446,28 @@ export const useTripStore = create<TripState>()(
     }),
     {
       name: "wanderlust-storage",
+      onRehydrateStorage: () => (state) => {
+        // Migration: Convert ISO dates to yyyy-MM-dd format in existing trips
+        if (state) {
+          state.trips = state.trips.map((trip) => ({
+            ...trip,
+            days: trip.days.map((day) => {
+              // Check if date is in ISO format (contains T)
+              if (day.date.includes("T")) {
+                const d = new Date(day.date);
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, "0");
+                const dayNum = String(d.getDate()).padStart(2, "0");
+                return {
+                  ...day,
+                  date: `${year}-${month}-${dayNum}`,
+                };
+              }
+              return day;
+            }),
+          }));
+        }
+      },
     }
   )
 );
