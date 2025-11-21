@@ -60,53 +60,57 @@ interface TripDetailsProps {
   tripId: string;
 }
 
-// Sortable Activity Card Component
-const SortableActivityCard = ({ activity }: { activity: any }) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: activity.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
+const restrictToVerticalAxis = ({ transform }: any) => {
+  if (!transform) {
+    return null;
+  }
+  return {
+    ...transform,
+    x: 0,
   };
+};
 
+const ActivityCard = ({
+  activity,
+  isDragging,
+  isOverlay,
+  dragHandleProps,
+}: {
+  activity: any;
+  isDragging?: boolean;
+  isOverlay?: boolean;
+  dragHandleProps?: any;
+}) => {
   return (
     <Card
-      ref={setNodeRef}
-      style={style}
       variant="outlined"
       sx={{
         p: 2,
         display: "flex",
         alignItems: "flex-start",
         gap: 2,
-        backgroundColor: isDragging ? "primary.50" : "grey.50",
+        backgroundColor: isDragging ? "primary.50" : "white",
         border: "1px solid",
         borderColor: isDragging ? "primary.main" : "divider",
-        transition: "all 0.2s",
-        cursor: isDragging ? "grabbing" : "grab",
+        transition: isOverlay ? "box-shadow 0.2s" : "all 0.2s",
+        cursor: isDragging ? "grabbing" : "default",
+        boxShadow: isOverlay ? 6 : 0,
+        transform: isOverlay ? "scale(1.02)" : "none",
         "&:hover": {
           backgroundColor: "white",
           borderColor: "primary.main",
-          boxShadow: 2,
+          boxShadow: isOverlay ? 6 : 2,
         },
       }}
     >
       {/* Drag Handle */}
       <IconButton
-        {...attributes}
-        {...listeners}
+        {...dragHandleProps}
         size="small"
         sx={{
-          cursor: "grab",
+          cursor: isDragging ? "grabbing" : "grab",
           color: "text.secondary",
+          touchAction: "none",
           "&:active": {
             cursor: "grabbing",
           },
@@ -151,6 +155,33 @@ const SortableActivityCard = ({ activity }: { activity: any }) => {
         </Typography>
       </Box>
     </Card>
+  );
+};
+
+const SortableActivityItem = ({ activity }: { activity: any }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: activity.id });
+
+  const style = {
+    transform: CSS.Translate.toString(transform),
+    transition,
+    opacity: isDragging ? 0.3 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      <ActivityCard
+        activity={activity}
+        isDragging={isDragging}
+        dragHandleProps={{ ...attributes, ...listeners }}
+      />
+    </div>
   );
 };
 
@@ -450,7 +481,6 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
                     transition: "all 0.3s",
                     "&:hover": {
                       boxShadow: 6,
-                      transform: "translateY(-2px)",
                     },
                   }}
                 >
@@ -464,13 +494,6 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
                   >
                     <Typography variant="h6" fontWeight="bold">
                       Activities
-                      {day.activities.length > 0 && (
-                        <Chip
-                          label={`Drag to reorder`}
-                          size="small"
-                          sx={{ ml: 2, fontSize: "0.75rem" }}
-                        />
-                      )}
                     </Typography>
                     <Button
                       variant="contained"
@@ -515,6 +538,7 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
                       collisionDetection={closestCenter}
                       onDragStart={handleDragStart}
                       onDragEnd={(e) => handleDragEnd(e, day.id)}
+                      modifiers={[restrictToVerticalAxis]}
                     >
                       <SortableContext
                         items={day.activities.map((a: any) => a.id)}
@@ -528,19 +552,21 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
                           }}
                         >
                           {day.activities.map((activity: any) => (
-                            <SortableActivityCard
+                            <SortableActivityItem
                               key={activity.id}
                               activity={activity}
                             />
                           ))}
                         </Box>
                       </SortableContext>
-                      <DragOverlay>
+                      <DragOverlay dropAnimation={null}>
                         {activeId ? (
-                          <SortableActivityCard
+                          <ActivityCard
                             activity={day.activities.find(
                               (a: any) => a.id === activeId
                             )}
+                            isDragging
+                            isOverlay
                           />
                         ) : null}
                       </DragOverlay>
