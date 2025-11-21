@@ -75,6 +75,7 @@ export interface Trip {
   endDate: string; // ISO string
   coverImage?: string;
   budget: number;
+  currency?: string; // ISO currency code (e.g., 'USD', 'EUR', 'VND')
   coordinates?: { lat: number; lng: number }; // Optional coordinates for accurate weather
   days: TripDay[];
   tasks: TripTask[];

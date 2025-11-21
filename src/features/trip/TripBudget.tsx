@@ -37,6 +37,7 @@ import {
   Edit2,
   Calendar,
 } from "lucide-react";
+import { formatCurrency, getCurrencySymbol } from "../../utils/currency";
 
 interface TripBudgetProps {
   tripId: string;
@@ -242,7 +243,7 @@ export const TripBudget = ({ tripId }: TripBudgetProps) => {
             </Box>
             <Box>
               <Typography variant="h5" fontWeight="bold">
-                ${trip.budget.toLocaleString()}
+                {formatCurrency(trip.budget, trip.currency)}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 Total Budget
@@ -286,7 +287,7 @@ export const TripBudget = ({ tripId }: TripBudgetProps) => {
                 fontWeight="bold"
                 color={isOverBudget ? "error.700" : "success.700"}
               >
-                ${Math.abs(remainingBudget).toLocaleString()}
+                {formatCurrency(Math.abs(remainingBudget), trip.currency)}
               </Typography>
               <Typography
                 variant="body2"
@@ -327,7 +328,7 @@ export const TripBudget = ({ tripId }: TripBudgetProps) => {
             </Box>
             <Box>
               <Typography variant="h5" fontWeight="bold">
-                ${totalSpent.toLocaleString()}
+                {formatCurrency(totalSpent, trip.currency)}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 Total Spent
@@ -365,7 +366,7 @@ export const TripBudget = ({ tripId }: TripBudgetProps) => {
             </Box>
             <Box>
               <Typography variant="h5" fontWeight="bold">
-                ${Math.round(dailyAverage).toLocaleString()}
+                {formatCurrency(Math.round(dailyAverage), trip.currency)}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 Daily Average
@@ -433,7 +434,7 @@ export const TripBudget = ({ tripId }: TripBudgetProps) => {
                         <TableCell>{expense.description}</TableCell>
                         <TableCell>{expense.date || "-"}</TableCell>
                         <TableCell align="right" sx={{ fontWeight: "bold" }}>
-                          ${expense.amount.toLocaleString()}
+                          {formatCurrency(expense.amount, trip.currency)}
                         </TableCell>
                         <TableCell align="right">
                           <IconButton
@@ -482,7 +483,9 @@ export const TripBudget = ({ tripId }: TripBudgetProps) => {
                     ))}
                   </Pie>
                   <RechartsTooltip
-                    formatter={(value: number) => `$${value.toLocaleString()}`}
+                    formatter={(value: number) =>
+                      formatCurrency(value, trip.currency)
+                    }
                   />
                   <Legend />
                 </PieChart>
@@ -514,7 +517,7 @@ export const TripBudget = ({ tripId }: TripBudgetProps) => {
                   </Box>
                   <Box sx={{ textAlign: "right" }}>
                     <Typography variant="body2" fontWeight="bold">
-                      ${data.value.toLocaleString()}
+                      {formatCurrency(data.value, trip.currency)}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
                       {Math.round((data.value / totalSpent) * 100)}%
@@ -560,7 +563,9 @@ export const TripBudget = ({ tripId }: TripBudgetProps) => {
               fullWidth
               InputProps={{
                 startAdornment: (
-                  <InputAdornment position="start">$</InputAdornment>
+                  <InputAdornment position="start">
+                    {getCurrencySymbol(trip.currency)}
+                  </InputAdornment>
                 ),
                 inputProps: {
                   min: 0,
@@ -616,7 +621,9 @@ export const TripBudget = ({ tripId }: TripBudgetProps) => {
             fullWidth
             InputProps={{
               startAdornment: (
-                <InputAdornment position="start">$</InputAdornment>
+                <InputAdornment position="start">
+                  {getCurrencySymbol(trip.currency)}
+                </InputAdornment>
               ),
             }}
             value={newBudget}

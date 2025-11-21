@@ -12,11 +12,13 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Collapse from "@mui/material/Collapse";
 import Paper from "@mui/material/Paper";
+import MenuItem from "@mui/material/MenuItem";
 import { X, MapPin, Image as ImageIcon, Map as MapIcon } from "lucide-react";
 import { useTripStore } from "../store/useTripStore";
 import todayDate from "../utils/todayDate";
 import { Map } from "./Map";
 import { reverseGeocode } from "../api/weatherApi";
+import { CURRENCIES } from "../utils/currency";
 
 interface CreateTripModalProps {
   isOpen: boolean;
@@ -31,6 +33,7 @@ export const CreateTripModal = ({ isOpen, onClose }: CreateTripModalProps) => {
     startDate: "",
     endDate: "",
     budget: "",
+    currency: "USD",
     coverImage: "",
   });
 
@@ -81,6 +84,7 @@ export const CreateTripModal = ({ isOpen, onClose }: CreateTripModalProps) => {
       startDate: new Date(formData.startDate).toISOString(),
       endDate: new Date(formData.endDate).toISOString(),
       budget: Number(formData.budget) || 0,
+      currency: formData.currency,
       coverImage: formData.coverImage,
       coordinates: selectedCoords || undefined,
     });
@@ -93,6 +97,7 @@ export const CreateTripModal = ({ isOpen, onClose }: CreateTripModalProps) => {
       startDate: "",
       endDate: "",
       budget: "",
+      currency: "USD",
       coverImage: "",
     });
     setSelectedCoords(null);
@@ -289,21 +294,40 @@ export const CreateTripModal = ({ isOpen, onClose }: CreateTripModalProps) => {
               />
             </Stack>
 
-            <TextField
-              fullWidth
-              type="number"
-              label="Budget (Optional)"
-              placeholder="0"
-              value={formData.budget}
-              onChange={(e) =>
-                setFormData({ ...formData, budget: e.target.value })
-              }
-              InputProps={{
-                inputProps: {
-                  min: 0,
-                },
-              }}
-            />
+            <Stack direction="row" spacing={2}>
+              <TextField
+                fullWidth
+                type="number"
+                label="Budget (Optional)"
+                placeholder="0"
+                value={formData.budget}
+                onChange={(e) =>
+                  setFormData({ ...formData, budget: e.target.value })
+                }
+                InputProps={{
+                  inputProps: {
+                    min: 0,
+                  },
+                }}
+              />
+
+              <TextField
+                select
+                required
+                fullWidth
+                label="Currency"
+                value={formData.currency}
+                onChange={(e) =>
+                  setFormData({ ...formData, currency: e.target.value })
+                }
+              >
+                {CURRENCIES.map((currency) => (
+                  <MenuItem key={currency.code} value={currency.code}>
+                    {currency.symbol} - {currency.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Stack>
 
             <Box>
               <input
