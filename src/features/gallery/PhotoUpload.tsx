@@ -253,6 +253,8 @@ export const PhotoUpload = ({
       )}
 
       <Paper
+        component="label"
+        htmlFor="photo-upload"
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
@@ -264,6 +266,7 @@ export const PhotoUpload = ({
           textAlign: "center",
           cursor: "pointer",
           transition: "all 0.2s",
+          display: "block",
           "&:hover": {
             borderColor: "primary.main",
             backgroundColor: "action.hover",
@@ -279,7 +282,7 @@ export const PhotoUpload = ({
           onChange={(e) => handleFiles(e.target.files)}
           disabled={uploading}
         />
-        <label htmlFor="photo-upload" style={{ cursor: "pointer" }}>
+        <Box sx={{ pointerEvents: "none" }}>
           <Upload size={48} style={{ color: "#1976d2", marginBottom: 16 }} />
           <Typography variant="h6" gutterBottom>
             Drag & Drop Media Here
@@ -287,7 +290,7 @@ export const PhotoUpload = ({
           <Typography variant="body2" color="text.secondary">
             or click to browse (Max 100MB per file)
           </Typography>
-        </label>
+        </Box>
       </Paper>
 
       {previews.length > 0 && (
