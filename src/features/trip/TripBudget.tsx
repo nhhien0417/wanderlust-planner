@@ -66,7 +66,7 @@ export const TripBudget = ({ tripId }: TripBudgetProps) => {
   const [expenseData, setExpenseData] = useState({
     category: "food",
     amount: "",
-    note: "",
+    description: "",
     date: new Date().toISOString().split("T")[0],
   });
 
@@ -114,7 +114,7 @@ export const TripBudget = ({ tripId }: TripBudgetProps) => {
     setExpenseData({
       category: "food",
       amount: "",
-      note: "",
+      description: "",
       date: new Date().toISOString().split("T")[0],
     });
   };
@@ -124,7 +124,7 @@ export const TripBudget = ({ tripId }: TripBudgetProps) => {
     setExpenseData({
       category: expense.category,
       amount: expense.amount.toString(),
-      note: expense.note,
+      description: expense.description,
       date: expense.date || new Date().toISOString().split("T")[0],
     });
     setIsAddModalOpen(true);
@@ -275,7 +275,7 @@ export const TripBudget = ({ tripId }: TripBudgetProps) => {
                 <TableHead>
                   <TableRow>
                     <TableCell>Category</TableCell>
-                    <TableCell>Note</TableCell>
+                    <TableCell>Description</TableCell>
                     <TableCell>Date</TableCell>
                     <TableCell align="right">Amount</TableCell>
                     <TableCell align="right">Actions</TableCell>
@@ -316,7 +316,7 @@ export const TripBudget = ({ tripId }: TripBudgetProps) => {
                               ?.label || expense.category}
                           </Box>
                         </TableCell>
-                        <TableCell>{expense.note}</TableCell>
+                        <TableCell>{expense.description}</TableCell>
                         <TableCell>{expense.date || "-"}</TableCell>
                         <TableCell align="right" sx={{ fontWeight: "bold" }}>
                           ${expense.amount.toLocaleString()}
@@ -418,11 +418,11 @@ export const TripBudget = ({ tripId }: TripBudgetProps) => {
               }
             />
             <TextField
-              label="Note"
+              label="Description"
               fullWidth
-              value={expenseData.note}
+              value={expenseData.description}
               onChange={(e) =>
-                setExpenseData({ ...expenseData, note: e.target.value })
+                setExpenseData({ ...expenseData, description: e.target.value })
               }
             />
             <TextField
