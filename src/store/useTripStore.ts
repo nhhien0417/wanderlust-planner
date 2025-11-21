@@ -263,10 +263,13 @@ export const useTripStore = create<TripState>()(
           if (tripIndex === -1) return state;
 
           const newTrips = [...state.trips];
-          newTrips[tripIndex].expenses.push({
-            ...expense,
-            id: uuidv4(),
-          });
+          newTrips[tripIndex] = {
+            ...newTrips[tripIndex],
+            expenses: [
+              ...newTrips[tripIndex].expenses,
+              { ...expense, id: uuidv4() },
+            ],
+          };
 
           return { trips: newTrips };
         }),
@@ -277,9 +280,12 @@ export const useTripStore = create<TripState>()(
           if (tripIndex === -1) return state;
 
           const newTrips = [...state.trips];
-          newTrips[tripIndex].expenses = newTrips[tripIndex].expenses.filter(
-            (e) => e.id !== expenseId
-          );
+          newTrips[tripIndex] = {
+            ...newTrips[tripIndex],
+            expenses: newTrips[tripIndex].expenses.filter(
+              (e) => e.id !== expenseId
+            ),
+          };
 
           return { trips: newTrips };
         }),
@@ -290,16 +296,12 @@ export const useTripStore = create<TripState>()(
           if (tripIndex === -1) return state;
 
           const newTrips = [...state.trips];
-          const expenseIndex = newTrips[tripIndex].expenses.findIndex(
-            (e) => e.id === expenseId
-          );
-
-          if (expenseIndex !== -1) {
-            newTrips[tripIndex].expenses[expenseIndex] = {
-              ...newTrips[tripIndex].expenses[expenseIndex],
-              ...updates,
-            };
-          }
+          newTrips[tripIndex] = {
+            ...newTrips[tripIndex],
+            expenses: newTrips[tripIndex].expenses.map((e) =>
+              e.id === expenseId ? { ...e, ...updates } : e
+            ),
+          };
 
           return { trips: newTrips };
         }),
@@ -310,7 +312,10 @@ export const useTripStore = create<TripState>()(
           if (tripIndex === -1) return state;
 
           const newTrips = [...state.trips];
-          newTrips[tripIndex].budget = amount;
+          newTrips[tripIndex] = {
+            ...newTrips[tripIndex],
+            budget: amount,
+          };
 
           return { trips: newTrips };
         }),

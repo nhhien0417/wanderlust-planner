@@ -19,6 +19,7 @@ import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
+import LinearProgress from "@mui/material/LinearProgress";
 import {
   PieChart,
   Pie,
@@ -34,6 +35,7 @@ import {
   Plus,
   Trash2,
   Edit2,
+  Calendar,
 } from "lucide-react";
 
 interface TripBudgetProps {
@@ -137,6 +139,18 @@ export const TripBudget = ({ tripId }: TripBudgetProps) => {
     }
   };
 
+  const activeSpendingDays = useMemo(() => {
+    const uniqueDates = new Set(
+      trip.expenses.map((e) => e.date?.split("T")[0] || "unknown")
+    );
+    // Filter out any potential invalid dates if necessary, but for now just count unique strings
+    return uniqueDates.size || 1;
+  }, [trip.expenses]);
+
+  const dailyAverage = totalSpent / activeSpendingDays;
+  const budgetProgress = Math.min((totalSpent / trip.budget) * 100, 100);
+  const isOverBudget = totalSpent > trip.budget;
+
   return (
     <Box sx={{ p: 3, height: "100%", overflowY: "auto" }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
@@ -152,125 +166,225 @@ export const TripBudget = ({ tripId }: TripBudgetProps) => {
         </Button>
       </Box>
 
+      {/* Budget Progress */}
+      <Paper sx={{ p: 3, mb: 4, borderRadius: 2 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 1,
+          }}
+        >
+          <Typography variant="subtitle1" fontWeight="bold">
+            Budget Usage
+          </Typography>
+          <Typography
+            variant="body2"
+            color={isOverBudget ? "error.main" : "text.secondary"}
+            fontWeight="bold"
+          >
+            {Math.round((totalSpent / trip.budget) * 100)}% Used
+          </Typography>
+        </Box>
+        <LinearProgress
+          variant="determinate"
+          value={budgetProgress}
+          color={isOverBudget ? "error" : "primary"}
+          sx={{
+            height: 10,
+            borderRadius: 5,
+            bgcolor: "grey.100",
+            "& .MuiLinearProgress-bar": {
+              borderRadius: 5,
+            },
+          }}
+        />
+      </Paper>
+
       {/* Overview Cards */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid size={{ xs: 12, md: 4 }}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Paper
-            elevation={2}
+            elevation={0}
+            variant="outlined"
             sx={{
-              p: 3,
-              background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
-              color: "white",
+              p: 2.5,
               borderRadius: 2,
-              position: "relative",
-              overflow: "hidden",
+              height: "100%",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
             }}
           >
-            <Box sx={{ position: "relative", zIndex: 1 }}>
-              <Typography variant="subtitle2" sx={{ opacity: 0.8, mb: 1 }}>
+            <Box
+              sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}
+            >
+              <Box
+                sx={{
+                  p: 1,
+                  borderRadius: 1.5,
+                  bgcolor: "primary.50",
+                  color: "primary.main",
+                }}
+              >
+                <Wallet size={20} />
+              </Box>
+              <IconButton
+                size="small"
+                onClick={() => {
+                  setNewBudget(trip.budget.toString());
+                  setIsEditBudgetOpen(true);
+                }}
+              >
+                <Edit2 size={16} />
+              </IconButton>
+            </Box>
+            <Box>
+              <Typography variant="h5" fontWeight="bold">
+                ${trip.budget.toLocaleString()}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
                 Total Budget
               </Typography>
-              <Box sx={{ display: "flex", alignItems: "baseline", gap: 1 }}>
-                <Typography variant="h4" fontWeight="bold">
-                  ${trip.budget.toLocaleString()}
-                </Typography>
-                <IconButton
-                  size="small"
-                  sx={{ color: "white", opacity: 0.8 }}
-                  onClick={() => {
-                    setNewBudget(trip.budget.toString());
-                    setIsEditBudgetOpen(true);
-                  }}
-                >
-                  <Edit2 size={16} />
-                </IconButton>
+            </Box>
+          </Paper>
+        </Grid>
+
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <Paper
+            elevation={0}
+            variant="outlined"
+            sx={{
+              p: 2.5,
+              borderRadius: 2,
+              height: "100%",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              bgcolor: isOverBudget ? "error.50" : "success.50",
+              borderColor: isOverBudget ? "error.200" : "success.200",
+            }}
+          >
+            <Box
+              sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}
+            >
+              <Box
+                sx={{
+                  p: 1,
+                  borderRadius: 1.5,
+                  bgcolor: isOverBudget ? "error.100" : "success.100",
+                  color: isOverBudget ? "error.700" : "success.700",
+                }}
+              >
+                <DollarSign size={20} />
               </Box>
             </Box>
-            <Wallet
-              size={100}
-              style={{
-                position: "absolute",
-                right: -20,
-                bottom: -20,
-                opacity: 0.1,
-              }}
-            />
-          </Paper>
-        </Grid>
-        <Grid size={{ xs: 12, md: 4 }}>
-          <Paper
-            elevation={2}
-            sx={{
-              p: 3,
-              background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
-              color: "white",
-              borderRadius: 2,
-              position: "relative",
-              overflow: "hidden",
-            }}
-          >
-            <Box sx={{ position: "relative", zIndex: 1 }}>
-              <Typography variant="subtitle2" sx={{ opacity: 0.8, mb: 1 }}>
-                Remaining
+            <Box>
+              <Typography
+                variant="h5"
+                fontWeight="bold"
+                color={isOverBudget ? "error.700" : "success.700"}
+              >
+                ${Math.abs(remainingBudget).toLocaleString()}
               </Typography>
-              <Typography variant="h4" fontWeight="bold">
-                ${remainingBudget.toLocaleString()}
+              <Typography
+                variant="body2"
+                color={isOverBudget ? "error.600" : "success.600"}
+              >
+                {isOverBudget ? "Over Budget" : "Remaining"}
               </Typography>
             </Box>
-            <DollarSign
-              size={100}
-              style={{
-                position: "absolute",
-                right: -20,
-                bottom: -20,
-                opacity: 0.1,
-              }}
-            />
           </Paper>
         </Grid>
-        <Grid size={{ xs: 12, md: 4 }}>
+
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Paper
-            elevation={2}
+            elevation={0}
+            variant="outlined"
             sx={{
-              p: 3,
-              background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
-              color: "white",
+              p: 2.5,
               borderRadius: 2,
-              position: "relative",
-              overflow: "hidden",
+              height: "100%",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
             }}
           >
-            <Box sx={{ position: "relative", zIndex: 1 }}>
-              <Typography variant="subtitle2" sx={{ opacity: 0.8, mb: 1 }}>
-                Total Spent
-              </Typography>
-              <Typography variant="h4" fontWeight="bold">
+            <Box
+              sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}
+            >
+              <Box
+                sx={{
+                  p: 1,
+                  borderRadius: 1.5,
+                  bgcolor: "warning.50",
+                  color: "warning.main",
+                }}
+              >
+                <TrendingUp size={20} />
+              </Box>
+            </Box>
+            <Box>
+              <Typography variant="h5" fontWeight="bold">
                 ${totalSpent.toLocaleString()}
               </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Total Spent
+              </Typography>
             </Box>
-            <TrendingUp
-              size={100}
-              style={{
-                position: "absolute",
-                right: -20,
-                bottom: -20,
-                opacity: 0.1,
-              }}
-            />
+          </Paper>
+        </Grid>
+
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <Paper
+            elevation={0}
+            variant="outlined"
+            sx={{
+              p: 2.5,
+              borderRadius: 2,
+              height: "100%",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+            }}
+          >
+            <Box
+              sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}
+            >
+              <Box
+                sx={{
+                  p: 1,
+                  borderRadius: 1.5,
+                  bgcolor: "info.50",
+                  color: "info.main",
+                }}
+              >
+                <Calendar size={20} />
+              </Box>
+            </Box>
+            <Box>
+              <Typography variant="h5" fontWeight="bold">
+                ${Math.round(dailyAverage).toLocaleString()}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Daily Average
+              </Typography>
+            </Box>
           </Paper>
         </Grid>
       </Grid>
 
       <Grid container spacing={3}>
         {/* Expense List */}
-        <Grid size={{ xs: 12, md: 8 }}>
+        <Grid size={{ xs: 12, md: 7 }}>
           <Paper sx={{ borderRadius: 2, overflow: "hidden" }}>
             <Box sx={{ p: 2, borderBottom: 1, borderColor: "divider" }}>
               <Typography variant="h6" fontWeight="bold">
                 Recent Expenses
               </Typography>
             </Box>
-            <TableContainer sx={{ maxHeight: 400 }}>
+            <TableContainer sx={{ maxHeight: 750 }}>
               <Table stickyHeader>
                 <TableHead>
                   <TableRow>
@@ -345,13 +459,13 @@ export const TripBudget = ({ tripId }: TripBudgetProps) => {
           </Paper>
         </Grid>
 
-        {/* Chart */}
-        <Grid size={{ xs: 12, md: 4 }}>
+        {/* Chart and Analysis */}
+        <Grid size={{ xs: 12, md: 5 }}>
           <Paper sx={{ p: 3, borderRadius: 2, height: "100%" }}>
             <Typography variant="h6" fontWeight="bold" gutterBottom>
               Spending Breakdown
             </Typography>
-            <Box sx={{ height: 300, width: "100%" }}>
+            <Box sx={{ height: 250, width: "100%", mb: 3 }}>
               <ResponsiveContainer>
                 <PieChart>
                   <Pie
@@ -367,10 +481,47 @@ export const TripBudget = ({ tripId }: TripBudgetProps) => {
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-                  <RechartsTooltip />
+                  <RechartsTooltip
+                    formatter={(value: number) => `$${value.toLocaleString()}`}
+                  />
                   <Legend />
                 </PieChart>
               </ResponsiveContainer>
+            </Box>
+
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              {chartData.map((data) => (
+                <Box
+                  key={data.name}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <Box
+                      sx={{
+                        width: 12,
+                        height: 12,
+                        borderRadius: 1,
+                        bgcolor: data.color,
+                      }}
+                    />
+                    <Typography variant="body2" fontWeight={500}>
+                      {data.name}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ textAlign: "right" }}>
+                    <Typography variant="body2" fontWeight="bold">
+                      ${data.value.toLocaleString()}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {Math.round((data.value / totalSpent) * 100)}%
+                    </Typography>
+                  </Box>
+                </Box>
+              ))}
             </Box>
           </Paper>
         </Grid>
@@ -411,6 +562,9 @@ export const TripBudget = ({ tripId }: TripBudgetProps) => {
                 startAdornment: (
                   <InputAdornment position="start">$</InputAdornment>
                 ),
+                inputProps: {
+                  min: 0,
+                },
               }}
               value={expenseData.amount}
               onChange={(e) =>
