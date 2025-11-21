@@ -1,14 +1,17 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { Trip, TripTask, Activity, Location, PackingItem } from "../types";
 import { v4 as uuidv4 } from "uuid";
+import type { Trip, TripTask, Activity, Location, PackingItem } from "../types";
+import { getCoordinates, getWeatherForecast } from "../api/weatherApi";
 
 interface TripState {
   trips: Trip[];
   activeTripId: string | null;
 
   // Actions
-  addTrip: (trip: Omit<Trip, "id" | "days" | "tasks" | "expenses">) => void;
+  addTrip: (
+    trip: Omit<Trip, "id" | "days" | "tasks" | "expenses" | "packingList">
+  ) => void;
   setActiveTrip: (id: string | null) => void;
   deleteTrip: (id: string) => void;
 
@@ -56,6 +59,9 @@ interface TripState {
   removePackingItem: (tripId: string, itemId: string) => void;
   togglePackingItem: (tripId: string, itemId: string) => void;
   generatePackingList: (tripId: string) => void;
+
+  // Weather Actions
+  fetchTripWeather: (tripId: string) => Promise<void>;
 }
 
 // Helper to generate days between dates
@@ -76,7 +82,7 @@ const generateDays = (start: string, end: string) => {
 
 export const useTripStore = create<TripState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       trips: [],
       activeTripId: null,
 
@@ -348,6 +354,37 @@ export const useTripStore = create<TripState>()(
             { name: "Wallet", category: "Documents" },
           ];
 
+          // Weather-based suggestions
+          if (trip.weather) {
+            const hasRain = trip.weather.some(
+              (d) => d.precipitationProbability > 30 || d.weatherCode >= 51
+            );
+            const hasSun = trip.weather.some((d) => d.maxTemp > 25);
+            const hasCold = trip.weather.some((d) => d.minTemp < 10);
+
+            if (hasRain) {
+              defaultItems.push(
+                { name: "Umbrella", category: "Weather Gear" },
+                { name: "Raincoat", category: "Weather Gear" },
+                { name: "Waterproof Shoes", category: "Weather Gear" }
+              );
+            }
+            if (hasSun) {
+              defaultItems.push(
+                { name: "Sunscreen", category: "Toiletries" },
+                { name: "Hat", category: "Clothing" },
+                { name: "Sunglasses", category: "Accessories" }
+              );
+            }
+            if (hasCold) {
+              defaultItems.push(
+                { name: "Jacket/Coat", category: "Clothing" },
+                { name: "Scarf", category: "Clothing" },
+                { name: "Gloves", category: "Clothing" }
+              );
+            }
+          }
+
           // Filter out items that already exist
           const existingNames = new Set(trip.packingList.map((i) => i.name));
           const newItems = defaultItems
@@ -364,6 +401,42 @@ export const useTripStore = create<TripState>()(
 
           return { trips: newTrips };
         }),
+
+      fetchTripWeather: async (tripId) => {
+        const state = get();
+        const trip = state.trips.find((t) => t.id === tripId);
+        if (!trip) return;
+
+        let lat = 0;
+        let lng = 0;
+
+        // Try to get coordinates from destination string
+        const coords = await getCoordinates(trip.destination);
+        if (coords) {
+          lat = coords.lat;
+          lng = coords.lng;
+        } else {
+          console.error("Could not find coordinates for destination");
+          return;
+        }
+
+        const weatherData = await getWeatherForecast(
+          lat,
+          lng,
+          trip.startDate,
+          trip.endDate
+        );
+
+        set((state) => {
+          const tripIndex = state.trips.findIndex((t) => t.id === tripId);
+          if (tripIndex === -1) return state;
+
+          const newTrips = [...state.trips];
+          newTrips[tripIndex].weather = weatherData;
+
+          return { trips: newTrips };
+        });
+      },
     }),
     {
       name: "wanderlust-storage",

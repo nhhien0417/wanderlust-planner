@@ -40,6 +40,7 @@ import Tab from "@mui/material/Tab";
 import { TripKanban } from "./TripKanban";
 import { TripBudget } from "./TripBudget";
 import { TripPackingList } from "./TripPackingList";
+import { WeatherWidget } from "./WeatherWidget";
 
 interface TripDetailsProps {
   tripId: string;
@@ -310,6 +311,10 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
           </Box>
         </Container>
       </Box>
+
+      <Container maxWidth="lg" sx={{ mt: 3 }}>
+        <WeatherWidget tripId={tripId} />
+      </Container>
 
       {/* Tabs */}
       <Box sx={{ borderBottom: 1, borderColor: "divider", bgcolor: "white" }}>

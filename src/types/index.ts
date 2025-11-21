@@ -63,6 +63,13 @@ export interface Trip {
     date?: string;
   }[];
   packingList: PackingItem[];
+  weather?: {
+    date: string;
+    maxTemp: number;
+    minTemp: number;
+    precipitationProbability: number;
+    weatherCode: number;
+  }[];
 }
 
 export interface UserSettings {

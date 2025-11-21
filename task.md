@@ -51,11 +51,11 @@
   - [x] Checkbox Progress Tracking <!-- id: 38 -->
   - [ ] Export Packing List to PDF <!-- id: 39 -->
 
-- [/] **Feature: Weather Integration** <!-- id: 40 -->
-  - [ ] Integrate Weather API (OpenWeatherMap/WeatherAPI) <!-- id: 41 -->
-  - [ ] Display Weather Forecast Widget (Temperature, Conditions, Humidity) <!-- id: 42 -->
-  - [ ] Weather Timeline for Trip Duration <!-- id: 43 -->
-  - [ ] Weather-based Packing Suggestions <!-- id: 44 -->
+- [x] **Feature: Weather Integration** <!-- id: 40 -->
+  - [x] Integrate Weather API (OpenWeatherMap/WeatherAPI) <!-- id: 41 -->
+  - [x] Display Weather Forecast Widget (Temperature, Conditions, Humidity) <!-- id: 42 -->
+  - [x] Weather Timeline for Trip Duration <!-- id: 43 -->
+  - [x] Weather-based Packing Suggestions <!-- id: 44 -->
 
 ### Phase 2: Content & Visualization
 
