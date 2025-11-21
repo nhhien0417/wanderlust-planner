@@ -110,6 +110,7 @@ export const CreateTripModal = ({ isOpen, onClose }: CreateTripModalProps) => {
       onClose={onClose}
       maxWidth="sm"
       fullWidth
+      scroll="paper"
       PaperProps={{
         sx: {
           borderRadius: 2,
@@ -148,9 +149,9 @@ export const CreateTripModal = ({ isOpen, onClose }: CreateTripModalProps) => {
         </IconButton>
       </DialogTitle>
 
-      <form onSubmit={handleSubmit}>
-        <DialogContent>
-          <Stack spacing={2}>
+      <DialogContent dividers>
+        <Box component="form" id="create-trip-form" onSubmit={handleSubmit}>
+          <Stack spacing={2} sx={{ mt: 1 }}>
             <TextField
               required
               fullWidth
@@ -401,35 +402,36 @@ export const CreateTripModal = ({ isOpen, onClose }: CreateTripModalProps) => {
               )}
             </Box>
           </Stack>
-        </DialogContent>
+        </Box>
+      </DialogContent>
 
-        <DialogActions
-          sx={{ px: 3, py: 2.5, gap: 1.5, backgroundColor: "grey.50" }}
+      <DialogActions
+        sx={{ px: 3, py: 2.5, gap: 1.5, backgroundColor: "grey.50" }}
+      >
+        <Button
+          onClick={onClose}
+          variant="outlined"
+          size="large"
+          sx={{
+            minWidth: 120,
+            fontWeight: 600,
+          }}
         >
-          <Button
-            onClick={onClose}
-            variant="outlined"
-            size="large"
-            sx={{
-              minWidth: 120,
-              fontWeight: 600,
-            }}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            variant="contained"
-            size="large"
-            sx={{
-              minWidth: 150,
-              fontWeight: 700,
-            }}
-          >
-            Create Trip
-          </Button>
-        </DialogActions>
-      </form>
+          Cancel
+        </Button>
+        <Button
+          type="submit"
+          form="create-trip-form"
+          variant="contained"
+          size="large"
+          sx={{
+            minWidth: 150,
+            fontWeight: 700,
+          }}
+        >
+          Create Trip
+        </Button>
+      </DialogActions>
     </Dialog>
   );
 };

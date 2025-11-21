@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import type { Photo } from "../../types";
 import { photoStorage } from "../../utils/photoStorage";
+import { isVideo } from "../../utils/mediaUtils";
 
 interface PhotoLightboxProps {
   photos: Photo[];
@@ -45,9 +46,7 @@ export const PhotoLightbox = ({
 
   useEffect(() => {
     if (!open) return;
-    setCurrentIndex((prev) =>
-      Math.min(prev, Math.max(photos.length - 1, 0))
-    );
+    setCurrentIndex((prev) => Math.min(prev, Math.max(photos.length - 1, 0)));
   }, [photos.length, open]);
 
   useEffect(() => {
@@ -228,19 +227,34 @@ export const PhotoLightbox = ({
         onClick={() => setShowInfo(!showInfo)}
       >
         <Fade in={Boolean(photoUrl)} timeout={300}>
-          <Box
-            component="img"
-            src={photoUrl || currentPhoto.thumbnailUrl}
-            alt={currentPhoto.description || "Photo"}
-            sx={{
-              maxWidth: "90%",
-              maxHeight: "90%",
-              objectFit: "contain",
-              transform: `scale(${zoom})`,
-              transition: "transform 0.2s",
-              userSelect: "none",
-            }}
-          />
+          {currentPhoto && isVideo(currentPhoto.fileName) ? (
+            <Box
+              component="video"
+              src={photoUrl || ""}
+              controls
+              autoPlay
+              sx={{
+                maxWidth: "90%",
+                maxHeight: "90%",
+                outline: "none",
+              }}
+              onClick={(e) => e.stopPropagation()}
+            />
+          ) : (
+            <Box
+              component="img"
+              src={photoUrl || currentPhoto.thumbnailUrl}
+              alt={currentPhoto.description || "Photo"}
+              sx={{
+                maxWidth: "90%",
+                maxHeight: "90%",
+                objectFit: "contain",
+                transform: `scale(${zoom})`,
+                transition: "transform 0.2s",
+                userSelect: "none",
+              }}
+            />
+          )}
         </Fade>
       </Box>
 

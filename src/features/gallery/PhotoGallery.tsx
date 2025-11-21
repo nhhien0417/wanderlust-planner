@@ -8,7 +8,8 @@ import {
   MenuItem,
   CircularProgress,
 } from "@mui/material";
-import { MoreVertical, Image as ImageIcon } from "lucide-react";
+import { MoreVertical, Image as ImageIcon, PlayCircle } from "lucide-react";
+import { isVideo } from "../../utils/mediaUtils";
 import { useTripStore } from "../../store/useTripStore";
 import { photoStorage } from "../../utils/photoStorage";
 import type { Photo } from "../../types";
@@ -180,7 +181,11 @@ export const PhotoGallery = ({
           >
             <Box
               component="img"
-              src={photoUrls[photo.id] || photo.thumbnailUrl}
+              src={
+                isVideo(photo.fileName)
+                  ? photo.thumbnailUrl
+                  : photoUrls[photo.id] || photo.thumbnailUrl
+              }
               alt={photo.description || `Photo ${index + 1}`}
               sx={{
                 position: "absolute",
@@ -191,6 +196,23 @@ export const PhotoGallery = ({
                 objectFit: "cover",
               }}
             />
+
+            {/* Video Overlay */}
+            {isVideo(photo.fileName) && (
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                  color: "white",
+                  opacity: 0.9,
+                  zIndex: 1,
+                }}
+              >
+                <PlayCircle size={48} fill="rgba(0,0,0,0.5)" />
+              </Box>
+            )}
 
             {/* Overlay */}
             <Box

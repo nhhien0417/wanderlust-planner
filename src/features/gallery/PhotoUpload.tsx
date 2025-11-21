@@ -20,8 +20,17 @@ interface PhotoUploadProps {
   onUploadComplete?: () => void;
 }
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
+const ACCEPTED_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+  "video/mp4",
+  "video/quicktime",
+  "video/webm",
+  "video/x-msvideo",
+];
 
 export const PhotoUpload = ({
   tripId,
@@ -72,6 +81,50 @@ export const PhotoUpload = ({
     });
   }, []);
 
+  const createVideoThumbnail = useCallback(
+    async (file: File): Promise<string> => {
+      return new Promise((resolve) => {
+        const video = document.createElement("video");
+        video.preload = "metadata";
+        video.muted = true;
+
+        video.onloadeddata = () => {
+          video.currentTime = 1; // Seek to 1 second
+        };
+
+        video.onseeked = () => {
+          const canvas = document.createElement("canvas");
+          const MAX_SIZE = 200;
+          let width = video.videoWidth;
+          let height = video.videoHeight;
+
+          if (width > height) {
+            if (width > MAX_SIZE) {
+              height *= MAX_SIZE / width;
+              width = MAX_SIZE;
+            }
+          } else {
+            if (height > MAX_SIZE) {
+              width *= MAX_SIZE / height;
+              height = MAX_SIZE;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx?.drawImage(video, 0, 0, width, height);
+
+          resolve(canvas.toDataURL("image/jpeg", 0.7));
+          URL.revokeObjectURL(video.src);
+        };
+
+        video.src = URL.createObjectURL(file);
+      });
+    },
+    []
+  );
+
   const handleFiles = useCallback(async (files: FileList | null) => {
     if (!files || files.length === 0) return;
 
@@ -85,7 +138,7 @@ export const PhotoUpload = ({
         return false;
       }
       if (file.size > MAX_FILE_SIZE) {
-        setError(`File ${file.name} exceeds 10MB limit`);
+        setError(`File ${file.name} exceeds 100MB limit`);
         return false;
       }
       return true;
@@ -116,7 +169,9 @@ export const PhotoUpload = ({
         const photoId = uuidv4();
 
         // Create thumbnail
-        const thumbnailUrl = await createThumbnail(file);
+        const thumbnailUrl = file.type.startsWith("video/")
+          ? await createVideoThumbnail(file)
+          : await createThumbnail(file);
 
         // Save to IndexedDB
         const dbId = await photoStorage.savePhoto(file, tripId, photoId);
@@ -159,6 +214,7 @@ export const PhotoUpload = ({
     dayId,
     activityId,
     createThumbnail,
+    createVideoThumbnail,
     addPhoto,
     onUploadComplete,
   ]);
@@ -218,7 +274,7 @@ export const PhotoUpload = ({
           type="file"
           id="photo-upload"
           multiple
-          accept="image/*"
+          accept="image/*,video/*"
           style={{ display: "none" }}
           onChange={(e) => handleFiles(e.target.files)}
           disabled={uploading}
@@ -226,10 +282,10 @@ export const PhotoUpload = ({
         <label htmlFor="photo-upload" style={{ cursor: "pointer" }}>
           <Upload size={48} style={{ color: "#1976d2", marginBottom: 16 }} />
           <Typography variant="h6" gutterBottom>
-            Drag & Drop Photos Here
+            Drag & Drop Media Here
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            or click to browse (Max 10MB per file)
+            or click to browse (Max 100MB per file)
           </Typography>
         </label>
       </Paper>
@@ -237,7 +293,7 @@ export const PhotoUpload = ({
       {previews.length > 0 && (
         <Box sx={{ mt: 3 }}>
           <Typography variant="subtitle2" gutterBottom>
-            {previews.length} photo(s) ready to upload
+            {previews.length} media file(s) ready to upload
           </Typography>
           <Box
             sx={{
@@ -257,18 +313,34 @@ export const PhotoUpload = ({
                   overflow: "hidden",
                 }}
               >
-                <img
-                  src={preview.url}
-                  alt={`Preview ${index + 1}`}
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                  }}
-                />
+                {preview.file.type.startsWith("video/") ? (
+                  <video
+                    src={preview.url}
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                    muted
+                    playsInline
+                  />
+                ) : (
+                  <img
+                    src={preview.url}
+                    alt={`Preview ${index + 1}`}
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                  />
+                )}
                 <Box
                   onClick={() => removePreviews(index)}
                   sx={{
@@ -305,9 +377,7 @@ export const PhotoUpload = ({
               startIcon={<ImageIcon />}
               fullWidth
             >
-              {uploading
-                ? "Uploading..."
-                : `Upload ${previews.length} Photo(s)`}
+              {uploading ? "Uploading..." : `Upload ${previews.length} Media`}
             </Button>
             <Button
               variant="outlined"
