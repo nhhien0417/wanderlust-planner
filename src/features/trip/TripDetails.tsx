@@ -5,11 +5,14 @@ import {
   DollarSign,
   Clock,
   GripVertical,
+  Landmark,
+  UtensilsCrossed,
+  Hotel,
+  Car,
 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { useEffect, useMemo, useState } from "react";
 import { AddActivityModal } from "../../components/AddActivityModal";
-import { v4 as uuidv4 } from "uuid";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
@@ -81,6 +84,21 @@ const ActivityCard = ({
   isOverlay?: boolean;
   dragHandleProps?: any;
 }) => {
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case "attraction":
+        return <Landmark size={20} />;
+      case "restaurant":
+        return <UtensilsCrossed size={20} />;
+      case "hotel":
+        return <Hotel size={20} />;
+      case "transport":
+        return <Car size={20} />;
+      default:
+        return <MapPin size={20} />;
+    }
+  };
+
   return (
     <Card
       variant="outlined"
@@ -123,36 +141,90 @@ const ActivityCard = ({
         <GripVertical size={20} />
       </IconButton>
 
+      {/* Category Icon */}
       <Box
         sx={{
           p: 1.5,
-          backgroundColor: "white",
+          backgroundColor: "primary.50",
           borderRadius: 2,
           border: "1px solid",
-          borderColor: "divider",
+          borderColor: "primary.200",
           color: "primary.main",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
         }}
       >
-        <MapPin size={20} />
+        {getCategoryIcon(activity.category)}
       </Box>
+
+      {/* Activity Content */}
       <Box sx={{ flex: 1 }}>
-        <Typography variant="subtitle1" fontWeight="bold">
-          {activity.location.name}
-        </Typography>
-        <Typography
-          variant="body2"
-          color="text.secondary"
-          sx={{
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-          }}
-        >
-          {activity.location.address}
-        </Typography>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
+          <Typography variant="subtitle1" fontWeight="bold">
+            {activity.title}
+          </Typography>
+          {activity.cost && (
+            <Chip
+              label={`$${activity.cost}`}
+              size="small"
+              color="success"
+              sx={{ fontWeight: 600, fontSize: "0.75rem" }}
+            />
+          )}
+        </Box>
+
+        {/* Location */}
+        {activity.location && (
+          <Box
+            sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 0.5 }}
+          >
+            <MapPin size={14} color="#666" />
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                fontSize: "0.875rem",
+              }}
+            >
+              {activity.location.name}
+            </Typography>
+          </Box>
+        )}
+
+        {/* Time Range */}
+        {(activity.startTime || activity.endTime) && (
+          <Box
+            sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 0.5 }}
+          >
+            <Clock size={14} color="#666" />
+            <Typography variant="caption" color="text.secondary">
+              {activity.startTime || "—"} - {activity.endTime || "—"}
+            </Typography>
+          </Box>
+        )}
+
+        {/* Description */}
+        {activity.description && (
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{
+              mt: 1,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+              fontSize: "0.875rem",
+            }}
+          >
+            {activity.description}
+          </Typography>
+        )}
       </Box>
     </Card>
   );
@@ -269,21 +341,14 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
     );
   }
 
-  const handleAddActivity = (location: {
-    name: string;
-    lat: number;
-    lng: number;
-    address: string;
-  }) => {
+  const handleAddActivity = (
+    activityData: Omit<
+      import("../../types").Activity,
+      "id" | "tripId" | "dayId"
+    >
+  ) => {
     if (activeDayId) {
-      addActivity(tripId, activeDayId, {
-        id: uuidv4(),
-        name: location.name,
-        lat: location.lat,
-        lng: location.lng,
-        address: location.address,
-        type: "other",
-      });
+      addActivity(tripId, activeDayId, activityData);
     }
   };
 
@@ -694,7 +759,7 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
                           </MenuItem>
                           {activitiesForFilter.map((activity) => (
                             <MenuItem key={activity.id} value={activity.id}>
-                              {activity.location.name}
+                              {activity.location?.name || activity.title}
                             </MenuItem>
                           ))}
                         </Select>

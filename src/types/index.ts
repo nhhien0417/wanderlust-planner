@@ -33,9 +33,12 @@ export interface Activity {
   id: string;
   tripId: string;
   dayId: string; // Which day of the trip
-  location: Location;
-  time?: string;
-  notes?: string;
+  title: string;
+  description?: string;
+  category: "attraction" | "restaurant" | "hotel" | "transport" | "other";
+  location?: Location; // Optional - activities can exist without specific location
+  startTime?: string; // HH:mm format
+  endTime?: string; // HH:mm format
   cost?: number;
 }
 

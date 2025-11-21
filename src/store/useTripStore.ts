@@ -1,14 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { v4 as uuidv4 } from "uuid";
-import type {
-  Trip,
-  TripTask,
-  Activity,
-  Location,
-  PackingItem,
-  Photo,
-} from "../types";
+import type { Trip, TripTask, Activity, PackingItem, Photo } from "../types";
 import { getCoordinates, getWeatherForecast } from "../api/weatherApi";
 import { photoStorage } from "../utils/photoStorage";
 
@@ -24,7 +17,11 @@ interface TripState {
   deleteTrip: (id: string) => void;
 
   // Itinerary Actions
-  addActivity: (tripId: string, dayId: string, location: Location) => void;
+  addActivity: (
+    tripId: string,
+    dayId: string,
+    activityData: Omit<Activity, "id" | "tripId" | "dayId">
+  ) => void;
   removeActivity: (tripId: string, dayId: string, activityId: string) => void;
   reorderActivities: (
     tripId: string,
@@ -140,7 +137,7 @@ export const useTripStore = create<TripState>()(
           activeTripId: state.activeTripId === id ? null : state.activeTripId,
         })),
 
-      addActivity: (tripId, dayId, location) =>
+      addActivity: (tripId, dayId, activityData) =>
         set((state) => {
           const tripIndex = state.trips.findIndex((t) => t.id === tripId);
           if (tripIndex === -1) return state;
@@ -154,7 +151,7 @@ export const useTripStore = create<TripState>()(
               id: uuidv4(),
               tripId,
               dayId,
-              location,
+              ...activityData,
             });
           }
 
