@@ -12,6 +12,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { X, MapPin, Image as ImageIcon } from "lucide-react";
 import { useTripStore } from "../store/useTripStore";
+import todayDate from "../utils/todayDate";
 
 interface CreateTripModalProps {
   isOpen: boolean;
@@ -28,6 +29,17 @@ export const CreateTripModal = ({ isOpen, onClose }: CreateTripModalProps) => {
     budget: "",
     coverImage: "",
   });
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData({ ...formData, coverImage: reader.result as string });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,7 +73,7 @@ export const CreateTripModal = ({ isOpen, onClose }: CreateTripModalProps) => {
       fullWidth
       PaperProps={{
         sx: {
-          borderRadius: 4,
+          borderRadius: 2,
           overflow: "hidden",
         },
       }}
@@ -139,6 +151,7 @@ export const CreateTripModal = ({ isOpen, onClose }: CreateTripModalProps) => {
                 onChange={(e) =>
                   setFormData({ ...formData, startDate: e.target.value })
                 }
+                inputProps={{ min: todayDate }}
                 InputLabelProps={{ shrink: true }}
               />
 
@@ -165,25 +178,84 @@ export const CreateTripModal = ({ isOpen, onClose }: CreateTripModalProps) => {
               onChange={(e) =>
                 setFormData({ ...formData, budget: e.target.value })
               }
-            />
-
-            <TextField
-              fullWidth
-              type="url"
-              label="Cover Image URL (Optional)"
-              placeholder="https://..."
-              value={formData.coverImage}
-              onChange={(e) =>
-                setFormData({ ...formData, coverImage: e.target.value })
-              }
               InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <ImageIcon size={20} />
-                  </InputAdornment>
-                ),
+                inputProps: {
+                  min: 0,
+                },
               }}
             />
+
+            <Box>
+              <input
+                accept="image/*"
+                style={{ display: "none" }}
+                id="cover-image-upload"
+                type="file"
+                onChange={handleImageUpload}
+              />
+              <label htmlFor="cover-image-upload">
+                <Button
+                  variant="outlined"
+                  component="span"
+                  fullWidth
+                  startIcon={<ImageIcon />}
+                  sx={{
+                    height: 56,
+                    borderStyle: "dashed",
+                    borderColor: formData.coverImage
+                      ? "primary.main"
+                      : "grey.400",
+                    color: formData.coverImage
+                      ? "primary.main"
+                      : "text.secondary",
+                  }}
+                >
+                  {formData.coverImage
+                    ? "Change Cover Image"
+                    : "Upload Cover Image"}
+                </Button>
+              </label>
+              {formData.coverImage && (
+                <Box
+                  sx={{
+                    mt: 2,
+                    position: "relative",
+                    width: "100%",
+                    height: 160,
+                    borderRadius: 2,
+                    overflow: "hidden",
+                  }}
+                >
+                  <Box
+                    component="img"
+                    src={formData.coverImage}
+                    alt="Cover Preview"
+                    sx={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                  />
+                  <IconButton
+                    size="small"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setFormData({ ...formData, coverImage: "" });
+                    }}
+                    sx={{
+                      position: "absolute",
+                      top: 8,
+                      right: 8,
+                      bgcolor: "rgba(0,0,0,0.5)",
+                      color: "white",
+                      "&:hover": { bgcolor: "rgba(0,0,0,0.7)" },
+                    }}
+                  >
+                    <X size={16} />
+                  </IconButton>
+                </Box>
+              )}
+            </Box>
           </Stack>
         </DialogContent>
 
