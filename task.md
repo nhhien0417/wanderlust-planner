@@ -51,11 +51,12 @@
   - [x] Checkbox Progress Tracking <!-- id: 38 -->
   - [ ] Export Packing List to PDF <!-- id: 39 -->
 
-- [x] **Feature: Weather Integration** <!-- id: 40 -->
-  - [x] Integrate Weather API (OpenWeatherMap/WeatherAPI) <!-- id: 41 -->
-  - [x] Display Weather Forecast Widget (Temperature, Conditions, Humidity) <!-- id: 42 -->
-  - [x] Weather Timeline for Trip Duration <!-- id: 43 -->
-  - [x] Weather-based Packing Suggestions <!-- id: 44 -->
+- [/] **Feature: Photo Gallery** <!-- id: 45 -->
+  - [ ] Photo Upload Component (Multiple files, Drag & Drop) <!-- id: 46 -->
+  - [ ] Gallery View with Lightbox <!-- id: 47 -->
+  - [ ] Link Photos to Activities/Locations <!-- id: 48 -->
+  - [ ] Photo Metadata (Date, Location, Description) <!-- id: 49 -->
+  - [ ] Photo Storage (IndexedDB/LocalStorage) <!-- id: 50 -->
 
 ### Phase 2: Content & Visualization
 

@@ -1,7 +1,14 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { v4 as uuidv4 } from "uuid";
-import type { Trip, TripTask, Activity, Location, PackingItem } from "../types";
+import type {
+  Trip,
+  TripTask,
+  Activity,
+  Location,
+  PackingItem,
+  Photo,
+} from "../types";
 import { getCoordinates, getWeatherForecast } from "../api/weatherApi";
 
 interface TripState {
@@ -62,6 +69,15 @@ interface TripState {
 
   // Weather Actions
   fetchTripWeather: (tripId: string) => Promise<void>;
+
+  // Photo Actions
+  addPhoto: (tripId: string, photo: Photo) => void;
+  removePhoto: (tripId: string, photoId: string) => void;
+  updatePhoto: (
+    tripId: string,
+    photoId: string,
+    updates: Partial<Omit<Photo, "id">>
+  ) => void;
 }
 
 // Helper to generate days between dates
@@ -101,6 +117,7 @@ export const useTripStore = create<TripState>()(
             tasks: [],
             expenses: [],
             packingList: [],
+            photos: [],
           };
           return {
             trips: [...state.trips, newTrip],
@@ -443,6 +460,56 @@ export const useTripStore = create<TripState>()(
           return { trips: newTrips };
         });
       },
+
+      addPhoto: (tripId, photo) =>
+        set((state) => {
+          const tripIndex = state.trips.findIndex((t) => t.id === tripId);
+          if (tripIndex === -1) return state;
+
+          const newTrips = [...state.trips];
+          if (!newTrips[tripIndex].photos) {
+            newTrips[tripIndex].photos = [];
+          }
+          newTrips[tripIndex].photos!.push(photo);
+
+          return { trips: newTrips };
+        }),
+
+      removePhoto: (tripId, photoId) =>
+        set((state) => {
+          const tripIndex = state.trips.findIndex((t) => t.id === tripId);
+          if (tripIndex === -1) return state;
+
+          const newTrips = [...state.trips];
+          if (newTrips[tripIndex].photos) {
+            newTrips[tripIndex].photos = newTrips[tripIndex].photos!.filter(
+              (p) => p.id !== photoId
+            );
+          }
+
+          return { trips: newTrips };
+        }),
+
+      updatePhoto: (tripId, photoId, updates) =>
+        set((state) => {
+          const tripIndex = state.trips.findIndex((t) => t.id === tripId);
+          if (tripIndex === -1) return state;
+
+          const newTrips = [...state.trips];
+          if (newTrips[tripIndex].photos) {
+            const photoIndex = newTrips[tripIndex].photos!.findIndex(
+              (p) => p.id === photoId
+            );
+            if (photoIndex !== -1) {
+              newTrips[tripIndex].photos![photoIndex] = {
+                ...newTrips[tripIndex].photos![photoIndex],
+                ...updates,
+              };
+            }
+          }
+
+          return { trips: newTrips };
+        }),
     }),
     {
       name: "wanderlust-storage",

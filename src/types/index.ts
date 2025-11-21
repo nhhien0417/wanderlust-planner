@@ -10,6 +10,25 @@ export interface Location {
   type?: "hotel" | "restaurant" | "attraction" | "other";
 }
 
+export interface Photo {
+  id: string;
+  tripId: string;
+  activityId?: string; // Optional link to activity
+  dayId?: string; // Optional link to day
+  fileName: string;
+  fileSize: number;
+  uploadDate: string;
+  captureDate?: string; // When photo was taken
+  description?: string;
+  location?: {
+    name: string;
+    lat: number;
+    lng: number;
+  };
+  thumbnailUrl: string; // Data URL for thumbnail
+  photoId: number; // IndexedDB key
+}
+
 export interface Activity {
   id: string;
   tripId: string;
@@ -57,18 +76,19 @@ export interface Trip {
   tasks: TripTask[];
   expenses: {
     id: string;
-    category: string;
+    description: string;
     amount: number;
-    note: string;
-    date?: string;
+    category: string;
+    date: string;
   }[];
   packingList: PackingItem[];
+  photos?: Photo[];
   weather?: {
     date: string;
     maxTemp: number;
     minTemp: number;
-    precipitationProbability: number;
     weatherCode: number;
+    precipitationProbability: number;
   }[];
 }
 
