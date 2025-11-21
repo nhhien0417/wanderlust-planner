@@ -16,10 +16,10 @@
   - [x] Day-by-Day Itinerary View <!-- id: 13 -->
   - [x] Add Activities to Days (linked to Map markers) <!-- id: 14 -->
   - [x] Drag & Drop Reordering of Activities <!-- id: 15 -->
-- [ ] **Feature: Trip Kanban Board (Jira-style)** <!-- id: 24 -->
-  - [ ] Create Kanban Board UI (Columns: Todo, In Progress, Done) <!-- id: 25 -->
-  - [ ] Implement Drag & Drop for Task Cards <!-- id: 26 -->
-  - [ ] Task Details Modal (Description, Priority, Due Date) <!-- id: 27 -->
+- [x] **Feature: Trip Kanban Board (Jira-style)** <!-- id: 24 -->
+  - [x] Create Kanban Board UI (Columns: Todo, In Progress, Done) <!-- id: 25 -->
+  - [x] Implement Drag & Drop for Task Cards <!-- id: 26 -->
+  - [x] Task Details Modal (Description, Priority, Due Date) <!-- id: 27 -->
 - [ ] **Feature: Smart Utilities** <!-- id: 16 -->
   - [ ] Weather Widget (Fetch forecast for trip location/dates) <!-- id: 17 -->
   - [ ] Budget Tracker (Expense input, Pie chart visualization) <!-- id: 18 -->

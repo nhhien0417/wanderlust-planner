@@ -35,6 +35,9 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import Tabs from "@mui/material/Tabs";
+import Tab from "@mui/material/Tab";
+import { TripKanban } from "./TripKanban";
 
 interface TripDetailsProps {
   tripId: string;
@@ -142,6 +145,7 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
   const reorderActivities = useTripStore((state) => state.reorderActivities);
   const [activeDayId, setActiveDayId] = useState<string | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [currentTab, setCurrentTab] = useState(0);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -305,12 +309,27 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
         </Container>
       </Box>
 
-      {/* Itinerary Content */}
+      {/* Tabs */}
+      <Box sx={{ borderBottom: 1, borderColor: "divider", bgcolor: "white" }}>
+        <Container maxWidth="lg">
+          <Tabs
+            value={currentTab}
+            onChange={(_, newValue) => setCurrentTab(newValue)}
+            aria-label="trip tabs"
+          >
+            <Tab label="Itinerary" />
+            <Tab label="Kanban Board" />
+          </Tabs>
+        </Container>
+      </Box>
+
+      {/* Content */}
       <Box
         sx={{
           flex: 1,
           overflowY: "auto",
           py: 4,
+          display: currentTab === 0 ? "block" : "none",
         }}
       >
         <Container maxWidth="lg">
@@ -466,6 +485,13 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
           </Box>
         </Container>
       </Box>
+
+      {/* Kanban Content */}
+      {currentTab === 1 && (
+        <Box sx={{ flex: 1, overflow: "hidden" }}>
+          <TripKanban tripId={tripId} />
+        </Box>
+      )}
 
       <AddActivityModal
         isOpen={!!activeDayId}

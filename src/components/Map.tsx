@@ -67,7 +67,13 @@ export const Map = ({
     <MapContainer
       center={center}
       zoom={zoom}
-      className="w-full h-full min-h-[400px] rounded-xl z-0"
+      style={{
+        width: "100%",
+        height: "100%",
+        minHeight: "400px",
+        borderRadius: "12px",
+        zIndex: 0,
+      }}
     >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

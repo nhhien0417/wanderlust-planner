@@ -28,6 +28,11 @@ interface TripState {
     taskId: string,
     status: TripTask["status"]
   ) => void;
+  updateTask: (
+    tripId: string,
+    taskId: string,
+    updates: Partial<Omit<TripTask, "id" | "subtasks">>
+  ) => void;
   deleteTask: (tripId: string, taskId: string) => void;
 }
 
@@ -155,6 +160,26 @@ export const useTripStore = create<TripState>()(
           const task = newTrips[tripIndex].tasks.find((t) => t.id === taskId);
           if (task) {
             task.status = status;
+          }
+
+          return { trips: newTrips };
+        }),
+
+      updateTask: (tripId, taskId, updates) =>
+        set((state) => {
+          const tripIndex = state.trips.findIndex((t) => t.id === tripId);
+          if (tripIndex === -1) return state;
+
+          const newTrips = [...state.trips];
+          const taskIndex = newTrips[tripIndex].tasks.findIndex(
+            (t) => t.id === taskId
+          );
+
+          if (taskIndex !== -1) {
+            newTrips[tripIndex].tasks[taskIndex] = {
+              ...newTrips[tripIndex].tasks[taskIndex],
+              ...updates,
+            };
           }
 
           return { trips: newTrips };
