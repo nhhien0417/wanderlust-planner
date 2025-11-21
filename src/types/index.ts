@@ -47,7 +47,13 @@ export interface Trip {
   budget: number;
   days: TripDay[];
   tasks: TripTask[];
-  expenses: { id: string; category: string; amount: number; note: string }[];
+  expenses: {
+    id: string;
+    category: string;
+    amount: number;
+    note: string;
+    date?: string;
+  }[];
 }
 
 export interface UserSettings {

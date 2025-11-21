@@ -38,6 +38,7 @@ import { CSS } from "@dnd-kit/utilities";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import { TripKanban } from "./TripKanban";
+import { TripBudget } from "./TripBudget";
 
 interface TripDetailsProps {
   tripId: string;
@@ -319,6 +320,7 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
           >
             <Tab label="Itinerary" />
             <Tab label="Kanban Board" />
+            <Tab label="Budget" />
           </Tabs>
         </Container>
       </Box>
@@ -490,6 +492,13 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
       {currentTab === 1 && (
         <Box sx={{ flex: 1, overflow: "hidden" }}>
           <TripKanban tripId={tripId} />
+        </Box>
+      )}
+
+      {/* Budget Content */}
+      {currentTab === 2 && (
+        <Box sx={{ flex: 1, overflow: "hidden" }}>
+          <TripBudget tripId={tripId} />
         </Box>
       )}
 

@@ -34,6 +34,19 @@ interface TripState {
     updates: Partial<Omit<TripTask, "id" | "subtasks">>
   ) => void;
   deleteTask: (tripId: string, taskId: string) => void;
+
+  // Budget Actions
+  addExpense: (
+    tripId: string,
+    expense: Omit<Trip["expenses"][0], "id">
+  ) => void;
+  removeExpense: (tripId: string, expenseId: string) => void;
+  updateExpense: (
+    tripId: string,
+    expenseId: string,
+    updates: Partial<Omit<Trip["expenses"][0], "id">>
+  ) => void;
+  setBudget: (tripId: string, amount: number) => void;
 }
 
 // Helper to generate days between dates
@@ -194,6 +207,64 @@ export const useTripStore = create<TripState>()(
           newTrips[tripIndex].tasks = newTrips[tripIndex].tasks.filter(
             (t) => t.id !== taskId
           );
+
+          return { trips: newTrips };
+        }),
+
+      addExpense: (tripId, expense) =>
+        set((state) => {
+          const tripIndex = state.trips.findIndex((t) => t.id === tripId);
+          if (tripIndex === -1) return state;
+
+          const newTrips = [...state.trips];
+          newTrips[tripIndex].expenses.push({
+            ...expense,
+            id: uuidv4(),
+          });
+
+          return { trips: newTrips };
+        }),
+
+      removeExpense: (tripId, expenseId) =>
+        set((state) => {
+          const tripIndex = state.trips.findIndex((t) => t.id === tripId);
+          if (tripIndex === -1) return state;
+
+          const newTrips = [...state.trips];
+          newTrips[tripIndex].expenses = newTrips[tripIndex].expenses.filter(
+            (e) => e.id !== expenseId
+          );
+
+          return { trips: newTrips };
+        }),
+
+      updateExpense: (tripId, expenseId, updates) =>
+        set((state) => {
+          const tripIndex = state.trips.findIndex((t) => t.id === tripId);
+          if (tripIndex === -1) return state;
+
+          const newTrips = [...state.trips];
+          const expenseIndex = newTrips[tripIndex].expenses.findIndex(
+            (e) => e.id === expenseId
+          );
+
+          if (expenseIndex !== -1) {
+            newTrips[tripIndex].expenses[expenseIndex] = {
+              ...newTrips[tripIndex].expenses[expenseIndex],
+              ...updates,
+            };
+          }
+
+          return { trips: newTrips };
+        }),
+
+      setBudget: (tripId, amount) =>
+        set((state) => {
+          const tripIndex = state.trips.findIndex((t) => t.id === tripId);
+          if (tripIndex === -1) return state;
+
+          const newTrips = [...state.trips];
+          newTrips[tripIndex].budget = amount;
 
           return { trips: newTrips };
         }),
