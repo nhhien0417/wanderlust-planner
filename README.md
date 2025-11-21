@@ -1,73 +1,75 @@
-# React + TypeScript + Vite
+# 🌍 Wanderlust Planner
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, smart travel planning application built to help you organize your trips with ease. Visualize your itinerary on an interactive map, manage tasks with a Kanban board, track your budget, and more.
 
-Currently, two official plugins are available:
+## ✨ Key Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **🗺️ Interactive Map**: Integrated Leaflet map to visualize your destinations and activities.
+- **📅 Itinerary Management**: Drag-and-drop interface to plan your daily activities.
+- **✅ Trip Kanban Board**: Jira-style task management for pre-trip to-dos (e.g., "Book flights", "Renew passport").
+- **💰 Budget Tracker**: Keep track of expenses with visual charts and category breakdowns.
+- **🌤️ Weather Widget**: Get real-time weather forecasts for your trip dates and locations.
+- **🧳 Smart Packing List**: Generate personalized packing lists based on destination, weather, and duration.
+- **📸 Photo Gallery**: (Coming Soon) Store and organize your trip memories.
 
-## React Compiler
+## 🛠️ Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Core**: [React](https://react.dev/), [TypeScript](https://www.typescriptlang.org/), [Vite](https://vitejs.dev/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/), [clsx](https://github.com/lukeed/clsx), [tailwind-merge](https://github.com/dcastil/tailwind-merge)
+- **State Management**: [Zustand](https://github.com/pmndrs/zustand)
+- **Maps**: [React Leaflet](https://react-leaflet.js.org/), [Leaflet](https://leafletjs.com/)
+- **Drag & Drop**: [@dnd-kit](https://dndkit.com/)
+- **Charts**: [Recharts](https://recharts.org/)
+- **Icons**: [Lucide React](https://lucide.dev/)
+- **Date Handling**: [date-fns](https://date-fns.org/)
 
-## Expanding the ESLint configuration
+## 🚀 Getting Started
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Prerequisites
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- Node.js (v18 or higher recommended)
+- npm or yarn
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Installation
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+1. **Clone the repository**
+
+   ```bash
+   git clone https://github.com/yourusername/wanderlust-planner.git
+   cd wanderlust-planner
+   ```
+
+2. **Install dependencies**
+
+   ```bash
+   npm install
+   ```
+
+3. **Start the development server**
+
+   ```bash
+   npm run dev
+   ```
+
+4. Open your browser and navigate to `http://localhost:5173` (or the port shown in your terminal).
+
+## 📂 Project Structure
+
+```
+src/
+├── api/            # API integration (Weather, Geocoding)
+├── components/     # Reusable UI components
+├── hooks/          # Custom React hooks
+├── store/          # Global state (Zustand stores)
+├── types/          # TypeScript definitions
+├── utils/          # Helper functions
+└── App.tsx         # Main application entry
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🤝 Contributing
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## 📄 License
+
+This project is licensed under the MIT License.

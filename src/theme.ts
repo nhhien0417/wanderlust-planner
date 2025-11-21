@@ -1,15 +1,14 @@
 import { createTheme } from "@mui/material/styles";
 
-// Define modern, vibrant color palette
 const colors = {
   primary: {
-    main: "#3b82f6", // Vibrant blue
+    main: "#3b82f6",
     light: "#60a5fa",
     dark: "#2563eb",
     gradient: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
   },
   secondary: {
-    main: "#a855f7", // Rich purple
+    main: "#a855f7",
     light: "#c084fc",
     dark: "#9333ea",
     gradient: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
