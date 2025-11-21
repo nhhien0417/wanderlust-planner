@@ -76,3 +76,39 @@ export const getWeatherIcon = (code: number) => {
   if (code >= 95 && code <= 99) return "⚡"; // Thunderstorm
   return "❓";
 };
+
+export const reverseGeocode = async (
+  lat: number,
+  lng: number
+): Promise<string | null> => {
+  try {
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`
+    );
+    const data = await response.json();
+
+    if (data && data.address) {
+      // Try to get city name from various fields
+      const city =
+        data.address.city ||
+        data.address.town ||
+        data.address.village ||
+        data.address.municipality ||
+        data.address.county;
+      const country = data.address.country;
+
+      if (city && country) {
+        return `${city}, ${country}`;
+      } else if (city) {
+        return city;
+      } else if (country) {
+        return country;
+      }
+    }
+
+    return data.display_name?.split(",")[0] || null;
+  } catch (error) {
+    console.error("Error reverse geocoding:", error);
+    return null;
+  }
+};
