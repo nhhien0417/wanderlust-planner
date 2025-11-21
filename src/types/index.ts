@@ -37,6 +37,14 @@ export interface TripTask {
   subtasks: { id: string; title: string; completed: boolean }[];
 }
 
+export interface PackingItem {
+  id: string;
+  name: string;
+  category: string;
+  checked: boolean;
+  isCustom?: boolean;
+}
+
 export interface Trip {
   id: string;
   name: string;
@@ -54,6 +62,7 @@ export interface Trip {
     note: string;
     date?: string;
   }[];
+  packingList: PackingItem[];
 }
 
 export interface UserSettings {

@@ -39,6 +39,7 @@ import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import { TripKanban } from "./TripKanban";
 import { TripBudget } from "./TripBudget";
+import { TripPackingList } from "./TripPackingList";
 
 interface TripDetailsProps {
   tripId: string;
@@ -321,6 +322,7 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
             <Tab label="Itinerary" />
             <Tab label="Kanban Board" />
             <Tab label="Budget" />
+            <Tab label="Packing List" />
           </Tabs>
         </Container>
       </Box>
@@ -499,6 +501,13 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
       {currentTab === 2 && (
         <Box sx={{ flex: 1, overflow: "hidden" }}>
           <TripBudget tripId={tripId} />
+        </Box>
+      )}
+
+      {/* Packing List Content */}
+      {currentTab === 3 && (
+        <Box sx={{ flex: 1, overflow: "hidden" }}>
+          <TripPackingList tripId={tripId} />
         </Box>
       )}
 

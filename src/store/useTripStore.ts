@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { Trip, TripTask, Activity, Location } from "../types";
+import type { Trip, TripTask, Activity, Location, PackingItem } from "../types";
 import { v4 as uuidv4 } from "uuid";
 
 interface TripState {
@@ -47,6 +47,15 @@ interface TripState {
     updates: Partial<Omit<Trip["expenses"][0], "id">>
   ) => void;
   setBudget: (tripId: string, amount: number) => void;
+
+  // Packing List Actions
+  addPackingItem: (
+    tripId: string,
+    item: Omit<PackingItem, "id" | "checked">
+  ) => void;
+  removePackingItem: (tripId: string, itemId: string) => void;
+  togglePackingItem: (tripId: string, itemId: string) => void;
+  generatePackingList: (tripId: string) => void;
 }
 
 // Helper to generate days between dates
@@ -79,6 +88,7 @@ export const useTripStore = create<TripState>()(
             days: generateDays(tripData.startDate, tripData.endDate),
             tasks: [],
             expenses: [],
+            packingList: [],
           };
           return {
             trips: [...state.trips, newTrip],
@@ -265,6 +275,92 @@ export const useTripStore = create<TripState>()(
 
           const newTrips = [...state.trips];
           newTrips[tripIndex].budget = amount;
+
+          return { trips: newTrips };
+        }),
+
+      addPackingItem: (tripId, item) =>
+        set((state) => {
+          const tripIndex = state.trips.findIndex((t) => t.id === tripId);
+          if (tripIndex === -1) return state;
+
+          const newTrips = [...state.trips];
+          newTrips[tripIndex].packingList.push({
+            ...item,
+            id: uuidv4(),
+            checked: false,
+          });
+
+          return { trips: newTrips };
+        }),
+
+      removePackingItem: (tripId, itemId) =>
+        set((state) => {
+          const tripIndex = state.trips.findIndex((t) => t.id === tripId);
+          if (tripIndex === -1) return state;
+
+          const newTrips = [...state.trips];
+          newTrips[tripIndex].packingList = newTrips[
+            tripIndex
+          ].packingList.filter((i) => i.id !== itemId);
+
+          return { trips: newTrips };
+        }),
+
+      togglePackingItem: (tripId, itemId) =>
+        set((state) => {
+          const tripIndex = state.trips.findIndex((t) => t.id === tripId);
+          if (tripIndex === -1) return state;
+
+          const newTrips = [...state.trips];
+          const item = newTrips[tripIndex].packingList.find(
+            (i) => i.id === itemId
+          );
+          if (item) {
+            item.checked = !item.checked;
+          }
+
+          return { trips: newTrips };
+        }),
+
+      generatePackingList: (tripId) =>
+        set((state) => {
+          const tripIndex = state.trips.findIndex((t) => t.id === tripId);
+          if (tripIndex === -1) return state;
+
+          const newTrips = [...state.trips];
+          const trip = newTrips[tripIndex];
+
+          // Basic default items
+          const defaultItems = [
+            { name: "T-Shirts", category: "Clothing" },
+            { name: "Pants/Shorts", category: "Clothing" },
+            { name: "Underwear", category: "Clothing" },
+            { name: "Socks", category: "Clothing" },
+            { name: "Shoes", category: "Clothing" },
+            { name: "Toothbrush", category: "Toiletries" },
+            { name: "Toothpaste", category: "Toiletries" },
+            { name: "Shampoo", category: "Toiletries" },
+            { name: "Deodorant", category: "Toiletries" },
+            { name: "Phone Charger", category: "Electronics" },
+            { name: "Power Bank", category: "Electronics" },
+            { name: "Passport/ID", category: "Documents" },
+            { name: "Wallet", category: "Documents" },
+          ];
+
+          // Filter out items that already exist
+          const existingNames = new Set(trip.packingList.map((i) => i.name));
+          const newItems = defaultItems
+            .filter((i) => !existingNames.has(i.name))
+            .map((i) => ({
+              id: uuidv4(),
+              name: i.name,
+              category: i.category,
+              checked: false,
+              isCustom: false,
+            }));
+
+          newTrips[tripIndex].packingList = [...trip.packingList, ...newItems];
 
           return { trips: newTrips };
         }),
