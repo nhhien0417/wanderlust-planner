@@ -589,8 +589,13 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
                 <Typography variant="h6" fontWeight="bold" gutterBottom>
                   Upload Photos
                 </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                  Attach uploads to a day or activity to keep memories organized.
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ mb: 2 }}
+                >
+                  Attach uploads to a day or activity to keep memories
+                  organized.
                 </Typography>
                 <PhotoUpload
                   tripId={tripId}
@@ -638,7 +643,8 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
                         </MenuItem>
                         {trip.days.map((day, index) => (
                           <MenuItem key={day.id} value={day.id}>
-                            Day {index + 1} - {format(parseISO(day.date), "MMM d")}
+                            Day {index + 1} -{" "}
+                            {format(parseISO(day.date), "MMM d")}
                           </MenuItem>
                         ))}
                       </Select>

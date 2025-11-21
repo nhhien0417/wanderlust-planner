@@ -1,4 +1,3 @@
-import { useState } from "react";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
@@ -10,11 +9,11 @@ import CardActionArea from "@mui/material/CardActionArea";
 import Stack from "@mui/material/Stack";
 import { Plus, Calendar, MapPin } from "lucide-react";
 import { useTripStore } from "../../store/useTripStore";
-import { CreateTripModal } from "../../components/CreateTripModal";
+import { useUIStore } from "../../store/useUIStore";
 
 export const Dashboard = () => {
   const { trips, setActiveTrip } = useTripStore();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { openCreateTripModal } = useUIStore();
 
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
@@ -39,7 +38,7 @@ export const Dashboard = () => {
           variant="contained"
           size="large"
           startIcon={<Plus size={20} />}
-          onClick={() => setIsModalOpen(true)}
+          onClick={openCreateTripModal}
           sx={{
             boxShadow: 3,
             "&:hover": { boxShadow: 6 },
@@ -83,7 +82,7 @@ export const Dashboard = () => {
           </Typography>
           <Button
             variant="text"
-            onClick={() => setIsModalOpen(true)}
+            onClick={openCreateTripModal}
             sx={{ fontWeight: 600 }}
           >
             Create a trip now
@@ -206,11 +205,6 @@ export const Dashboard = () => {
           ))}
         </Stack>
       )}
-
-      <CreateTripModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
     </Container>
   );
 };

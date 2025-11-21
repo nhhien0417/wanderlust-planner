@@ -6,11 +6,13 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
-import { Map, Layout, Calendar, Settings, PlusCircle } from "lucide-react";
+import { Layout, Calendar, Settings, PlusCircle } from "lucide-react";
 import { useTripStore } from "../store/useTripStore";
+import { useUIStore } from "../store/useUIStore";
 
 export const Sidebar = () => {
   const { activeTripId, setActiveTrip, trips } = useTripStore();
+  const { openCreateTripModal } = useUIStore();
 
   return (
     <Box
@@ -37,7 +39,14 @@ export const Sidebar = () => {
           boxShadow: "0 4px 12px rgba(102, 126, 234, 0.2)",
         }}
       >
-        <Map size={32} />
+        <Box
+          component="img"
+          src={"/src/assets/logo.png"}
+          sx={{
+            height: 50,
+            width: 50,
+          }}
+        />
         <Typography variant="h5" fontWeight="800" letterSpacing="-0.5px">
           Wanderlust
         </Typography>
@@ -80,10 +89,7 @@ export const Sidebar = () => {
               <ListItemIcon sx={{ minWidth: 40 }}>
                 <Layout size={20} />
               </ListItemIcon>
-              <ListItemText
-                primary="Dashboard"
-                primaryTypographyProps={{ fontWeight: 500 }}
-              />
+              <ListItemText primary="Dashboard" />
             </ListItemButton>
           </ListItem>
         </List>
@@ -124,19 +130,14 @@ export const Sidebar = () => {
                 <ListItemIcon sx={{ minWidth: 40 }}>
                   <Calendar size={20} />
                 </ListItemIcon>
-                <ListItemText
-                  primary={trip.name}
-                  primaryTypographyProps={{
-                    fontWeight: 500,
-                    noWrap: true,
-                  }}
-                />
+                <ListItemText primary={trip.name} />
               </ListItemButton>
             </ListItem>
           ))}
 
           <ListItem disablePadding sx={{ mt: 1 }}>
             <ListItemButton
+              onClick={openCreateTripModal}
               sx={{
                 borderRadius: 2,
                 border: "2px dashed",
@@ -152,10 +153,7 @@ export const Sidebar = () => {
               <ListItemIcon sx={{ minWidth: 40 }}>
                 <PlusCircle size={20} />
               </ListItemIcon>
-              <ListItemText
-                primary="New Trip"
-                primaryTypographyProps={{ fontWeight: 500 }}
-              />
+              <ListItemText primary="New Trip" />
             </ListItemButton>
           </ListItem>
         </List>
@@ -172,10 +170,7 @@ export const Sidebar = () => {
           <ListItemIcon sx={{ minWidth: 40 }}>
             <Settings size={20} />
           </ListItemIcon>
-          <ListItemText
-            primary="Settings"
-            primaryTypographyProps={{ fontWeight: 500 }}
-          />
+          <ListItemText primary="Settings" />
         </ListItemButton>
       </Box>
     </Box>
