@@ -43,11 +43,11 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
-import { TripKanban } from "./TripKanban";
+import { TripBoard } from "./TripBoard";
 import { TripBudget } from "./TripBudget";
 import { TripPackingList } from "./TripPackingList";
-import { WeatherWidget } from "./WeatherWidget";
-import { DayWeatherCard } from "./DayWeatherCard";
+import { WeatherWidget } from "../weather/WeatherWidget";
+import { DayWeatherCard } from "../../components/DayWeatherCard";
 import { PhotoUpload } from "../gallery/PhotoUpload";
 import { PhotoGallery } from "../gallery/PhotoGallery";
 import { PhotoLightbox } from "../gallery/PhotoLightbox";
@@ -373,7 +373,7 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
             aria-label="trip tabs"
           >
             <Tab label="Itinerary" />
-            <Tab label="Kanban Board" />
+            <Tab label="Board" />
             <Tab label="Budget" />
             <Tab label="Packing List" />
             <Tab
@@ -556,7 +556,7 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
       {/* Kanban Content */}
       {currentTab === 1 && (
         <Box sx={{ py: 4 }}>
-          <TripKanban tripId={tripId} />
+          <TripBoard tripId={tripId} />
         </Box>
       )}
 

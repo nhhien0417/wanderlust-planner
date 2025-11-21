@@ -1,7 +1,7 @@
 import { CloudRain, Thermometer } from "lucide-react";
 import { Box, Typography, Paper } from "@mui/material";
-import { getWeatherIcon } from "../../api/weatherApi";
-import type { Trip } from "../../types";
+import { getWeatherIcon } from "../api/weatherApi";
+import type { Trip } from "../types";
 
 interface DayWeatherCardProps {
   date: string;

@@ -195,7 +195,7 @@ const KanbanColumn = ({
   );
 };
 
-export const TripKanban = ({ tripId }: TripKanbanProps) => {
+export const TripBoard = ({ tripId }: TripKanbanProps) => {
   const trip = useTripStore((state) =>
     state.trips.find((t) => t.id === tripId)
   );

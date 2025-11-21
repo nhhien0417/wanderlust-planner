@@ -34,7 +34,6 @@ interface MapProps {
   onLocationSelect?: (lat: number, lng: number) => void;
 }
 
-// Component to handle map updates when center changes
 const MapUpdater = ({ center }: { center: [number, number] }) => {
   const map = useMap();
   useEffect(() => {
@@ -43,7 +42,6 @@ const MapUpdater = ({ center }: { center: [number, number] }) => {
   return null;
 };
 
-// Component to handle map clicks
 const MapEvents = ({
   onLocationSelect,
 }: {
@@ -58,7 +56,7 @@ const MapEvents = ({
 };
 
 export const Map = ({
-  center = [16.0544, 108.2022], // Default to Da Nang
+  center = [16.0544, 108.2022],
   zoom = 13,
   markers = [],
   onLocationSelect,
