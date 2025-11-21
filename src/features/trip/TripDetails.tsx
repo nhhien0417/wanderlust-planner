@@ -7,7 +7,7 @@ import {
   GripVertical,
 } from "lucide-react";
 import { format, parseISO } from "date-fns";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AddActivityModal } from "../../components/AddActivityModal";
 import { v4 as uuidv4 } from "uuid";
 import Box from "@mui/material/Box";
@@ -40,7 +40,7 @@ import Tab from "@mui/material/Tab";
 import { TripKanban } from "./TripKanban";
 import { TripBudget } from "./TripBudget";
 import { TripPackingList } from "./TripPackingList";
-import { WeatherWidget } from "./WeatherWidget";
+import { DayWeatherCard } from "./DayWeatherCard";
 
 interface TripDetailsProps {
   tripId: string;
@@ -146,9 +146,17 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
   );
   const addActivity = useTripStore((state) => state.addActivity);
   const reorderActivities = useTripStore((state) => state.reorderActivities);
+  const fetchTripWeather = useTripStore((state) => state.fetchTripWeather);
   const [activeDayId, setActiveDayId] = useState<string | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState(0);
+
+  // Fetch weather data when trip loads
+  useEffect(() => {
+    if (trip && !trip.weather) {
+      fetchTripWeather(tripId);
+    }
+  }, [tripId, trip?.weather, fetchTripWeather]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -231,7 +239,7 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
       <Box
         sx={{
           position: "relative",
-          height: 280,
+          height: 180,
           flexShrink: 0,
           overflow: "hidden",
         }}
@@ -311,10 +319,6 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
           </Box>
         </Container>
       </Box>
-
-      <Container maxWidth="lg" sx={{ mt: 3 }}>
-        <WeatherWidget tripId={tripId} />
-      </Container>
 
       {/* Tabs */}
       <Box sx={{ borderBottom: 1, borderColor: "divider", bgcolor: "white" }}>
@@ -396,6 +400,9 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
                     },
                   }}
                 >
+                  {/* Day Weather */}
+                  <DayWeatherCard date={day.date} weather={trip.weather} />
+
                   <Box
                     sx={{
                       display: "flex",
