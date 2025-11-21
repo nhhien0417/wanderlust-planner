@@ -10,9 +10,13 @@ import Stack from "@mui/material/Stack";
 import InputAdornment from "@mui/material/InputAdornment";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import { X, MapPin, Image as ImageIcon } from "lucide-react";
+import Collapse from "@mui/material/Collapse";
+import Paper from "@mui/material/Paper";
+import { X, MapPin, Image as ImageIcon, Map as MapIcon } from "lucide-react";
 import { useTripStore } from "../store/useTripStore";
 import todayDate from "../utils/todayDate";
+import { Map } from "./Map";
+import { reverseGeocode } from "../api/weatherApi";
 
 interface CreateTripModalProps {
   isOpen: boolean;
@@ -30,6 +34,17 @@ export const CreateTripModal = ({ isOpen, onClose }: CreateTripModalProps) => {
     coverImage: "",
   });
 
+  const [showMap, setShowMap] = useState(false);
+  const [selectedCoords, setSelectedCoords] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
+
+  const [viewState, setViewState] = useState({
+    center: [16.0544, 108.2022] as [number, number],
+    zoom: 13,
+  });
+
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -39,6 +54,22 @@ export const CreateTripModal = ({ isOpen, onClose }: CreateTripModalProps) => {
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleMapRightClick = async (lat: number, lng: number) => {
+    // Set coordinates
+    setSelectedCoords({ lat, lng });
+    setViewState({ center: [lat, lng], zoom: 15 });
+
+    // Reverse geocode to get city name
+    const cityName = await reverseGeocode(lat, lng);
+    if (cityName) {
+      setFormData({ ...formData, destination: cityName });
+    }
+  };
+
+  const handleRemovePin = () => {
+    setSelectedCoords(null);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -51,6 +82,7 @@ export const CreateTripModal = ({ isOpen, onClose }: CreateTripModalProps) => {
       endDate: new Date(formData.endDate).toISOString(),
       budget: Number(formData.budget) || 0,
       coverImage: formData.coverImage,
+      coordinates: selectedCoords || undefined,
     });
 
     onClose();
@@ -63,6 +95,8 @@ export const CreateTripModal = ({ isOpen, onClose }: CreateTripModalProps) => {
       budget: "",
       coverImage: "",
     });
+    setSelectedCoords(null);
+    setShowMap(false);
   };
 
   return (
@@ -140,6 +174,92 @@ export const CreateTripModal = ({ isOpen, onClose }: CreateTripModalProps) => {
                 ),
               }}
             />
+
+            <Button
+              variant="outlined"
+              onClick={() => setShowMap(!showMap)}
+              startIcon={<MapIcon size={18} />}
+              sx={{ textTransform: "none", fontWeight: 600 }}
+            >
+              {showMap ? "Hide" : "Show"} Map
+            </Button>
+
+            {/* Map Section */}
+            <Collapse in={showMap}>
+              <Box>
+                {selectedCoords && (
+                  <Paper
+                    elevation={2}
+                    sx={{
+                      mb: 2,
+                      p: 2,
+                      background:
+                        "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 2,
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        p: 1,
+                        backgroundColor: "primary.main",
+                        borderRadius: 2,
+                        color: "white",
+                      }}
+                    >
+                      <MapPin size={20} />
+                    </Box>
+                    <Box sx={{ flex: 1 }}>
+                      <Typography variant="subtitle2" fontWeight="bold">
+                        Selected Location
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {formData.destination || "Location selected"}
+                      </Typography>
+                    </Box>
+                    <IconButton
+                      size="small"
+                      onClick={handleRemovePin}
+                      sx={{ color: "error.main" }}
+                    >
+                      <X size={18} />
+                    </IconButton>
+                  </Paper>
+                )}
+
+                <Box sx={{ height: 300, borderRadius: 2, overflow: "hidden" }}>
+                  <Map
+                    center={viewState.center}
+                    zoom={viewState.zoom}
+                    onRightClick={handleMapRightClick}
+                    onMarkerRemove={handleRemovePin}
+                    markers={
+                      selectedCoords
+                        ? [
+                            {
+                              id: "selected",
+                              position: [
+                                selectedCoords.lat,
+                                selectedCoords.lng,
+                              ],
+                              title:
+                                formData.destination || "Selected location",
+                            },
+                          ]
+                        : []
+                    }
+                  />
+                </Box>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ display: "block", mt: 1, fontStyle: "italic" }}
+                >
+                  💡 Right-click on the map to select your destination
+                </Typography>
+              </Box>
+            </Collapse>
 
             <Stack direction="row" spacing={2}>
               <TextField

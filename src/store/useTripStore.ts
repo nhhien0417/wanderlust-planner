@@ -516,14 +516,26 @@ export const useTripStore = create<TripState>()(
         let lat = 0;
         let lng = 0;
 
-        // Try to get coordinates from destination string
-        const coords = await getCoordinates(trip.destination);
-        if (coords) {
-          lat = coords.lat;
-          lng = coords.lng;
+        // Try to get coordinates from stored trip coordinates first
+        if (trip.coordinates) {
+          lat = trip.coordinates.lat;
+          lng = trip.coordinates.lng;
+          console.log(
+            `Using stored coordinates for ${trip.destination}: ${lat}, ${lng}`
+          );
         } else {
-          console.error("Could not find coordinates for destination");
-          return;
+          // Fallback to geocoding from destination string
+          const coords = await getCoordinates(trip.destination);
+          if (coords) {
+            lat = coords.lat;
+            lng = coords.lng;
+            console.log(`Geocoded ${trip.destination}: ${lat}, ${lng}`);
+          } else {
+            console.warn(
+              `Could not find coordinates for destination: "${trip.destination}". Weather data will not be available. Please check the destination name or select location on map.`
+            );
+            return;
+          }
         }
 
         const weatherData = await getWeatherForecast(
@@ -533,15 +545,19 @@ export const useTripStore = create<TripState>()(
           trip.endDate
         );
 
-        set((state) => {
-          const tripIndex = state.trips.findIndex((t) => t.id === tripId);
-          if (tripIndex === -1) return state;
+        if (weatherData && weatherData.length > 0) {
+          set((state) => {
+            const tripIndex = state.trips.findIndex((t) => t.id === tripId);
+            if (tripIndex === -1) return state;
 
-          const newTrips = [...state.trips];
-          newTrips[tripIndex].weather = weatherData;
+            const newTrips = [...state.trips];
+            newTrips[tripIndex].weather = weatherData;
 
-          return { trips: newTrips };
-        });
+            return { trips: newTrips };
+          });
+        } else {
+          console.warn(`No weather data received for ${trip.destination}`);
+        }
       },
 
       addPhoto: (tripId, photo) =>

@@ -32,6 +32,8 @@ interface MapProps {
     title: string;
   }>;
   onLocationSelect?: (lat: number, lng: number) => void;
+  onRightClick?: (lat: number, lng: number) => void;
+  onMarkerRemove?: (markerId: string) => void;
 }
 
 const MapUpdater = ({ center }: { center: [number, number] }) => {
@@ -44,12 +46,18 @@ const MapUpdater = ({ center }: { center: [number, number] }) => {
 
 const MapEvents = ({
   onLocationSelect,
+  onRightClick,
 }: {
   onLocationSelect?: (lat: number, lng: number) => void;
+  onRightClick?: (lat: number, lng: number) => void;
 }) => {
   useMapEvents({
     click(e: L.LeafletMouseEvent) {
       onLocationSelect?.(e.latlng.lat, e.latlng.lng);
+    },
+    contextmenu(e: L.LeafletMouseEvent) {
+      e.originalEvent.preventDefault();
+      onRightClick?.(e.latlng.lat, e.latlng.lng);
     },
   });
   return null;
@@ -60,6 +68,8 @@ export const Map = ({
   zoom = 13,
   markers = [],
   onLocationSelect,
+  onRightClick,
+  onMarkerRemove,
 }: MapProps) => {
   return (
     <MapContainer
@@ -78,9 +88,21 @@ export const Map = ({
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
       <MapUpdater center={center} />
-      <MapEvents onLocationSelect={onLocationSelect} />
+      <MapEvents
+        onLocationSelect={onLocationSelect}
+        onRightClick={onRightClick}
+      />
       {markers.map((marker) => (
-        <Marker key={marker.id} position={marker.position}>
+        <Marker
+          key={marker.id}
+          position={marker.position}
+          eventHandlers={{
+            contextmenu: (e) => {
+              e.originalEvent.preventDefault();
+              onMarkerRemove?.(marker.id);
+            },
+          }}
+        >
           <Popup>{marker.title}</Popup>
         </Marker>
       ))}
