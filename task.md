@@ -35,15 +35,15 @@
 
 ### Phase 1: Essential Enhancements
 
-- [/] **Feature: Budget Tracking & Management** <!-- id: 28 -->
+- [x] **Feature: Budget Tracking & Management** <!-- id: 28 -->
 
-  - [ ] Create Budget Overview Component (Total budget, Spent, Remaining) <!-- id: 29 -->
-  - [ ] Expense Input Form (Category, Amount, Date, Description) <!-- id: 30 -->
-  - [ ] Expense List with Filtering/Sorting <!-- id: 31 -->
-  - [ ] Budget Visualization (Pie chart by category, Bar chart timeline) <!-- id: 32 -->
+  - [x] Create Budget Overview Component (Total budget, Spent, Remaining) <!-- id: 29 -->
+  - [x] Expense Input Form (Category, Amount, Date, Description) <!-- id: 30 -->
+  - [x] Expense List with Filtering/Sorting <!-- id: 31 -->
+  - [x] Budget Visualization (Pie chart by category, Bar chart timeline) <!-- id: 32 -->
   - [ ] Multi-currency Support <!-- id: 33 -->
 
-- [ ] **Feature: Smart Packing List** <!-- id: 34 -->
+- [/] **Feature: Smart Packing List** <!-- id: 34 -->
 
   - [ ] Rule-based Packing List Generator (Weather-based, Duration-based, Activity-based) <!-- id: 35 -->
   - [ ] Custom Item Management (Add/Remove/Edit items) <!-- id: 36 -->
