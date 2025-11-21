@@ -7,7 +7,7 @@ import {
   GripVertical,
 } from "lucide-react";
 import { format, parseISO } from "date-fns";
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AddActivityModal } from "../../components/AddActivityModal";
 import { v4 as uuidv4 } from "uuid";
 import Box from "@mui/material/Box";
@@ -17,6 +17,12 @@ import Card from "@mui/material/Card";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
 import IconButton from "@mui/material/IconButton";
+import Badge from "@mui/material/Badge";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import type { SelectChangeEvent } from "@mui/material/Select";
 import {
   DndContext,
   closestCenter,
@@ -42,6 +48,13 @@ import { TripBudget } from "./TripBudget";
 import { TripPackingList } from "./TripPackingList";
 import { WeatherWidget } from "./WeatherWidget";
 import { DayWeatherCard } from "./DayWeatherCard";
+import { PhotoUpload } from "../gallery/PhotoUpload";
+import { PhotoGallery } from "../gallery/PhotoGallery";
+import { PhotoLightbox } from "../gallery/PhotoLightbox";
+import { PhotoMetadataForm } from "../gallery/PhotoMetadataForm";
+import type { Photo } from "../../types";
+
+const EMPTY_PHOTOS: Photo[] = [];
 
 interface TripDetailsProps {
   tripId: string;
@@ -148,9 +161,19 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
   const addActivity = useTripStore((state) => state.addActivity);
   const reorderActivities = useTripStore((state) => state.reorderActivities);
   const fetchTripWeather = useTripStore((state) => state.fetchTripWeather);
+  const deletePhoto = useTripStore((state) => state.deletePhoto);
+  const tripPhotos = useTripStore((state) => {
+    const found = state.trips.find((t) => t.id === tripId);
+    return found?.photos ?? EMPTY_PHOTOS;
+  });
   const [activeDayId, setActiveDayId] = useState<string | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [editingPhoto, setEditingPhoto] = useState<Photo | null>(null);
+  const [photoDayFilter, setPhotoDayFilter] = useState("");
+  const [photoActivityFilter, setPhotoActivityFilter] = useState("");
 
   // Fetch weather data when trip loads
   useEffect(() => {
@@ -158,6 +181,34 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
       fetchTripWeather(tripId);
     }
   }, [tripId, trip?.weather, fetchTripWeather]);
+
+  const filteredPhotos = useMemo(() => {
+    return tripPhotos.filter((photo) => {
+      if (photoDayFilter && photo.dayId !== photoDayFilter) return false;
+      if (photoActivityFilter && photo.activityId !== photoActivityFilter)
+        return false;
+      return true;
+    });
+  }, [tripPhotos, photoActivityFilter, photoDayFilter]);
+
+  const selectedDay = useMemo(
+    () => trip?.days.find((d) => d.id === photoDayFilter),
+    [photoDayFilter, trip?.days]
+  );
+
+  const activitiesForFilter = selectedDay?.activities ?? [];
+
+  useEffect(() => {
+    if (!photoActivityFilter) return;
+
+    const stillValid = activitiesForFilter.some(
+      (activity) => activity.id === photoActivityFilter
+    );
+
+    if (!stillValid) {
+      setPhotoActivityFilter("");
+    }
+  }, [activitiesForFilter, photoActivityFilter]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -225,6 +276,21 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
 
     setActiveId(null);
   };
+
+  const handlePhotoClick = (_photo: Photo, index: number) => {
+    setLightboxIndex(index);
+    setLightboxOpen(true);
+  };
+
+  const handlePhotoDelete = async (photoId: string) => {
+    await deletePhoto(tripId, photoId);
+  };
+
+  const handlePhotoEdit = (photo: Photo) => {
+    setEditingPhoto(photo);
+  };
+
+  const photoCount = tripPhotos.length;
 
   return (
     <Box
@@ -310,6 +376,13 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
             <Tab label="Kanban Board" />
             <Tab label="Budget" />
             <Tab label="Packing List" />
+            <Tab
+              label={
+                <Badge badgeContent={photoCount} color="primary">
+                  Photos
+                </Badge>
+              }
+            />
           </Tabs>
         </Container>
       </Box>
@@ -499,6 +572,135 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
         <Box sx={{ py: 4 }}>
           <TripPackingList tripId={tripId} />
         </Box>
+      )}
+
+      {/* Photos Content */}
+      {currentTab === 4 && (
+        <Box sx={{ py: 4 }}>
+          <Container maxWidth="lg">
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: { xs: "1fr", md: "360px 1fr" },
+                gap: 3,
+              }}
+            >
+              <Card sx={{ p: 2 }}>
+                <Typography variant="h6" fontWeight="bold" gutterBottom>
+                  Upload Photos
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                  Attach uploads to a day or activity to keep memories organized.
+                </Typography>
+                <PhotoUpload
+                  tripId={tripId}
+                  dayId={photoDayFilter || undefined}
+                  activityId={photoActivityFilter || undefined}
+                />
+              </Card>
+
+              <Card sx={{ p: 2 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 2,
+                    flexWrap: "wrap",
+                  }}
+                >
+                  <Typography variant="h6" fontWeight="bold">
+                    Gallery ({filteredPhotos.length})
+                  </Typography>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      gap: 1.5,
+                      flexWrap: "wrap",
+                      alignItems: "center",
+                    }}
+                  >
+                    <FormControl size="small" sx={{ minWidth: 160 }}>
+                      <InputLabel id="day-filter-label">Day</InputLabel>
+                      <Select
+                        labelId="day-filter-label"
+                        label="Day"
+                        value={photoDayFilter}
+                        onChange={(event: SelectChangeEvent<string>) => {
+                          setPhotoDayFilter(event.target.value);
+                          if (!event.target.value) {
+                            setPhotoActivityFilter("");
+                          }
+                        }}
+                      >
+                        <MenuItem value="">
+                          <em>All days</em>
+                        </MenuItem>
+                        {trip.days.map((day, index) => (
+                          <MenuItem key={day.id} value={day.id}>
+                            Day {index + 1} - {format(parseISO(day.date), "MMM d")}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+
+                    {selectedDay && (
+                      <FormControl size="small" sx={{ minWidth: 180 }}>
+                        <InputLabel id="activity-filter-label">
+                          Activity
+                        </InputLabel>
+                        <Select
+                          labelId="activity-filter-label"
+                          label="Activity"
+                          value={photoActivityFilter}
+                          onChange={(event: SelectChangeEvent<string>) =>
+                            setPhotoActivityFilter(event.target.value)
+                          }
+                        >
+                          <MenuItem value="">
+                            <em>All activities</em>
+                          </MenuItem>
+                          {activitiesForFilter.map((activity) => (
+                            <MenuItem key={activity.id} value={activity.id}>
+                              {activity.location.name}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    )}
+                  </Box>
+                </Box>
+
+                <Box sx={{ mt: 2 }}>
+                  <PhotoGallery
+                    tripId={tripId}
+                    photos={filteredPhotos}
+                    onPhotoClick={handlePhotoClick}
+                    onEditPhoto={handlePhotoEdit}
+                  />
+                </Box>
+              </Card>
+            </Box>
+          </Container>
+        </Box>
+      )}
+
+      <PhotoLightbox
+        photos={filteredPhotos}
+        initialIndex={lightboxIndex}
+        open={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+        onDelete={handlePhotoDelete}
+        onEdit={handlePhotoEdit}
+      />
+
+      {editingPhoto && (
+        <PhotoMetadataForm
+          tripId={tripId}
+          photo={editingPhoto}
+          open={Boolean(editingPhoto)}
+          onClose={() => setEditingPhoto(null)}
+        />
       )}
 
       <AddActivityModal

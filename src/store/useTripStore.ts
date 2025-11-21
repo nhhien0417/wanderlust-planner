@@ -10,6 +10,7 @@ import type {
   Photo,
 } from "../types";
 import { getCoordinates, getWeatherForecast } from "../api/weatherApi";
+import { photoStorage } from "../utils/photoStorage";
 
 interface TripState {
   trips: Trip[];
@@ -72,13 +73,19 @@ interface TripState {
 
   // Photo Actions
   addPhoto: (tripId: string, photo: Photo) => void;
+  deletePhoto: (tripId: string, photoId: string) => Promise<void>;
   removePhoto: (tripId: string, photoId: string) => void;
   updatePhoto: (
     tripId: string,
     photoId: string,
     updates: Partial<Omit<Photo, "id">>
   ) => void;
+  getPhotosByTrip: (tripId: string) => Photo[];
+  getPhotosByActivity: (tripId: string, activityId: string) => Photo[];
+  getPhotosByDay: (tripId: string, dayId: string) => Photo[];
 }
+
+const EMPTY_PHOTOS: Photo[] = [];
 
 // Helper to generate days between dates
 const generateDays = (start: string, end: string) => {
@@ -467,13 +474,33 @@ export const useTripStore = create<TripState>()(
           if (tripIndex === -1) return state;
 
           const newTrips = [...state.trips];
-          if (!newTrips[tripIndex].photos) {
-            newTrips[tripIndex].photos = [];
-          }
-          newTrips[tripIndex].photos!.push(photo);
+          const currentPhotos = newTrips[tripIndex].photos ?? [];
+          newTrips[tripIndex].photos = [...currentPhotos, photo];
 
           return { trips: newTrips };
         }),
+
+      deletePhoto: async (tripId, photoId) => {
+        try {
+          await photoStorage.deletePhoto(photoId);
+        } catch (error) {
+          console.error("Failed to delete photo from storage", error);
+        }
+
+        set((state) => {
+          const tripIndex = state.trips.findIndex((t) => t.id === tripId);
+          if (tripIndex === -1) return state;
+
+          const newTrips = [...state.trips];
+          if (newTrips[tripIndex].photos) {
+            newTrips[tripIndex].photos = newTrips[tripIndex].photos!.filter(
+              (p) => p.id !== photoId
+            );
+          }
+
+          return { trips: newTrips };
+        });
+      },
 
       removePhoto: (tripId, photoId) =>
         set((state) => {
@@ -496,20 +523,28 @@ export const useTripStore = create<TripState>()(
           if (tripIndex === -1) return state;
 
           const newTrips = [...state.trips];
-          if (newTrips[tripIndex].photos) {
-            const photoIndex = newTrips[tripIndex].photos!.findIndex(
-              (p) => p.id === photoId
-            );
-            if (photoIndex !== -1) {
-              newTrips[tripIndex].photos![photoIndex] = {
-                ...newTrips[tripIndex].photos![photoIndex],
-                ...updates,
-              };
-            }
-          }
+          const existingPhotos = newTrips[tripIndex].photos ?? [];
+          newTrips[tripIndex].photos = existingPhotos.map((photo) =>
+            photo.id === photoId ? { ...photo, ...updates } : photo
+          );
 
           return { trips: newTrips };
         }),
+
+      getPhotosByTrip: (tripId) => {
+        const trip = get().trips.find((t) => t.id === tripId);
+        return trip?.photos ?? EMPTY_PHOTOS;
+      },
+
+      getPhotosByActivity: (tripId, activityId) => {
+        const photos = get().getPhotosByTrip(tripId);
+        return photos.filter((photo) => photo.activityId === activityId);
+      },
+
+      getPhotosByDay: (tripId, dayId) => {
+        const photos = get().getPhotosByTrip(tripId);
+        return photos.filter((photo) => photo.dayId === dayId);
+      },
     }),
     {
       name: "wanderlust-storage",

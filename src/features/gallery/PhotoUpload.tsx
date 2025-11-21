@@ -130,6 +130,7 @@ export const PhotoUpload = ({
           fileName: file.name,
           fileSize: file.size,
           uploadDate: new Date().toISOString(),
+          captureDate: new Date(file.lastModified || Date.now()).toISOString(),
           thumbnailUrl,
           photoId: dbId,
         };
