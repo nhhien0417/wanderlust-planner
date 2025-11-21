@@ -22,7 +22,9 @@ import {
   Bath,
   Package,
   HeartPulse,
+  FileDown,
 } from "lucide-react";
+import { exportPackingListToPDF } from "../../utils/pdfExport";
 
 interface TripPackingListProps {
   tripId: string;
@@ -111,6 +113,16 @@ export const TripPackingList = ({ tripId }: TripPackingListProps) => {
     return grouped;
   }, [trip.packingList]);
 
+  const handleExportPDF = () => {
+    exportPackingListToPDF({
+      tripName: trip.name,
+      destination: trip.destination,
+      startDate: trip.startDate,
+      endDate: trip.endDate,
+      packingList: trip.packingList || [],
+    });
+  };
+
   return (
     <Box sx={{ p: 3, height: "100%", overflowY: "auto" }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
@@ -131,13 +143,23 @@ export const TripPackingList = ({ tripId }: TripPackingListProps) => {
             </Typography>
           </Box>
         </Box>
-        <Button
-          variant="outlined"
-          startIcon={<ListChecks />}
-          onClick={() => generatePackingList(tripId)}
-        >
-          Generate List
-        </Button>
+        <Box sx={{ display: "flex", gap: 2 }}>
+          <Button
+            variant="outlined"
+            startIcon={<ListChecks />}
+            onClick={() => generatePackingList(tripId)}
+          >
+            Generate List
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={<FileDown />}
+            onClick={handleExportPDF}
+            disabled={!trip.packingList || trip.packingList.length === 0}
+          >
+            Export PDF
+          </Button>
+        </Box>
       </Box>
 
       {/* Add Item Form */}
