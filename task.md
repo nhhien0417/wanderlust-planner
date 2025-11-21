@@ -1,17 +1,17 @@
 # Task: Smart Travel Planner (Wanderlust)
 
-- [ ] **Project Setup** <!-- id: 0 -->
+- [x] **Project Setup** <!-- id: 0 -->
   - [x] Initialize Vite + React + TypeScript + Tailwind project <!-- id: 1 -->
   - [x] Setup folder structure (components, stores, hooks, utils, types) <!-- id: 2 -->
   - [x] Install dependencies (react-leaflet, leaflet, lucide-react, date-fns, recharts, zustand, @dnd-kit/core @dnd-kit/sortable @dnd-kit/utilities) <!-- id: 3 -->
-- [ ] **Core Architecture & Layout** <!-- id: 4 -->
+- [x] **Core Architecture & Layout** <!-- id: 4 -->
   - [x] Create App Layout (Sidebar/Navigation, Main Area) <!-- id: 5 -->
   - [x] Implement Global Store (Trip data, User preferences) <!-- id: 6 -->
-- [ ] **Feature: Interactive Map** <!-- id: 7 -->
+- [x] **Feature: Interactive Map** <!-- id: 7 -->
   - [x] Integrate Leaflet Map component <!-- id: 8 -->
   - [x] Implement Location Search (using OpenStreetMap Nominatim API) <!-- id: 9 -->
   - [x] Add/Remove Markers on Map <!-- id: 10 -->
-- [ ] **Feature: Itinerary Management** <!-- id: 11 -->
+- [x] **Feature: Itinerary Management** <!-- id: 11 -->
   - [x] Create Trip Wizard (Name, Dates, Cover Image) <!-- id: 12 -->
   - [x] Day-by-Day Itinerary View <!-- id: 13 -->
   - [x] Add Activities to Days (linked to Map markers) <!-- id: 14 -->
@@ -20,54 +20,41 @@
   - [x] Create Kanban Board UI (Columns: Todo, In Progress, Done) <!-- id: 25 -->
   - [x] Implement Drag & Drop for Task Cards <!-- id: 26 -->
   - [x] Task Details Modal (Description, Priority, Due Date) <!-- id: 27 -->
-- [ ] **Feature: Smart Utilities** <!-- id: 16 -->
-  - [ ] Weather Widget (Fetch forecast for trip location/dates) <!-- id: 17 -->
-  - [ ] Budget Tracker (Expense input, Pie chart visualization) <!-- id: 18 -->
-  - [ ] Smart Packing List Generator (Rule-based generation) <!-- id: 19 -->
-- [ ] **UI Polish & Finalization** <!-- id: 20 -->
+- [x] **Feature: Smart Utilities** <!-- id: 16 -->
+  - [x] Weather Widget (Fetch forecast for trip location/dates) <!-- id: 17 -->
+  - [x] Budget Tracker (Expense input, Pie chart visualization) <!-- id: 18 -->
+  - [x] Smart Packing List Generator (Rule-based generation) <!-- id: 19 -->
+- [x] **UI Polish & Finalization** <!-- id: 20 -->
   - [x] Landing/Dashboard Page Design <!-- id: 21 -->
-  - [ ] Responsive Design Adjustments <!-- id: 22 -->
-  - [ ] Final Testing & Bug Fixes <!-- id: 23 -->
+  - [x] Responsive Design Adjustments <!-- id: 22 -->
+  - [x] Final Testing & Bug Fixes <!-- id: 23 -->
 
 ---
 
 ## 🚀 Advanced Features Roadmap (Prioritized)
-
 ### Phase 1: Essential Enhancements
-
 - [x] **Feature: Budget Tracking & Management** <!-- id: 28 -->
-
   - [x] Create Budget Overview Component (Total budget, Spent, Remaining) <!-- id: 29 -->
   - [x] Expense Input Form (Category, Amount, Date, Description) <!-- id: 30 -->
   - [x] Expense List with Filtering/Sorting <!-- id: 31 -->
   - [x] Budget Visualization (Pie chart by category, Bar chart timeline) <!-- id: 32 -->
-  - [ ] Multi-currency Support <!-- id: 33 -->
+  - [x] Multi-currency Support <!-- id: 33 -->
 
 - [x] **Feature: Smart Packing List** <!-- id: 34 -->
-
   - [x] Rule-based Packing List Generator (Weather-based, Duration-based, Activity-based) <!-- id: 35 -->
   - [x] Custom Item Management (Add/Remove/Edit items) <!-- id: 36 -->
   - [x] Categorized Packing Lists (Clothing, Electronics, Documents, Toiletries) <!-- id: 37 -->
   - [x] Checkbox Progress Tracking <!-- id: 38 -->
-  - [ ] Export Packing List to PDF <!-- id: 39 -->
+  - [x] Export Packing List to PDF <!-- id: 39 -->
 
-- [/] **Feature: Photo Gallery** <!-- id: 45 -->
-  - [ ] Photo Upload Component (Multiple files, Drag & Drop) <!-- id: 46 -->
-  - [ ] Gallery View with Lightbox <!-- id: 47 -->
-  - [ ] Link Photos to Activities/Locations <!-- id: 48 -->
-  - [ ] Photo Metadata (Date, Location, Description) <!-- id: 49 -->
-  - [ ] Photo Storage (IndexedDB/LocalStorage) <!-- id: 50 -->
+- [x] **Feature: Photo Gallery** <!-- id: 45 -->
+  - [x] Photo Upload Component (Multiple files, Drag & Drop) <!-- id: 46 -->
+  - [x] Gallery View with Lightbox <!-- id: 47 -->
+  - [x] Link Photos to Activities/Locations <!-- id: 48 -->
+  - [x] Photo Metadata (Date, Location, Description) <!-- id: 49 -->
+  - [x] Photo Storage (IndexedDB/LocalStorage) <!-- id: 50 -->
 
 ### Phase 2: Content & Visualization
-
-- [ ] **Feature: Photo Gallery** <!-- id: 45 -->
-
-  - [ ] Photo Upload Component (Multiple files, Drag & Drop) <!-- id: 46 -->
-  - [ ] Gallery View with Lightbox <!-- id: 47 -->
-  - [ ] Link Photos to Activities/Locations <!-- id: 48 -->
-  - [ ] Photo Metadata (Date, Location, Description) <!-- id: 49 -->
-  - [ ] Photo Storage (IndexedDB/LocalStorage) <!-- id: 50 -->
-
 - [ ] **Feature: Export & Sharing** <!-- id: 51 -->
   - [ ] Export Trip to PDF (Full itinerary, Map screenshots, Budget summary) <!-- id: 52 -->
   - [ ] Print-friendly Layout <!-- id: 53 -->
