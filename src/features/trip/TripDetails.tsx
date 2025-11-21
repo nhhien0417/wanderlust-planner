@@ -40,6 +40,7 @@ import Tab from "@mui/material/Tab";
 import { TripKanban } from "./TripKanban";
 import { TripBudget } from "./TripBudget";
 import { TripPackingList } from "./TripPackingList";
+import { WeatherWidget } from "./WeatherWidget";
 import { DayWeatherCard } from "./DayWeatherCard";
 
 interface TripDetailsProps {
@@ -228,19 +229,14 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
   return (
     <Box
       sx={{
-        height: "100vh",
-        display: "flex",
-        flexDirection: "column",
+        minHeight: "100vh",
         backgroundColor: "background.default",
-        overflow: "hidden",
       }}
     >
       {/* Hero Section */}
       <Box
         sx={{
           position: "relative",
-          height: 180,
-          flexShrink: 0,
           overflow: "hidden",
         }}
       >
@@ -253,38 +249,16 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
           alt={trip.name}
           sx={{
             width: "100%",
-            height: "100%",
+            height: 180,
             objectFit: "cover",
           }}
         />
-        <Box
-          sx={{
-            position: "absolute",
-            inset: 0,
-            background:
-              "linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.3) 50%, transparent 100%)",
-          }}
-        />
-        <Container
-          maxWidth="lg"
-          sx={{
-            position: "absolute",
-            bottom: 0,
-            left: "50%",
-            transform: "translateX(-50%)",
-            width: "100%",
-            p: 4,
-            color: "white",
-          }}
-        >
-          <Typography
-            variant="h3"
-            fontWeight="bold"
-            gutterBottom
-            sx={{
-              textShadow: "0 2px 10px rgba(0,0,0,0.3)",
-            }}
-          >
+      </Box>
+
+      {/* Trip Info */}
+      <Box sx={{ bgcolor: "grey.900", color: "white", py: 3 }}>
+        <Container maxWidth="lg">
+          <Typography variant="h3" fontWeight="bold" gutterBottom>
             {trip.name}
           </Typography>
           <Box
@@ -320,6 +294,10 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
         </Container>
       </Box>
 
+      <Container maxWidth="lg" sx={{ mt: 3 }}>
+        <WeatherWidget tripId={tripId} />
+      </Container>
+
       {/* Tabs */}
       <Box sx={{ borderBottom: 1, borderColor: "divider", bgcolor: "white" }}>
         <Container maxWidth="lg">
@@ -339,8 +317,6 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
       {/* Content */}
       <Box
         sx={{
-          flex: 1,
-          overflowY: "auto",
           py: 4,
           display: currentTab === 0 ? "block" : "none",
         }}
@@ -386,6 +362,11 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
                   <Typography variant="body2" color="text.secondary">
                     {format(parseISO(day.date), "MMM d")}
                   </Typography>
+
+                  {/* Day Weather */}
+                  <Box sx={{ mt: 1 }}>
+                    <DayWeatherCard date={day.date} weather={trip.weather} />
+                  </Box>
                 </Box>
 
                 {/* Day Content */}
@@ -400,9 +381,6 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
                     },
                   }}
                 >
-                  {/* Day Weather */}
-                  <DayWeatherCard date={day.date} weather={trip.weather} />
-
                   <Box
                     sx={{
                       display: "flex",
@@ -504,21 +482,21 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
 
       {/* Kanban Content */}
       {currentTab === 1 && (
-        <Box sx={{ flex: 1, overflow: "hidden" }}>
+        <Box sx={{ py: 4 }}>
           <TripKanban tripId={tripId} />
         </Box>
       )}
 
       {/* Budget Content */}
       {currentTab === 2 && (
-        <Box sx={{ flex: 1, overflow: "hidden" }}>
+        <Box sx={{ py: 4 }}>
           <TripBudget tripId={tripId} />
         </Box>
       )}
 
       {/* Packing List Content */}
       {currentTab === 3 && (
-        <Box sx={{ flex: 1, overflow: "hidden" }}>
+        <Box sx={{ py: 4 }}>
           <TripPackingList tripId={tripId} />
         </Box>
       )}

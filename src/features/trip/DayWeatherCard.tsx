@@ -11,44 +11,55 @@ interface DayWeatherCardProps {
 export const DayWeatherCard = ({ date, weather }: DayWeatherCardProps) => {
   if (!weather) return null;
 
-  const dayWeather = weather.find((w) => w.date === date.split("T")[0]);
+  // Convert date to yyyy-MM-dd format for comparison
+  const dateStr = date.includes("T") ? date.split("T")[0] : date;
+  const dayWeather = weather.find((w) => w.date === dateStr);
   if (!dayWeather) return null;
 
   return (
     <Paper
       elevation={0}
       sx={{
-        p: 1.5,
-        mb: 2,
+        p: 1,
         background: "linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)",
-        borderRadius: 1.5,
+        borderRadius: 1,
         border: "1px solid",
         borderColor: "primary.100",
+        maxWidth: 100,
       }}
     >
-      <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-        <Typography variant="h3" sx={{ fontSize: "2rem" }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 0.5,
+        }}
+      >
+        <Typography variant="h4" sx={{ fontSize: "1.5rem" }}>
           {getWeatherIcon(dayWeather.weatherCode)}
         </Typography>
 
-        <Box sx={{ flex: 1 }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
-            <Thermometer size={16} style={{ color: "#ef4444" }} />
-            <Typography variant="body2" fontWeight="bold" color="primary.900">
-              {Math.round(dayWeather.maxTemp)}° /{" "}
-              {Math.round(dayWeather.minTemp)}°
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+          <Thermometer size={12} style={{ color: "#ef4444" }} />
+          <Typography variant="caption" fontWeight="bold" color="primary.900">
+            {Math.round(dayWeather.maxTemp)}°/{Math.round(dayWeather.minTemp)}°
+          </Typography>
+        </Box>
+
+        {dayWeather.precipitationProbability > 0 && (
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+            <CloudRain size={10} style={{ color: "#3b82f6" }} />
+            <Typography
+              variant="caption"
+              color="info.main"
+              fontSize="0.65rem"
+              fontWeight="600"
+            >
+              {dayWeather.precipitationProbability}%
             </Typography>
           </Box>
-
-          {dayWeather.precipitationProbability > 0 && (
-            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-              <CloudRain size={14} style={{ color: "#3b82f6" }} />
-              <Typography variant="caption" color="info.main" fontWeight="600">
-                {dayWeather.precipitationProbability}% rain
-              </Typography>
-            </Box>
-          )}
-        </Box>
+        )}
       </Box>
     </Paper>
   );
