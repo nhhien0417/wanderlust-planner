@@ -43,15 +43,15 @@
   - [x] Budget Visualization (Pie chart by category, Bar chart timeline) <!-- id: 32 -->
   - [ ] Multi-currency Support <!-- id: 33 -->
 
-- [/] **Feature: Smart Packing List** <!-- id: 34 -->
+- [x] **Feature: Smart Packing List** <!-- id: 34 -->
 
-  - [ ] Rule-based Packing List Generator (Weather-based, Duration-based, Activity-based) <!-- id: 35 -->
-  - [ ] Custom Item Management (Add/Remove/Edit items) <!-- id: 36 -->
-  - [ ] Categorized Packing Lists (Clothing, Electronics, Documents, Toiletries) <!-- id: 37 -->
-  - [ ] Checkbox Progress Tracking <!-- id: 38 -->
+  - [x] Rule-based Packing List Generator (Weather-based, Duration-based, Activity-based) <!-- id: 35 -->
+  - [x] Custom Item Management (Add/Remove/Edit items) <!-- id: 36 -->
+  - [x] Categorized Packing Lists (Clothing, Electronics, Documents, Toiletries) <!-- id: 37 -->
+  - [x] Checkbox Progress Tracking <!-- id: 38 -->
   - [ ] Export Packing List to PDF <!-- id: 39 -->
 
-- [ ] **Feature: Weather Integration** <!-- id: 40 -->
+- [/] **Feature: Weather Integration** <!-- id: 40 -->
   - [ ] Integrate Weather API (OpenWeatherMap/WeatherAPI) <!-- id: 41 -->
   - [ ] Display Weather Forecast Widget (Temperature, Conditions, Humidity) <!-- id: 42 -->
   - [ ] Weather Timeline for Trip Duration <!-- id: 43 -->
