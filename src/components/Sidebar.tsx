@@ -6,13 +6,31 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
-import { Layout, Calendar, Settings, PlusCircle } from "lucide-react";
+import {
+  Layout,
+  Calendar,
+  Settings,
+  PlusCircle,
+  LogOut,
+  User as UserIcon,
+  LogIn,
+} from "lucide-react";
 import { useTripStore } from "../store/useTripStore";
 import { useUIStore } from "../store/useUIStore";
+import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../store/useAuthStore";
+import Avatar from "@mui/material/Avatar";
 
 export const Sidebar = () => {
   const { activeTripId, setActiveTrip, trips } = useTripStore();
   const { openCreateTripModal } = useUIStore();
+  const { user, signOut } = useAuthStore();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/login");
+  };
 
   return (
     <Box
@@ -37,7 +55,9 @@ export const Sidebar = () => {
           background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
           color: "white",
           boxShadow: "0 4px 12px rgba(102, 126, 234, 0.2)",
+          cursor: "pointer",
         }}
+        onClick={() => navigate("/")}
       >
         <Box
           component="img"
@@ -74,7 +94,10 @@ export const Sidebar = () => {
           <ListItem disablePadding>
             <ListItemButton
               selected={!activeTripId}
-              onClick={() => setActiveTrip(null)}
+              onClick={() => {
+                setActiveTrip(null);
+                navigate("/dashboard");
+              }}
               sx={{
                 borderRadius: 2,
                 "&.Mui-selected": {
@@ -115,7 +138,10 @@ export const Sidebar = () => {
             <ListItem key={trip.id} disablePadding>
               <ListItemButton
                 selected={activeTripId === trip.id}
-                onClick={() => setActiveTrip(trip.id)}
+                onClick={() => {
+                  setActiveTrip(trip.id);
+                  navigate(`/trip/${trip.id}`);
+                }}
                 sx={{
                   borderRadius: 2,
                   "&.Mui-selected": {
@@ -162,9 +188,88 @@ export const Sidebar = () => {
       {/* Footer */}
       <Divider />
       <Box sx={{ p: 2 }}>
+        {user ? (
+          <>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 2,
+                mb: 2,
+                px: 1,
+              }}
+            >
+              <Avatar sx={{ width: 32, height: 32, bgcolor: "primary.main" }}>
+                {user.email?.[0].toUpperCase()}
+              </Avatar>
+              <Box sx={{ overflow: "hidden" }}>
+                <Typography variant="subtitle2" noWrap>
+                  {user.user_metadata.full_name || "User"}
+                </Typography>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  noWrap
+                  display="block"
+                >
+                  {user.email}
+                </Typography>
+              </Box>
+            </Box>
+            <ListItemButton
+              onClick={handleLogout}
+              sx={{
+                borderRadius: 2,
+                color: "error.main",
+                "&:hover": {
+                  backgroundColor: "error.lighter",
+                },
+              }}
+            >
+              <ListItemIcon sx={{ minWidth: 40, color: "inherit" }}>
+                <LogOut size={20} />
+              </ListItemIcon>
+              <ListItemText primary="Sign Out" />
+            </ListItemButton>
+          </>
+        ) : (
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+            <ListItemButton
+              onClick={() => navigate("/login")}
+              sx={{
+                borderRadius: 2,
+                backgroundColor: "primary.main",
+                color: "white",
+                "&:hover": {
+                  backgroundColor: "primary.dark",
+                },
+              }}
+            >
+              <ListItemIcon sx={{ minWidth: 40, color: "inherit" }}>
+                <LogIn size={20} />
+              </ListItemIcon>
+              <ListItemText primary="Sign In" />
+            </ListItemButton>
+            <ListItemButton
+              onClick={() => navigate("/signup")}
+              sx={{
+                borderRadius: 2,
+                border: 1,
+                borderColor: "divider",
+              }}
+            >
+              <ListItemIcon sx={{ minWidth: 40 }}>
+                <UserIcon size={20} />
+              </ListItemIcon>
+              <ListItemText primary="Sign Up" />
+            </ListItemButton>
+          </Box>
+        )}
+
         <ListItemButton
           sx={{
             borderRadius: 2,
+            mt: 1,
           }}
         >
           <ListItemIcon sx={{ minWidth: 40 }}>

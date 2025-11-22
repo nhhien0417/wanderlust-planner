@@ -8,12 +8,14 @@ import CardMedia from "@mui/material/CardMedia";
 import CardActionArea from "@mui/material/CardActionArea";
 import Stack from "@mui/material/Stack";
 import { Plus, Calendar, MapPin } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useTripStore } from "../../store/useTripStore";
 import { useUIStore } from "../../store/useUIStore";
 
 export const Dashboard = () => {
-  const { trips, setActiveTrip } = useTripStore();
+  const { trips } = useTripStore();
   const { openCreateTripModal } = useUIStore();
+  const navigate = useNavigate();
 
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
@@ -117,7 +119,7 @@ export const Dashboard = () => {
                   },
                 }}
               >
-                <CardActionArea onClick={() => setActiveTrip(trip.id)}>
+                <CardActionArea onClick={() => navigate(`/trip/${trip.id}`)}>
                   <Box sx={{ position: "relative" }}>
                     <CardMedia
                       component="img"

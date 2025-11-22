@@ -40,6 +40,7 @@ export interface Activity {
   startTime?: string; // HH:mm format
   endTime?: string; // HH:mm format
   cost?: number;
+  order_index?: number;
 }
 
 export interface TripDay {
@@ -67,8 +68,26 @@ export interface PackingItem {
   isCustom?: boolean;
 }
 
+export interface WeatherData {
+  date: string;
+  maxTemp: number;
+  minTemp: number;
+  weatherCode: number;
+  precipitationProbability: number;
+}
+
+export interface TripMember {
+  user_id: string;
+  trip_id: string;
+  role: "owner" | "editor" | "viewer";
+  email?: string;
+  full_name?: string;
+  avatar_url?: string;
+}
+
 export interface Trip {
   id: string;
+  created_by?: string; // UUID of the user who created the trip
   name: string;
   destination: string;
   startDate: string; // ISO string
@@ -88,13 +107,15 @@ export interface Trip {
   }[];
   packingList: PackingItem[];
   photos?: Photo[];
-  weather?: {
-    date: string;
-    maxTemp: number;
-    minTemp: number;
-    weatherCode: number;
-    precipitationProbability: number;
-  }[];
+  weather?: WeatherData[];
+  members?: TripMember[];
+}
+
+export interface UserProfile {
+  id: string;
+  email: string;
+  full_name?: string;
+  avatar_url?: string;
 }
 
 export interface UserSettings {

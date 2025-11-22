@@ -1,14 +1,10 @@
-import React from "react";
+import { Outlet } from "react-router-dom";
 import Box from "@mui/material/Box";
 import { Sidebar } from "./Sidebar";
 import { CreateTripModal } from "./CreateTripModal";
 import { useUIStore } from "../store/useUIStore";
 
-interface LayoutProps {
-  children: React.ReactNode;
-}
-
-export const Layout: React.FC<LayoutProps> = ({ children }) => {
+export const Layout = () => {
   const { isCreateTripModalOpen, closeCreateTripModal } = useUIStore();
 
   return (
@@ -22,7 +18,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           backgroundColor: "background.default",
         }}
       >
-        {children}
+        <Outlet />
       </Box>
       <CreateTripModal
         isOpen={isCreateTripModalOpen}

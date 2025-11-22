@@ -1,4 +1,23 @@
-import { useTripStore } from "../../store/useTripStore";
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import type { DragEndEvent } from "@dnd-kit/core";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragOverlay,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import {
   Calendar,
   MapPin,
@@ -10,230 +29,193 @@ import {
   Hotel,
   Car,
   X,
+  Share,
+  Trash2,
 } from "lucide-react";
 import { format, parseISO } from "date-fns";
-import { useEffect, useMemo, useState } from "react";
+import type { SelectChangeEvent } from "@mui/material";
+import {
+  Box,
+  Container,
+  Typography,
+  Button,
+  IconButton,
+  Card,
+  Chip,
+  Tabs,
+  Tab,
+  Badge,
+  Dialog,
+  DialogContent,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from "@mui/material";
+import { useTripStore } from "../../store/useTripStore";
+import { ShareModal } from "../../components/ShareModal";
 import { AddActivityModal } from "../../components/AddActivityModal";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
-import Card from "@mui/material/Card";
-import Button from "@mui/material/Button";
-import Chip from "@mui/material/Chip";
-import IconButton from "@mui/material/IconButton";
-import Badge from "@mui/material/Badge";
-import FormControl from "@mui/material/FormControl";
-import InputLabel from "@mui/material/InputLabel";
-import Select from "@mui/material/Select";
-import MenuItem from "@mui/material/MenuItem";
-import Dialog from "@mui/material/Dialog";
-import DialogContent from "@mui/material/DialogContent";
-import type { SelectChangeEvent } from "@mui/material/Select";
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragOverlay,
-  type DragEndEvent,
-} from "@dnd-kit/core";
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  useSortable,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import Tabs from "@mui/material/Tabs";
-import Tab from "@mui/material/Tab";
+import { DayWeatherCard } from "../../components/DayWeatherCard";
 import { TripBoard } from "./TripBoard";
 import { TripBudget } from "./TripBudget";
 import { TripPackingList } from "./TripPackingList";
-import { WeatherWidget } from "../weather/WeatherWidget";
-import { DayWeatherCard } from "../../components/DayWeatherCard";
-import { PhotoUpload } from "../gallery/PhotoUpload";
 import { PhotoGallery } from "../gallery/PhotoGallery";
+import { PhotoUpload } from "../gallery/PhotoUpload";
 import { PhotoLightbox } from "../gallery/PhotoLightbox";
 import { PhotoMetadataForm } from "../gallery/PhotoMetadataForm";
-import type { Photo } from "../../types";
+import { WeatherWidget } from "../weather/WeatherWidget";
+import type { Activity, Photo } from "../../types";
 
 const EMPTY_PHOTOS: Photo[] = [];
 
 interface TripDetailsProps {
-  tripId: string;
+  tripId?: string;
 }
 
-const restrictToVerticalAxis = ({ transform }: any) => {
-  if (!transform) {
-    return null;
-  }
-  return {
-    ...transform,
-    x: 0,
-  };
-};
+// --- Local Components ---
 
 const ActivityCard = ({
   activity,
   isDragging,
   isOverlay,
-  dragHandleProps,
+  onDelete,
 }: {
-  activity: any;
+  activity: Activity;
   isDragging?: boolean;
   isOverlay?: boolean;
-  dragHandleProps?: any;
+  onDelete?: (id: string) => void;
 }) => {
-  const getCategoryIcon = (category: string) => {
+  const getIcon = (category: string) => {
     switch (category) {
-      case "attraction":
-        return <Landmark size={20} />;
       case "restaurant":
-        return <UtensilsCrossed size={20} />;
+        return <UtensilsCrossed size={18} />;
       case "hotel":
-        return <Hotel size={20} />;
+        return <Hotel size={18} />;
       case "transport":
-        return <Car size={20} />;
+        return <Car size={18} />;
       default:
-        return <MapPin size={20} />;
+        return <Landmark size={18} />;
     }
   };
 
   return (
     <Card
-      variant="outlined"
+      elevation={isDragging || isOverlay ? 6 : 1}
       sx={{
         p: 2,
         display: "flex",
-        alignItems: "flex-start",
         gap: 2,
-        backgroundColor: isDragging ? "primary.50" : "white",
-        border: "1px solid",
-        borderColor: isDragging ? "primary.main" : "divider",
-        transition: isOverlay ? "box-shadow 0.2s" : "all 0.2s",
-        cursor: isDragging ? "grabbing" : "default",
-        boxShadow: isOverlay ? 6 : 0,
-        transform: isOverlay ? "scale(1.02)" : "none",
-        "&:hover": {
-          backgroundColor: "white",
-          borderColor: "primary.main",
-          boxShadow: isOverlay ? 6 : 2,
+        cursor: isDragging ? "grabbing" : "grab",
+        opacity: isDragging ? 0.5 : 1,
+        position: "relative",
+        "&:hover .delete-btn": {
+          opacity: 1,
         },
       }}
     >
-      {/* Drag Handle */}
-      <IconButton
-        {...dragHandleProps}
-        size="small"
+      <Box
         sx={{
-          cursor: isDragging ? "grabbing" : "grab",
           color: "text.secondary",
-          touchAction: "none",
-          "&:active": {
-            cursor: "grabbing",
-          },
-          "&:hover": {
-            backgroundColor: "primary.50",
-            color: "primary.main",
-          },
+          display: "flex",
+          alignItems: "center",
+          pt: 0.5,
         }}
       >
         <GripVertical size={20} />
-      </IconButton>
-
-      {/* Category Icon */}
-      <Box
-        sx={{
-          p: 1.5,
-          backgroundColor: "primary.50",
-          borderRadius: 2,
-          border: "1px solid",
-          borderColor: "primary.200",
-          color: "primary.main",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        {getCategoryIcon(activity.category)}
       </Box>
-
-      {/* Activity Content */}
       <Box sx={{ flex: 1 }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
           <Typography variant="subtitle1" fontWeight="bold">
             {activity.title}
           </Typography>
-          {activity.cost && (
-            <Chip
-              label={`$${activity.cost}`}
-              size="small"
-              color="success"
-              sx={{ fontWeight: 600, fontSize: "0.75rem" }}
-            />
-          )}
-        </Box>
-
-        {/* Location */}
-        {activity.location && (
           <Box
-            sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 0.5 }}
-          >
-            <MapPin size={14} color="#666" />
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-                fontSize: "0.875rem",
-              }}
-            >
-              {activity.location.name}
-            </Typography>
-          </Box>
-        )}
-
-        {/* Time Range */}
-        {(activity.startTime || activity.endTime) && (
-          <Box
-            sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 0.5 }}
-          >
-            <Clock size={14} color="#666" />
-            <Typography variant="caption" color="text.secondary">
-              {activity.startTime || "—"} - {activity.endTime || "—"}
-            </Typography>
-          </Box>
-        )}
-
-        {/* Description */}
-        {activity.description && (
-          <Typography
-            variant="body2"
-            color="text.secondary"
             sx={{
-              mt: 1,
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              display: "-webkit-box",
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: "vertical",
-              fontSize: "0.875rem",
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              color: "text.secondary",
             }}
           >
+            {activity.startTime && (
+              <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                <Clock size={14} />
+                <Typography variant="caption">
+                  {activity.startTime}
+                  {activity.endTime && ` - ${activity.endTime}`}
+                </Typography>
+              </Box>
+            )}
+            {getIcon(activity.category)}
+          </Box>
+        </Box>
+        {activity.description && (
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
             {activity.description}
           </Typography>
         )}
+        <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+          {activity.location && (
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 0.5,
+                color: "primary.main",
+              }}
+            >
+              <MapPin size={14} />
+              <Typography variant="caption" fontWeight={500}>
+                {activity.location.name}
+              </Typography>
+            </Box>
+          )}
+          {activity.cost && activity.cost > 0 && (
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 0.5,
+                color: "success.main",
+              }}
+            >
+              <DollarSign size={14} />
+              <Typography variant="caption" fontWeight={500}>
+                ${activity.cost}
+              </Typography>
+            </Box>
+          )}
+        </Box>
       </Box>
+      {onDelete && (
+        <IconButton
+          size="small"
+          className="delete-btn"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete(activity.id);
+          }}
+          sx={{
+            position: "absolute",
+            top: 8,
+            right: 8,
+            opacity: 0,
+            transition: "opacity 0.2s",
+          }}
+        >
+          <Trash2 size={16} />
+        </IconButton>
+      )}
     </Card>
   );
 };
 
-const SortableActivityItem = ({ activity }: { activity: any }) => {
+const SortableActivityItem = ({
+  activity,
+  onDelete,
+}: {
+  activity: Activity;
+  onDelete?: (id: string) => void;
+}) => {
   const {
     attributes,
     listeners,
@@ -244,34 +226,44 @@ const SortableActivityItem = ({ activity }: { activity: any }) => {
   } = useSortable({ id: activity.id });
 
   const style = {
-    transform: CSS.Translate.toString(transform),
+    transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.3 : 1,
   };
 
   return (
-    <div ref={setNodeRef} style={style}>
+    <Box ref={setNodeRef} style={style} {...attributes} {...listeners}>
       <ActivityCard
         activity={activity}
         isDragging={isDragging}
-        dragHandleProps={{ ...attributes, ...listeners }}
+        onDelete={onDelete}
       />
-    </div>
+    </Box>
   );
 };
 
-export const TripDetails = ({ tripId }: TripDetailsProps) => {
+// --- Main Component ---
+
+export const TripDetails = ({ tripId: propTripId }: TripDetailsProps) => {
+  const { tripId: paramTripId } = useParams<{ tripId: string }>();
+  const tripId = propTripId || paramTripId;
+
   const trip = useTripStore((state) =>
     state.trips.find((t) => t.id === tripId)
   );
   const addActivity = useTripStore((state) => state.addActivity);
+  const removeActivity = useTripStore((state) => state.removeActivity);
   const reorderActivities = useTripStore((state) => state.reorderActivities);
-  const fetchTripWeather = useTripStore((state) => state.fetchTripWeather);
   const deletePhoto = useTripStore((state) => state.deletePhoto);
+  const subscribeToTrip = useTripStore((state) => state.subscribeToTrip);
+  const unsubscribeFromTrip = useTripStore(
+    (state) => state.unsubscribeFromTrip
+  );
+
   const tripPhotos = useTripStore((state) => {
     const found = state.trips.find((t) => t.id === tripId);
     return found?.photos ?? EMPTY_PHOTOS;
   });
+
   const [activeDayId, setActiveDayId] = useState<string | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState(0);
@@ -281,80 +273,30 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
   const [photoDayFilter, setPhotoDayFilter] = useState("");
   const [photoActivityFilter, setPhotoActivityFilter] = useState("");
   const [showCoverModal, setShowCoverModal] = useState(false);
-
-  // Fetch weather data when trip loads
-  useEffect(() => {
-    if (trip && !trip.weather) {
-      fetchTripWeather(tripId);
-    }
-  }, [tripId, trip?.weather, fetchTripWeather]);
-
-  const filteredPhotos = useMemo(() => {
-    return tripPhotos.filter((photo) => {
-      if (photoDayFilter && photo.dayId !== photoDayFilter) return false;
-      if (photoActivityFilter && photo.activityId !== photoActivityFilter)
-        return false;
-      return true;
-    });
-  }, [tripPhotos, photoActivityFilter, photoDayFilter]);
-
-  const selectedDay = useMemo(
-    () => trip?.days.find((d) => d.id === photoDayFilter),
-    [photoDayFilter, trip?.days]
-  );
-
-  const activitiesForFilter = selectedDay?.activities ?? [];
-
-  useEffect(() => {
-    if (!photoActivityFilter) return;
-
-    const stillValid = activitiesForFilter.some(
-      (activity) => activity.id === photoActivityFilter
-    );
-
-    if (!stillValid) {
-      setPhotoActivityFilter("");
-    }
-  }, [activitiesForFilter, photoActivityFilter]);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    }),
+    useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
 
+  // Real-time subscription
+  useEffect(() => {
+    if (tripId) {
+      subscribeToTrip(tripId);
+      return () => unsubscribeFromTrip(tripId);
+    }
+  }, [tripId, subscribeToTrip, unsubscribeFromTrip]);
+
   if (!trip) {
     return (
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          height: "100vh",
-        }}
-      >
-        <Typography variant="h5" color="text.secondary">
-          Trip not found
-        </Typography>
+      <Box sx={{ p: 4, textAlign: "center" }}>
+        <Typography variant="h5">Trip not found</Typography>
       </Box>
     );
   }
-
-  const handleAddActivity = (
-    activityData: Omit<
-      import("../../types").Activity,
-      "id" | "tripId" | "dayId"
-    >
-  ) => {
-    if (activeDayId) {
-      addActivity(tripId, activeDayId, activityData);
-    }
-  };
 
   const handleDragStart = (event: any) => {
     setActiveId(event.active.id);
@@ -362,34 +304,62 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
 
   const handleDragEnd = (event: DragEndEvent, dayId: string) => {
     const { active, over } = event;
-
-    if (over && active.id !== over.id) {
+    if (active.id !== over?.id) {
       const day = trip.days.find((d) => d.id === dayId);
-      if (!day) return;
-
-      const oldIndex = day.activities.findIndex((a) => a.id === active.id);
-      const newIndex = day.activities.findIndex((a) => a.id === over.id);
-
-      const newActivities = arrayMove(day.activities, oldIndex, newIndex);
-      reorderActivities(tripId, dayId, newActivities);
+      if (day) {
+        const oldIndex = day.activities.findIndex((a) => a.id === active.id);
+        const newIndex = day.activities.findIndex((a) => a.id === over?.id);
+        const newActivities = arrayMove(day.activities, oldIndex, newIndex);
+        reorderActivities(trip.id, dayId, newActivities);
+      }
     }
-
     setActiveId(null);
   };
 
-  const handlePhotoClick = (_photo: Photo, index: number) => {
+  const handleAddActivity = (activityData: any) => {
+    if (activeDayId) {
+      addActivity(trip.id, activeDayId, activityData);
+      setActiveDayId(null);
+    }
+  };
+
+  const handleDeleteActivity = (activityId: string) => {
+    // Find which day this activity belongs to
+    const day = trip.days.find((d) =>
+      d.activities.some((a) => a.id === activityId)
+    );
+    if (day) {
+      removeActivity(trip.id, day.id, activityId);
+    }
+  };
+
+  // Photo Logic
+  const filteredPhotos = tripPhotos.filter((photo) => {
+    if (photoDayFilter && photo.dayId !== photoDayFilter) return false;
+    if (photoActivityFilter && photo.activityId !== photoActivityFilter)
+      return false;
+    return true;
+  });
+
+  const handlePhotoClick = (photo: Photo) => {
+    const index = filteredPhotos.findIndex((p) => p.id === photo.id);
     setLightboxIndex(index);
     setLightboxOpen(true);
   };
 
   const handlePhotoDelete = async (photoId: string) => {
-    await deletePhoto(tripId, photoId);
+    await deletePhoto(trip.id, photoId);
+    if (filteredPhotos.length <= 1) {
+      setLightboxOpen(false);
+    }
   };
 
   const handlePhotoEdit = (photo: Photo) => {
     setEditingPhoto(photo);
   };
 
+  const selectedDay = trip.days.find((d) => d.id === photoDayFilter);
+  const activitiesForFilter = selectedDay ? selectedDay.activities : [];
   const photoCount = tripPhotos.length;
 
   return (
@@ -402,76 +372,118 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
       {/* Hero Section */}
       <Box
         sx={{
+          height: 300,
           position: "relative",
-          overflow: "hidden",
-        }}
-      >
-        <Box
-          component="img"
-          src={
+          backgroundImage: `url(${
             trip.coverImage ||
             "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1200&q=80"
-          }
-          alt={trip.name}
-          onClick={() => setShowCoverModal(true)}
+          })`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          "&::before": {
+            content: '""',
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background:
+              "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.7) 100%)",
+          },
+        }}
+      >
+        <Container
+          maxWidth="lg"
           sx={{
-            width: "100%",
-            height: 180,
-            objectFit: "cover",
-            cursor: "pointer",
-            transition: "opacity 0.2s",
-            "&:hover": {
-              opacity: 0.9,
-            },
+            height: "100%",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "flex-end",
+            pb: 4,
+            position: "relative",
+            zIndex: 1,
           }}
-        />
-      </Box>
-
-      {/* Trip Info */}
-      <Box sx={{ bgcolor: "grey.900", color: "white", py: 3 }}>
-        <Container maxWidth="lg">
-          <Typography variant="h3" fontWeight="bold" gutterBottom>
-            {trip.name}
-          </Typography>
+        >
           <Box
             sx={{
               display: "flex",
-              alignItems: "center",
-              gap: 3,
-              flexWrap: "wrap",
+              justifyContent: "space-between",
+              alignItems: "flex-end",
             }}
           >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <MapPin size={18} />
-              <Typography variant="body1" fontWeight={500}>
-                {trip.destination}
+            <Box sx={{ color: "white" }}>
+              <Typography variant="h2" fontWeight="bold" gutterBottom>
+                {trip.name}
               </Typography>
-            </Box>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <Calendar size={18} />
-              <Typography variant="body1" fontWeight={500}>
-                {format(parseISO(trip.startDate), "MMM d")} -{" "}
-                {format(parseISO(trip.endDate), "MMM d, yyyy")}
-              </Typography>
-            </Box>
-            {trip.budget > 0 && (
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <DollarSign size={18} />
-                <Typography variant="body1" fontWeight={500}>
-                  Budget: ${trip.budget.toLocaleString()}
-                </Typography>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 3,
+                  flexWrap: "wrap",
+                }}
+              >
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <MapPin size={20} />
+                  <Typography variant="h6">{trip.destination}</Typography>
+                </Box>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Calendar size={20} />
+                  <Typography variant="h6">
+                    {format(parseISO(trip.startDate), "MMM d")} -{" "}
+                    {format(parseISO(trip.endDate), "MMM d, yyyy")}
+                  </Typography>
+                </Box>
+                {trip.budget > 0 && (
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <DollarSign size={20} />
+                    <Typography variant="h6">
+                      ${trip.budget.toLocaleString()}
+                    </Typography>
+                  </Box>
+                )}
               </Box>
-            )}
+            </Box>
+            <Box sx={{ display: "flex", gap: 2 }}>
+              <Button
+                variant="contained"
+                startIcon={<Share size={18} />}
+                onClick={() => setIsShareModalOpen(true)}
+                sx={{
+                  bgcolor: "rgba(255, 255, 255, 0.2)",
+                  backdropFilter: "blur(10px)",
+                  "&:hover": {
+                    bgcolor: "rgba(255, 255, 255, 0.3)",
+                  },
+                }}
+              >
+                Share
+              </Button>
+              <Button
+                variant="outlined"
+                sx={{ color: "white", borderColor: "rgba(255,255,255,0.5)" }}
+                onClick={() => setShowCoverModal(true)}
+              >
+                View Cover
+              </Button>
+            </Box>
           </Box>
         </Container>
       </Box>
 
       <Container maxWidth="lg" sx={{ mt: 3 }}>
-        <WeatherWidget tripId={tripId} />
+        <WeatherWidget tripId={trip.id} />
       </Container>
 
       {/* Tabs */}
-      <Box sx={{ borderBottom: 1, borderColor: "divider", bgcolor: "white" }}>
+      <Box
+        sx={{
+          borderBottom: 1,
+          borderColor: "divider",
+          bgcolor: "white",
+          mt: 3,
+        }}
+      >
         <Container maxWidth="lg">
           <Tabs
             value={currentTab}
@@ -502,21 +514,22 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
       >
         <Container maxWidth="lg">
           <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
-            {trip.days.map((day: any, index: number) => (
+            {trip.days.map((day, index) => (
               <Box
                 key={day.id}
                 sx={{
                   display: "flex",
                   gap: 3,
                   alignItems: "flex-start",
+                  flexDirection: { xs: "column", md: "row" },
                 }}
               >
                 {/* Day Indicator */}
                 <Box
                   sx={{
                     flexShrink: 0,
-                    width: 100,
-                    textAlign: "center",
+                    width: { xs: "100%", md: 120 },
+                    textAlign: { xs: "left", md: "center" },
                     pt: 1,
                   }}
                 >
@@ -553,6 +566,7 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
                   sx={{
                     flex: 1,
                     p: 3,
+                    width: "100%",
                     transition: "all 0.3s",
                     "&:hover": {
                       boxShadow: 6,
@@ -613,10 +627,10 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
                       collisionDetection={closestCenter}
                       onDragStart={handleDragStart}
                       onDragEnd={(e) => handleDragEnd(e, day.id)}
-                      modifiers={[restrictToVerticalAxis]}
+                      modifiers={[]} // Removed restrictToVerticalAxis to allow free movement if needed, or keep it
                     >
                       <SortableContext
-                        items={day.activities.map((a: any) => a.id)}
+                        items={day.activities.map((a) => a.id)}
                         strategy={verticalListSortingStrategy}
                       >
                         <Box
@@ -626,10 +640,11 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
                             gap: 2,
                           }}
                         >
-                          {day.activities.map((activity: any) => (
+                          {day.activities.map((activity) => (
                             <SortableActivityItem
                               key={activity.id}
                               activity={activity}
+                              onDelete={handleDeleteActivity}
                             />
                           ))}
                         </Box>
@@ -637,9 +652,9 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
                       <DragOverlay dropAnimation={null}>
                         {activeId ? (
                           <ActivityCard
-                            activity={day.activities.find(
-                              (a: any) => a.id === activeId
-                            )}
+                            activity={
+                              day.activities.find((a) => a.id === activeId)!
+                            }
                             isDragging
                             isOverlay
                           />
@@ -657,21 +672,21 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
       {/* Kanban Content */}
       {currentTab === 1 && (
         <Box sx={{ py: 4 }}>
-          <TripBoard tripId={tripId} />
+          <TripBoard tripId={trip.id} />
         </Box>
       )}
 
       {/* Budget Content */}
       {currentTab === 2 && (
         <Box sx={{ py: 4 }}>
-          <TripBudget tripId={tripId} />
+          <TripBudget tripId={trip.id} />
         </Box>
       )}
 
       {/* Packing List Content */}
       {currentTab === 3 && (
         <Box sx={{ py: 4 }}>
-          <TripPackingList tripId={tripId} />
+          <TripPackingList tripId={trip.id} />
         </Box>
       )}
 
@@ -699,7 +714,7 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
                   organized.
                 </Typography>
                 <PhotoUpload
-                  tripId={tripId}
+                  tripId={trip.id}
                   dayId={photoDayFilter || undefined}
                   activityId={photoActivityFilter || undefined}
                 />
@@ -780,7 +795,7 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
 
                 <Box sx={{ mt: 2 }}>
                   <PhotoGallery
-                    tripId={tripId}
+                    tripId={trip.id}
                     photos={filteredPhotos}
                     onPhotoClick={handlePhotoClick}
                     onEditPhoto={handlePhotoEdit}
@@ -803,7 +818,7 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
 
       {editingPhoto && (
         <PhotoMetadataForm
-          tripId={tripId}
+          tripId={trip.id}
           photo={editingPhoto}
           open={Boolean(editingPhoto)}
           onClose={() => setEditingPhoto(null)}
@@ -854,6 +869,14 @@ export const TripDetails = ({ tripId }: TripDetailsProps) => {
         onClose={() => setActiveDayId(null)}
         onAdd={handleAddActivity}
       />
+
+      {tripId && (
+        <ShareModal
+          open={isShareModalOpen}
+          onClose={() => setIsShareModalOpen(false)}
+          tripId={tripId}
+        />
+      )}
     </Box>
   );
 };
