@@ -1,100 +1,164 @@
-# Task: Smart Travel Planner (Wanderlust)
+# 🌍 Ultimate Travel Planner (Wanderlust) - Development Roadmap
 
-- [x] **Project Setup** <!-- id: 0 -->
-  - [x] Initialize Vite + React + TypeScript + Tailwind project <!-- id: 1 -->
-  - [x] Setup folder structure (components, stores, hooks, utils, types) <!-- id: 2 -->
-  - [x] Install dependencies (react-leaflet, leaflet, lucide-react, date-fns, recharts, zustand, @dnd-kit/core @dnd-kit/sortable @dnd-kit/utilities) <!-- id: 3 -->
-- [x] **Core Architecture & Layout** <!-- id: 4 -->
-  - [x] Create App Layout (Sidebar/Navigation, Main Area) <!-- id: 5 -->
-  - [x] Implement Global Store (Trip data, User preferences) <!-- id: 6 -->
-- [x] **Feature: Interactive Map** <!-- id: 7 -->
-  - [x] Integrate Leaflet Map component <!-- id: 8 -->
-  - [x] Implement Location Search (using OpenStreetMap Nominatim API) <!-- id: 9 -->
-  - [x] Add/Remove Markers on Map <!-- id: 10 -->
-- [x] **Feature: Itinerary Management** <!-- id: 11 -->
-  - [x] Create Trip Wizard (Name, Dates, Cover Image) <!-- id: 12 -->
-  - [x] Day-by-Day Itinerary View <!-- id: 13 -->
-  - [x] Add Activities to Days (linked to Map markers) <!-- id: 14 -->
-  - [x] Drag & Drop Reordering of Activities <!-- id: 15 -->
-- [x] **Feature: Trip Kanban Board (Jira-style)** <!-- id: 24 -->
-  - [x] Create Kanban Board UI (Columns: Todo, In Progress, Done) <!-- id: 25 -->
-  - [x] Implement Drag & Drop for Task Cards <!-- id: 26 -->
-  - [x] Task Details Modal (Description, Priority, Due Date) <!-- id: 27 -->
-- [x] **Feature: Smart Utilities** <!-- id: 16 -->
-  - [x] Weather Widget (Fetch forecast for trip location/dates) <!-- id: 17 -->
-  - [x] Budget Tracker (Expense input, Pie chart visualization) <!-- id: 18 -->
-  - [x] Smart Packing List Generator (Rule-based generation) <!-- id: 19 -->
-- [x] **UI Polish & Finalization** <!-- id: 20 -->
-  - [x] Landing/Dashboard Page Design <!-- id: 21 -->
-  - [x] Responsive Design Adjustments <!-- id: 22 -->
-  - [x] Final Testing & Bug Fixes <!-- id: 23 -->
+This roadmap outlines the complete feature set for a premium, modern travel planner application. Features are prioritized from core functionality to advanced/premium capabilities.
 
 ---
 
-## 🚀 Advanced Features Roadmap (Prioritized)
-### Phase 1: Essential Enhancements
-- [x] **Feature: Budget Tracking & Management** <!-- id: 28 -->
-  - [x] Create Budget Overview Component (Total budget, Spent, Remaining) <!-- id: 29 -->
-  - [x] Expense Input Form (Category, Amount, Date, Description) <!-- id: 30 -->
-  - [x] Expense List with Filtering/Sorting <!-- id: 31 -->
-  - [x] Budget Visualization (Pie chart by category, Bar chart timeline) <!-- id: 32 -->
-  - [x] Multi-currency Support <!-- id: 33 -->
+## 🏗️ Phase 1: Core Foundation & Architecture (The Backbone)
 
-- [x] **Feature: Smart Packing List** <!-- id: 34 -->
-  - [x] Rule-based Packing List Generator (Weather-based, Duration-based, Activity-based) <!-- id: 35 -->
-  - [x] Custom Item Management (Add/Remove/Edit items) <!-- id: 36 -->
-  - [x] Categorized Packing Lists (Clothing, Electronics, Documents, Toiletries) <!-- id: 37 -->
-  - [x] Checkbox Progress Tracking <!-- id: 38 -->
-  - [x] Export Packing List to PDF <!-- id: 39 -->
+_Essential setup and structure for a scalable application._
 
-- [x] **Feature: Photo Gallery** <!-- id: 45 -->
-  - [x] Photo Upload Component (Multiple files, Drag & Drop) <!-- id: 46 -->
-  - [x] Gallery View with Lightbox <!-- id: 47 -->
-  - [x] Link Photos to Activities/Locations <!-- id: 48 -->
-  - [x] Photo Metadata (Date, Location, Description) <!-- id: 49 -->
-  - [x] Photo Storage (IndexedDB/LocalStorage) <!-- id: 50 -->
+- [x] **Project Initialization** <!-- id: 1 -->
 
-### Phase 2: Content & Visualization
-- [ ] **Feature: Export & Sharing** <!-- id: 51 -->
-  - [ ] Export Trip to PDF (Full itinerary, Map screenshots, Budget summary) <!-- id: 52 -->
-  - [ ] Print-friendly Layout <!-- id: 53 -->
-  - [ ] Export to JSON (Backup/Import functionality) <!-- id: 54 -->
-  - [ ] Share Trip Link (Generate shareable URL) <!-- id: 55 -->
+  - [x] Setup Vite + React + TypeScript + Tailwind/MUI <!-- id: 2 -->
+  - [x] Configure Directory Structure (features, components, hooks, stores) <!-- id: 3 -->
+  - [x] Setup Global State Management (Zustand) <!-- id: 4 -->
+  - [x] Configure Routing (React Router) <!-- id: 5 -->
 
-### Phase 3: User Experience Enhancements
+- [x] **App Layout & Navigation** <!-- id: 6 -->
 
-- [ ] **Feature: Enhanced Interactive Map** <!-- id: 56 -->
+  - [x] Responsive Sidebar/Navigation Drawer <!-- id: 7 -->
+  - [x] Main Content Area with Transitions <!-- id: 8 -->
+  - [x] Theme System (Dark/Light Mode, Custom Color Palettes) <!-- id: 9 -->
 
-  - [ ] Custom Marker Icons by Activity Type <!-- id: 57 -->
-  - [ ] Route Drawing Between Locations <!-- id: 58 -->
-  - [ ] Distance & Travel Time Calculation <!-- id: 59 -->
-  - [ ] Cluster Markers for Multiple Locations <!-- id: 60 -->
-  - [ ] Offline Map Support <!-- id: 61 -->
+- [x] **Trip Management (CRUD)** <!-- id: 10 -->
+  - [x] Dashboard/Home View (List of all trips) <!-- id: 11 -->
+  - [x] Create New Trip Wizard (Destination, Dates, Cover Photo) <!-- id: 12 -->
+  - [x] Trip Details View (Header, Navigation tabs) <!-- id: 13 -->
+  - [x] Delete/Archive Trip functionality <!-- id: 14 -->
 
-- [ ] **Feature: Currency Converter** <!-- id: 62 -->
-  - [ ] Real-time Currency Exchange Rates API <!-- id: 63 -->
-  - [ ] Multi-currency Calculator Widget <!-- id: 64 -->
-  - [ ] Auto-detect Destination Currency <!-- id: 65 -->
-  - [ ] Budget in Multiple Currencies <!-- id: 66 -->
+---
 
-### Phase 4: Advanced Functionality
+## 🗺️ Phase 2: Itinerary & Mapping (The Heart)
 
-- [ ] **Feature: Reminders & Notifications** <!-- id: 67 -->
+_The core planning experience. Focus on usability and visual appeal._
 
-  - [ ] Activity Reminder System <!-- id: 68 -->
-  - [ ] Pre-trip Preparation Reminders <!-- id: 69 -->
-  - [ ] Browser Notification API Integration <!-- id: 70 -->
-  - [ ] Customizable Reminder Times <!-- id: 71 -->
+- [x] **Interactive Map System** <!-- id: 15 -->
 
-- [ ] **Feature: Collaboration & Sharing** <!-- id: 72 -->
+  - [x] Leaflet Map Integration <!-- id: 16 -->
+  - [x] Location Search & Autocomplete (Nominatim/Google Places) <!-- id: 17 -->
+  - [x] Custom Markers for different activity types <!-- id: 18 -->
+  - [ ] **Refactor**: Map Clustering for crowded areas <!-- id: 19 -->
+  - [ ] **Refactor**: Interactive Popups with Activity Details <!-- id: 20 -->
 
-  - [ ] Share Trip with Collaborators (View/Edit permissions) <!-- id: 73 -->
-  - [ ] Real-time Sync (Firebase/Supabase integration) <!-- id: 74 -->
-  - [ ] Comments on Activities <!-- id: 75 -->
-  - [ ] Voting on Activities/Locations <!-- id: 76 -->
+- [x] **Itinerary Builder** <!-- id: 21 -->
 
-- [ ] **Feature: Booking Integration** <!-- id: 77 -->
-  - [ ] Flight Search Widget (Skyscanner API integration) <!-- id: 78 -->
-  - [ ] Hotel Search Widget (Booking.com API integration) <!-- id: 79 -->
-  - [ ] Save Booking Details to Trip <!-- id: 80 -->
-  - [ ] Booking Confirmation Storage <!-- id: 81 -->
+  - [x] Day-by-Day Timeline View <!-- id: 22 -->
+  - [x] Add Activity Modal (Time, Location, Notes, Category) <!-- id: 23 -->
+  - [x] Drag & Drop Reordering (DnD Kit) <!-- id: 24 -->
+  - [ ] **Refactor**: Conflict Detection (Warn if activities overlap) <!-- id: 25 -->
+  - [ ] **Refactor**: "Unscheduled" bucket for ideas not yet assigned to a day <!-- id: 26 -->
+
+- [ ] **Advanced Routing** <!-- id: 27 -->
+  - [ ] Show Route Lines between daily activities <!-- id: 28 -->
+  - [ ] Calculate Travel Time & Distance between stops <!-- id: 29 -->
+  - [ ] Optimize Route Button (Reorder day for shortest travel) <!-- id: 30 -->
+
+---
+
+## � Phase 3: Financial Command Center
+
+_Comprehensive budget management for travelers._
+
+- [x] **Budget Tracking** <!-- id: 31 -->
+
+  - [x] Set Total Trip Budget <!-- id: 32 -->
+  - [x] Log Expenses (Amount, Category, Date, Note) <!-- id: 33 -->
+  - [x] Visual Breakdown (Pie Charts by Category) <!-- id: 34 -->
+  - [x] Daily Spend vs. Budget Limit <!-- id: 35 -->
+
+- [ ] **Advanced Finance Tools** <!-- id: 36 -->
+  - [ ] **Currency Converter**: Real-time API integration for foreign currencies <!-- id: 37 -->
+  - [ ] **Multi-Currency Support**: Log expenses in local currency, auto-convert to home currency <!-- id: 38 -->
+  - [ ] **Split Bills**: Track who paid what and calculate "Who owes who" (Great for groups) <!-- id: 39 -->
+  - [ ] **Export Expenses**: CSV/Excel download for accounting <!-- id: 40 -->
+
+---
+
+## 🎒 Phase 4: Smart Utilities & Preparation
+
+_Tools to ensure the user is ready for the trip._
+
+- [x] **Smart Packing List** <!-- id: 41 -->
+
+  - [x] Auto-generate items based on Destination, Weather, and Activities <!-- id: 42 -->
+  - [x] Categorized Checklist (Clothing, Toiletries, Tech, Documents) <!-- id: 43 -->
+  - [x] Custom Item Management <!-- id: 44 -->
+  - [ ] **Refactor**: "Pack for me" presets (e.g., "Beach Vacation", "Ski Trip") <!-- id: 45 -->
+
+- [x] **Weather Intelligence** <!-- id: 46 -->
+
+  - [x] Forecast for Trip Dates & Location <!-- id: 47 -->
+  - [ ] Historical Weather Data (If trip is far in future) <!-- id: 48 -->
+  - [ ] Weather Alerts (Rain warnings for outdoor activities) <!-- id: 49 -->
+
+- [ ] **Travel Documents Vault** <!-- id: 50 -->
+  - [ ] Securely store PDF/Image copies of Passports, Tickets, Visas <!-- id: 51 -->
+  - [ ] Quick Access Widget for Boarding Passes <!-- id: 52 -->
+  - [ ] Expiry Reminders (Passport expiry check) <!-- id: 53 -->
+
+---
+
+## 📸 Phase 5: Memories & Journaling
+
+_Capturing the experience._
+
+- [x] **Photo Gallery** <!-- id: 54 -->
+
+  - [x] Upload Photos per Trip/Day <!-- id: 55 -->
+  - [x] Lightbox View <!-- id: 56 -->
+  - [ ] **Refactor**: Map View of Photos (See where photos were taken) <!-- id: 57 -->
+  - [ ] **Refactor**: Auto-tagging (Food, Landscape, People) <!-- id: 58 -->
+
+- [ ] **Travel Journal** <!-- id: 59 -->
+  - [ ] Rich Text Editor for Daily Logs <!-- id: 60 -->
+  - [ ] Mood Tracker (How was the day?) <!-- id: 61 -->
+  - [ ] Link Photos/Activities to Journal Entries <!-- id: 62 -->
+
+---
+
+## 🤖 Phase 6: AI & Automation (Premium)
+
+_Next-level smart features._
+
+- [ ] **AI Trip Planner** <!-- id: 63 -->
+
+  - [ ] "Generate Itinerary" based on User Preferences (Vibe, Budget, Duration) <!-- id: 64 -->
+  - [ ] AI Suggestions for Restaurants/Attractions nearby <!-- id: 65 -->
+
+- [ ] **Smart Assistant** <!-- id: 66 -->
+  - [ ] Chatbot for trip questions ("What's the currency in Japan?") <!-- id: 67 -->
+  - [ ] Auto-extract details from forwarded emails (Flight confirmations) <!-- id: 68 -->
+
+---
+
+## 🤝 Phase 7: Collaboration & Social
+
+_Making it a shared experience._
+
+- [ ] **Real-time Collaboration** <!-- id: 69 -->
+
+  - [ ] Invite Friends via Email/Link <!-- id: 70 -->
+  - [ ] Real-time Sync (See others editing the itinerary) <!-- id: 71 -->
+  - [ ] Comments & Chat on Activities <!-- id: 72 -->
+
+- [ ] **Sharing & Publishing** <!-- id: 73 -->
+  - [ ] Generate "Read-Only" Web Link for sharing <!-- id: 74 -->
+  - [ ] Export to PDF (Beautifully formatted itinerary) <!-- id: 75 -->
+  - [ ] Social Share Card Generator (Insta-ready summary of the trip) <!-- id: 76 -->
+
+---
+
+## 🛠️ Phase 8: Technical Polish & Performance
+
+_Ensuring a production-grade app._
+
+- [ ] **Offline Support (PWA)** <!-- id: 77 -->
+
+  - [ ] Service Worker for offline access <!-- id: 78 -->
+  - [ ] Local Sync when back online <!-- id: 79 -->
+
+- [ ] **Accessibility & I18n** <!-- id: 80 -->
+  - [ ] Multi-language Support <!-- id: 81 -->
+  - [ ] Screen Reader Optimization <!-- id: 82 -->
+  - [ ] Keyboard Navigation <!-- id: 83 -->
