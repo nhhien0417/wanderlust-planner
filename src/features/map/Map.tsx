@@ -38,11 +38,11 @@ export const TripMap = ({ tripId }: TripMapProps) => {
     const allActivities = trip.days.flatMap((day) => day.activities);
     return allActivities.map((activity) => ({
       id: activity.id,
-      position: [activity.location.lat, activity.location.lng] as [
+      position: [activity.location?.lat, activity.location?.lng] as [
         number,
         number
       ],
-      title: activity.location.name,
+      title: activity.location?.name || activity.title,
     }));
   }, [trip]);
 

@@ -148,7 +148,7 @@ export const PhotoMetadataForm = ({
               </MenuItem>
               {activities.map((activity) => (
                 <MenuItem key={activity.id} value={activity.id}>
-                  {activity.location.name}
+                  {activity.location?.name || activity.title}
                 </MenuItem>
               ))}
             </TextField>
