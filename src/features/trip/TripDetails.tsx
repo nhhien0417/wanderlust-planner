@@ -15,23 +15,8 @@ import {
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
-  useSortable,
 } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import {
-  Calendar,
-  MapPin,
-  DollarSign,
-  Clock,
-  GripVertical,
-  Landmark,
-  UtensilsCrossed,
-  Hotel,
-  Car,
-  X,
-  Share,
-  Trash2,
-} from "lucide-react";
+import { Calendar, MapPin, DollarSign, Clock, X, Share } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import type { SelectChangeEvent } from "@mui/material";
 import {
@@ -59,6 +44,10 @@ import { useMembersStore } from "../../store/useMembersStore";
 import { ShareModal } from "../../components/ShareModal";
 import { AddActivityModal } from "../../components/AddActivityModal";
 import { DayWeatherCard } from "../../components/DayWeatherCard";
+import {
+  ActivityCard,
+  SortableActivityItem,
+} from "../../components/activities";
 import { TripBoard } from "./TripBoard";
 import { TripBudget } from "./TripBudget";
 import { TripPackingList } from "./TripPackingList";
@@ -67,182 +56,13 @@ import { PhotoUpload } from "../gallery/PhotoUpload";
 import { PhotoLightbox } from "../gallery/PhotoLightbox";
 import { PhotoMetadataForm } from "../gallery/PhotoMetadataForm";
 import { WeatherWidget } from "../weather/WeatherWidget";
-import type { Activity, Photo } from "../../types";
+import type { Photo } from "../../types";
 
 const EMPTY_PHOTOS: Photo[] = [];
 
 interface TripDetailsProps {
   tripId?: string;
 }
-
-// --- Local Components ---
-
-const ActivityCard = ({
-  activity,
-  isDragging,
-  isOverlay,
-  onDelete,
-}: {
-  activity: Activity;
-  isDragging?: boolean;
-  isOverlay?: boolean;
-  onDelete?: (id: string) => void;
-}) => {
-  const getIcon = (category: string) => {
-    switch (category) {
-      case "restaurant":
-        return <UtensilsCrossed size={18} />;
-      case "hotel":
-        return <Hotel size={18} />;
-      case "transport":
-        return <Car size={18} />;
-      default:
-        return <Landmark size={18} />;
-    }
-  };
-
-  return (
-    <Card
-      elevation={isDragging || isOverlay ? 6 : 1}
-      sx={{
-        p: 2,
-        display: "flex",
-        gap: 2,
-        cursor: isDragging ? "grabbing" : "grab",
-        opacity: isDragging ? 0.5 : 1,
-        position: "relative",
-        "&:hover .delete-btn": {
-          opacity: 1,
-        },
-      }}
-    >
-      <Box
-        sx={{
-          color: "text.secondary",
-          display: "flex",
-          alignItems: "center",
-          pt: 0.5,
-        }}
-      >
-        <GripVertical size={20} />
-      </Box>
-      <Box sx={{ flex: 1 }}>
-        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
-          <Typography variant="subtitle1" fontWeight="bold">
-            {activity.title}
-          </Typography>
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 1,
-              color: "text.secondary",
-            }}
-          >
-            {activity.startTime && (
-              <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                <Clock size={14} />
-                <Typography variant="caption">
-                  {activity.startTime}
-                  {activity.endTime && ` - ${activity.endTime}`}
-                </Typography>
-              </Box>
-            )}
-            {getIcon(activity.category)}
-          </Box>
-        </Box>
-        {activity.description && (
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-            {activity.description}
-          </Typography>
-        )}
-        <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-          {activity.location && (
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 0.5,
-                color: "primary.main",
-              }}
-            >
-              <MapPin size={14} />
-              <Typography variant="caption" fontWeight={500}>
-                {activity.location.name}
-              </Typography>
-            </Box>
-          )}
-          {activity.cost && activity.cost > 0 && (
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 0.5,
-                color: "success.main",
-              }}
-            >
-              <DollarSign size={14} />
-              <Typography variant="caption" fontWeight={500}>
-                ${activity.cost}
-              </Typography>
-            </Box>
-          )}
-        </Box>
-      </Box>
-      {onDelete && (
-        <IconButton
-          size="small"
-          className="delete-btn"
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete(activity.id);
-          }}
-          sx={{
-            position: "absolute",
-            top: 8,
-            right: 8,
-            opacity: 0,
-            transition: "opacity 0.2s",
-          }}
-        >
-          <Trash2 size={16} />
-        </IconButton>
-      )}
-    </Card>
-  );
-};
-
-const SortableActivityItem = ({
-  activity,
-  onDelete,
-}: {
-  activity: Activity;
-  onDelete?: (id: string) => void;
-}) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: activity.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
-  return (
-    <Box ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      <ActivityCard
-        activity={activity}
-        isDragging={isDragging}
-        onDelete={onDelete}
-      />
-    </Box>
-  );
-};
 
 // --- Main Component ---
 
