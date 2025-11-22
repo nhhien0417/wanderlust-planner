@@ -9,7 +9,8 @@ import {
   MenuItem,
   Box,
 } from "@mui/material";
-import { useTripStore } from "../../store/useTripStore";
+import { useTripsStore } from "../../store/useTripsStore";
+import { usePhotosStore } from "../../store/usePhotosStore";
 import type { Photo } from "../../types";
 
 interface PhotoMetadataFormProps {
@@ -25,10 +26,10 @@ export const PhotoMetadataForm = ({
   open,
   onClose,
 }: PhotoMetadataFormProps) => {
-  const trip = useTripStore((state) =>
+  const trip = useTripsStore((state) =>
     state.trips.find((t) => t.id === tripId)
   );
-  const updatePhoto = useTripStore((state) => state.updatePhoto);
+  const { updatePhoto } = usePhotosStore();
 
   const [formData, setFormData] = useState({
     description: photo.description || "",

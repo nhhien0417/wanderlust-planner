@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
-import { useTripStore } from "../../store/useTripStore";
+import { useTripsStore } from "../../store/useTripsStore";
+import { useBudgetStore } from "../../store/useBudgetStore";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
@@ -53,13 +54,11 @@ const CATEGORIES = [
 ];
 
 export const TripBudget = ({ tripId }: TripBudgetProps) => {
-  const trip = useTripStore((state) =>
+  const trip = useTripsStore((state) =>
     state.trips.find((t) => t.id === tripId)
   );
-  const addExpense = useTripStore((state) => state.addExpense);
-  const removeExpense = useTripStore((state) => state.removeExpense);
-  const updateExpense = useTripStore((state) => state.updateExpense);
-  const setBudget = useTripStore((state) => state.setBudget);
+  const { addExpense, removeExpense, updateExpense, setBudget } =
+    useBudgetStore();
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditBudgetOpen, setIsEditBudgetOpen] = useState(false);

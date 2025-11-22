@@ -13,7 +13,7 @@ import Tooltip from "@mui/material/Tooltip";
 import { MapPin, X, Info } from "lucide-react";
 import { Map } from "../../components/Map";
 import { LocationSearch } from "../../components/LocationSearch";
-import { useTripStore } from "../../store/useTripStore";
+import { useTripsStore } from "../../store/useTripsStore";
 import { v4 as uuidv4 } from "uuid";
 import type { Location } from "../../types";
 
@@ -22,7 +22,7 @@ interface TripMapProps {
 }
 
 export const TripMap = ({ tripId }: TripMapProps) => {
-  const { trips } = useTripStore();
+  const { trips } = useTripsStore();
   const [viewState, setViewState] = useState({
     center: [16.0544, 108.2022] as [number, number],
     zoom: 13,

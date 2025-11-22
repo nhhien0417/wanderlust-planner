@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -16,7 +16,8 @@ import {
   Alert,
 } from "@mui/material";
 import { X, UserPlus, Trash2, Shield } from "lucide-react";
-import { useTripStore } from "../store/useTripStore";
+import { useTripsStore } from "../store/useTripsStore";
+import { useMembersStore } from "../store/useMembersStore";
 
 interface ShareModalProps {
   open: boolean;
@@ -28,14 +29,14 @@ export const ShareModal = ({ open, onClose, tripId }: ShareModalProps) => {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const { inviteMember, removeMember } = useTripStore();
 
-  // We'll need to fetch members when the modal opens
-  // For now, let's assume we have a way to get them or they are in the store
-  // This is a placeholder for the members list logic which we need to add to the store
-  const members = useTripStore(
-    (state) => state.trips.find((t) => t.id === tripId)?.members || []
-  );
+  const { inviteMember, removeMember } = useMembersStore();
+
+  const trips = useTripsStore((state) => state.trips);
+  const members = useMemo(() => {
+    const trip = trips.find((t) => t.id === tripId);
+    return trip?.members || [];
+  }, [trips, tripId]);
 
   const handleInvite = async () => {
     if (!email) return;

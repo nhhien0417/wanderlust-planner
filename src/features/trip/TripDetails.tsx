@@ -52,7 +52,10 @@ import {
   Select,
   MenuItem,
 } from "@mui/material";
-import { useTripStore } from "../../store/useTripStore";
+import { useTripsStore } from "../../store/useTripsStore";
+import { useActivitiesStore } from "../../store/useActivitiesStore";
+import { usePhotosStore } from "../../store/usePhotosStore";
+import { useMembersStore } from "../../store/useMembersStore";
 import { ShareModal } from "../../components/ShareModal";
 import { AddActivityModal } from "../../components/AddActivityModal";
 import { DayWeatherCard } from "../../components/DayWeatherCard";
@@ -247,22 +250,24 @@ export const TripDetails = ({ tripId: propTripId }: TripDetailsProps) => {
   const { tripId: paramTripId } = useParams<{ tripId: string }>();
   const tripId = propTripId || paramTripId;
 
-  const trip = useTripStore((state) =>
+  // Use specialized stores
+  const trip = useTripsStore((state) =>
     state.trips.find((t) => t.id === tripId)
   );
-  const addActivity = useTripStore((state) => state.addActivity);
-  const removeActivity = useTripStore((state) => state.removeActivity);
-  const reorderActivities = useTripStore((state) => state.reorderActivities);
-  const deletePhoto = useTripStore((state) => state.deletePhoto);
-  const subscribeToTrip = useTripStore((state) => state.subscribeToTrip);
-  const unsubscribeFromTrip = useTripStore(
-    (state) => state.unsubscribeFromTrip
-  );
-
-  const tripPhotos = useTripStore((state) => {
+  const tripPhotos = useTripsStore((state) => {
     const found = state.trips.find((t) => t.id === tripId);
     return found?.photos ?? EMPTY_PHOTOS;
   });
+
+  // Activity operations
+  const { addActivity, removeActivity, reorderActivities } =
+    useActivitiesStore();
+
+  // Photo operations
+  const { deletePhoto } = usePhotosStore();
+
+  // Collaboration operations
+  const { subscribeToTrip, unsubscribeFromTrip } = useMembersStore();
 
   const [activeDayId, setActiveDayId] = useState<string | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);

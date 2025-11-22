@@ -1,4 +1,5 @@
-import { useTripStore } from "../../store/useTripStore";
+import { useTripsStore } from "../../store/useTripsStore";
+import { useWeatherStore } from "../../store/useWeatherStore";
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { CloudRain, Thermometer, AlertCircle, RefreshCw } from "lucide-react";
@@ -17,10 +18,10 @@ interface WeatherWidgetProps {
 }
 
 export const WeatherWidget = ({ tripId }: WeatherWidgetProps) => {
-  const trip = useTripStore((state) =>
+  const trip = useTripsStore((state) =>
     state.trips.find((t) => t.id === tripId)
   );
-  const fetchTripWeather = useTripStore((state) => state.fetchTripWeather);
+  const { fetchTripWeather } = useWeatherStore();
   const [isLoading, setIsLoading] = useState(false);
   const [hasAttemptedFetch, setHasAttemptedFetch] = useState(false);
 

@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
-import { useTripStore } from "../../store/useTripStore";
+import { useTripsStore } from "../../store/useTripsStore";
+import { usePackingStore } from "../../store/usePackingStore";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
@@ -64,15 +65,15 @@ const CATEGORIES = [
 ];
 
 export const TripPackingList = ({ tripId }: TripPackingListProps) => {
-  const trip = useTripStore((state) =>
+  const trip = useTripsStore((state) =>
     state.trips.find((t) => t.id === tripId)
   );
-  const addPackingItem = useTripStore((state) => state.addPackingItem);
-  const removePackingItem = useTripStore((state) => state.removePackingItem);
-  const togglePackingItem = useTripStore((state) => state.togglePackingItem);
-  const generatePackingList = useTripStore(
-    (state) => state.generatePackingList
-  );
+  const {
+    addPackingItem,
+    removePackingItem,
+    togglePackingItem,
+    generatePackingList,
+  } = usePackingStore();
 
   const [newItemName, setNewItemName] = useState("");
   const [newItemCategory, setNewItemCategory] = useState("Other");

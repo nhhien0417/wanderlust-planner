@@ -10,7 +10,7 @@ import {
 import { Upload, X, Image as ImageIcon } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import { photoStorage } from "../../utils/photoStorage";
-import { useTripStore } from "../../store/useTripStore";
+import { usePhotosStore } from "../../store/usePhotosStore";
 import type { Photo } from "../../types";
 
 interface PhotoUploadProps {
@@ -44,7 +44,7 @@ export const PhotoUpload = ({
   const [error, setError] = useState<string | null>(null);
   const [previews, setPreviews] = useState<{ file: File; url: string }[]>([]);
 
-  const addPhoto = useTripStore((state) => state.addPhoto);
+  const { addPhoto } = usePhotosStore();
 
   const createThumbnail = useCallback(async (file: File): Promise<string> => {
     return new Promise((resolve) => {

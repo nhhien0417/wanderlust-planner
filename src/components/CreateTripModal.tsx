@@ -14,7 +14,7 @@ import Collapse from "@mui/material/Collapse";
 import Paper from "@mui/material/Paper";
 import MenuItem from "@mui/material/MenuItem";
 import { X, MapPin, Image as ImageIcon, Map as MapIcon } from "lucide-react";
-import { useTripStore } from "../store/useTripStore";
+import { useTripsStore } from "../store/useTripsStore";
 import todayDate from "../utils/todayDate";
 import { Map } from "./Map";
 import { reverseGeocode } from "../api/weatherApi";
@@ -26,7 +26,7 @@ interface CreateTripModalProps {
 }
 
 export const CreateTripModal = ({ isOpen, onClose }: CreateTripModalProps) => {
-  const addTrip = useTripStore((state) => state.addTrip);
+  const { addTrip } = useTripsStore();
   const [formData, setFormData] = useState({
     name: "",
     destination: "",

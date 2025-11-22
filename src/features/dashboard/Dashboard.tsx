@@ -9,11 +9,11 @@ import CardActionArea from "@mui/material/CardActionArea";
 import Stack from "@mui/material/Stack";
 import { Plus, Calendar, MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useTripStore } from "../../store/useTripStore";
+import { useTripsStore } from "../../store/useTripsStore";
 import { useUIStore } from "../../store/useUIStore";
 
 export const Dashboard = () => {
-  const { trips } = useTripStore();
+  const { trips } = useTripsStore();
   const { openCreateTripModal } = useUIStore();
   const navigate = useNavigate();
 

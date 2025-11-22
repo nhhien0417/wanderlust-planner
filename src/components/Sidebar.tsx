@@ -15,14 +15,14 @@ import {
   User as UserIcon,
   LogIn,
 } from "lucide-react";
-import { useTripStore } from "../store/useTripStore";
+import { useTripsStore } from "../store/useTripsStore";
 import { useUIStore } from "../store/useUIStore";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
 import Avatar from "@mui/material/Avatar";
 
 export const Sidebar = () => {
-  const { activeTripId, setActiveTrip, trips } = useTripStore();
+  const { activeTripId, setActiveTrip, trips } = useTripsStore();
   const { openCreateTripModal } = useUIStore();
   const { user, signOut } = useAuthStore();
   const navigate = useNavigate();

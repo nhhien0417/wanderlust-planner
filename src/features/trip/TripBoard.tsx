@@ -18,7 +18,8 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { useTripStore } from "../../store/useTripStore";
+import { useTripsStore } from "../../store/useTripsStore";
+import { useTasksStore } from "../../store/useTasksStore";
 import type { TripTask, TaskStatus } from "../../types";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -196,12 +197,10 @@ const KanbanColumn = ({
 };
 
 export const TripBoard = ({ tripId }: TripKanbanProps) => {
-  const trip = useTripStore((state) =>
+  const trip = useTripsStore((state) =>
     state.trips.find((t) => t.id === tripId)
   );
-  const addTask = useTripStore((state) => state.addTask);
-  const updateTask = useTripStore((state) => state.updateTask);
-  const updateTaskStatus = useTripStore((state) => state.updateTaskStatus);
+  const { addTask, updateTask, updateTaskStatus } = useTasksStore();
 
   const [activeId, setActiveId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);

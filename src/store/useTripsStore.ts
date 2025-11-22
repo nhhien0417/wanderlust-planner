@@ -1,0 +1,255 @@
+import { create } from "zustand";
+import { v4 as uuidv4 } from "uuid";
+import type { Trip } from "../types";
+import { supabase } from "../../supabase/supabase";
+import { useAuthStore } from "./useAuthStore";
+
+const STORAGE_KEY = "wanderlust-storage";
+
+interface TripsState {
+  trips: Trip[];
+  activeTripId: string | null;
+  isLoading: boolean;
+
+  // Actions
+  fetchTrips: () => Promise<void>;
+  addTrip: (
+    trip: Omit<Trip, "id" | "days" | "tasks" | "expenses" | "packingList">
+  ) => Promise<void>;
+  setActiveTrip: (id: string | null) => void;
+  deleteTrip: (id: string) => Promise<void>;
+}
+
+// Helper to generate days between dates
+const generateDays = (start: string, end: string) => {
+  const days = [];
+  const startDate = new Date(start);
+  const endDate = new Date(end);
+
+  for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    const dateStr = `${year}-${month}-${day}`;
+
+    days.push({
+      id: uuidv4(),
+      date: dateStr,
+      activities: [],
+    });
+  }
+  return days;
+};
+
+// Local Storage Helpers
+const loadFromLocalStorage = (): {
+  trips: Trip[];
+  activeTripId: string | null;
+} => {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (!stored) return { trips: [], activeTripId: null };
+    const parsed = JSON.parse(stored);
+    // Handle Zustand persist format if it exists
+    return parsed.state || parsed;
+  } catch (e) {
+    console.error("Failed to load from local storage", e);
+    return { trips: [], activeTripId: null };
+  }
+};
+
+const saveToLocalStorage = (state: {
+  trips: Trip[];
+  activeTripId: string | null;
+}) => {
+  try {
+    // Match Zustand persist format for compatibility
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ state, version: 0 }));
+  } catch (e) {
+    console.error("Failed to save to local storage", e);
+  }
+};
+
+export const useTripsStore = create<TripsState>((set, get) => ({
+  trips: [],
+  activeTripId: null,
+  isLoading: false,
+
+  fetchTrips: async () => {
+    set({ isLoading: true });
+    const user = useAuthStore.getState().user;
+
+    if (user) {
+      // Fetch from Supabase
+      const { data: tripsData, error } = await supabase
+        .from("trips")
+        .select(
+          `
+          *,
+          days:trip_days(
+            *,
+            activities(*)
+          ),
+          members:trip_members(
+            user_id,
+            role,
+            profiles:user_id(email, full_name, avatar_url)
+          )
+        `
+        )
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Error fetching trips:", error);
+        set({ isLoading: false });
+        return;
+      }
+
+      // Transform data to match Trip interface
+      const trips: Trip[] = tripsData.map((t: any) => ({
+        id: t.id,
+        created_by: t.created_by,
+        name: t.title,
+        destination: t.destination,
+        startDate: t.start_date,
+        endDate: t.end_date,
+        coverImage: t.cover_image,
+        budget: 0,
+        days: t.days
+          .map((d: any) => ({
+            id: d.id,
+            date: d.date,
+            activities: d.activities.sort(
+              (a: any, b: any) => (a.order_index || 0) - (b.order_index || 0)
+            ),
+          }))
+          .sort(
+            (a: any, b: any) =>
+              new Date(a.date).getTime() - new Date(b.date).getTime()
+          ),
+        tasks: t.tasks || [],
+        expenses: t.expenses || [],
+        packingList: t.packing_list || [],
+        weather: t.weather || [],
+        photos: t.photos || [],
+        members:
+          t.members?.map((m: any) => ({
+            user_id: m.user_id,
+            trip_id: t.id,
+            role: m.role,
+            email: m.profiles?.email,
+            full_name: m.profiles?.full_name,
+            avatar_url: m.profiles?.avatar_url,
+          })) || [],
+      }));
+
+      set({ trips, isLoading: false });
+    } else {
+      // Load from Local Storage
+      const localState = loadFromLocalStorage();
+      set({ ...localState, isLoading: false });
+    }
+  },
+
+  addTrip: async (tripData) => {
+    const user = useAuthStore.getState().user;
+    const days = generateDays(tripData.startDate, tripData.endDate);
+    const newTripId = uuidv4();
+
+    const newTrip: Trip = {
+      ...tripData,
+      id: newTripId,
+      days,
+      tasks: [],
+      expenses: [],
+      packingList: [],
+      photos: [],
+      members: [],
+    };
+
+    if (user) {
+      // Supabase Insert
+      const { error: tripError } = await supabase.from("trips").insert({
+        id: newTripId,
+        created_by: user.id,
+        title: tripData.name,
+        destination: tripData.destination,
+        start_date: tripData.startDate,
+        end_date: tripData.endDate,
+        cover_image: tripData.coverImage,
+        tasks: [],
+        expenses: [],
+        packing_list: [],
+        weather: [],
+        photos: [],
+      });
+
+      if (tripError) {
+        console.error("Error creating trip:", tripError);
+        return;
+      }
+
+      // Insert Days
+      const dayRows = days.map((d) => ({
+        id: d.id,
+        trip_id: newTripId,
+        date: d.date,
+      }));
+
+      const { error: daysError } = await supabase
+        .from("trip_days")
+        .insert(dayRows);
+      if (daysError) console.error("Error creating days:", daysError);
+
+      // Add creator as owner in trip_members
+      await supabase.from("trip_members").insert({
+        trip_id: newTripId,
+        user_id: user.id,
+        role: "owner",
+      });
+
+      set((state) => ({
+        trips: [...state.trips, newTrip],
+        activeTripId: newTripId,
+      }));
+    } else {
+      // Local Storage
+      set((state) => {
+        const newState = {
+          trips: [...state.trips, newTrip],
+          activeTripId: newTripId,
+        };
+        saveToLocalStorage(newState);
+        return newState;
+      });
+    }
+  },
+
+  setActiveTrip: (id) => {
+    set({ activeTripId: id });
+    const user = useAuthStore.getState().user;
+    if (!user) {
+      saveToLocalStorage({ trips: get().trips, activeTripId: id });
+    }
+  },
+
+  deleteTrip: async (id) => {
+    const user = useAuthStore.getState().user;
+    if (user) {
+      await supabase.from("trips").delete().eq("id", id);
+      set((state) => ({
+        trips: state.trips.filter((t) => t.id !== id),
+        activeTripId: state.activeTripId === id ? null : state.activeTripId,
+      }));
+    } else {
+      set((state) => {
+        const newState = {
+          trips: state.trips.filter((t) => t.id !== id),
+          activeTripId: state.activeTripId === id ? null : state.activeTripId,
+        };
+        saveToLocalStorage(newState);
+        return newState;
+      });
+    }
+  },
+}));

@@ -10,7 +10,8 @@ import {
 } from "@mui/material";
 import { MoreVertical, Image as ImageIcon, PlayCircle } from "lucide-react";
 import { isVideo } from "../../utils/mediaUtils";
-import { useTripStore } from "../../store/useTripStore";
+import { useTripsStore } from "../../store/useTripsStore";
+import { usePhotosStore } from "../../store/usePhotosStore";
 import { photoStorage } from "../../utils/photoStorage";
 import type { Photo } from "../../types";
 
@@ -35,10 +36,10 @@ export const PhotoGallery = ({
   filterByActivityId,
   filterByDayId,
 }: PhotoGalleryProps) => {
-  const trip = useTripStore((state) =>
+  const trip = useTripsStore((state) =>
     state.trips.find((t) => t.id === tripId)
   );
-  const deletePhoto = useTripStore((state) => state.deletePhoto);
+  const { deletePhoto } = usePhotosStore();
 
   const [photoUrls, setPhotoUrls] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
