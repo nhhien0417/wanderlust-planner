@@ -10,7 +10,7 @@ import {
   Car,
   Trash2,
 } from "lucide-react";
-import type { Activity } from "../../types";
+import type { Activity } from "../../../../types";
 
 interface ActivityCardProps {
   activity: Activity;
@@ -20,7 +20,7 @@ interface ActivityCardProps {
   showDragHandle?: boolean;
 }
 
-export const    ActivityCard = ({
+export const ActivityCard = ({
   activity,
   isDragging = false,
   isOverlay = false,

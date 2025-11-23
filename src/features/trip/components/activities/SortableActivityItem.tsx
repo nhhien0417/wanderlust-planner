@@ -1,7 +1,7 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { ActivityCard } from "./ActivityCard";
-import type { Activity } from "../../types";
+import type { Activity } from "../../../../types";
 
 interface SortableActivityItemProps {
   activity: Activity;

@@ -16,8 +16,8 @@ import {
   Alert,
 } from "@mui/material";
 import { X, UserPlus, Trash2, Shield } from "lucide-react";
-import { useTripsStore } from "../store/useTripsStore";
-import { useMembersStore } from "../store/useMembersStore";
+import { useMembersStore } from "../../../store/useMembersStore";
+import { useTripsStore } from "../../../store/useTripsStore";
 
 interface ShareModalProps {
   open: boolean;

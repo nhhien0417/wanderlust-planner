@@ -10,12 +10,12 @@ import Stack from "@mui/material/Stack";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { X, MapPin } from "lucide-react";
-import { useTripsStore } from "../store/useTripsStore";
 import {
   DestinationSection,
   DateBudgetSection,
   CoverImageSection,
 } from "./trip-form";
+import { useTripsStore } from "../../../store/useTripsStore";
 
 interface CreateTripModalProps {
   isOpen: boolean;

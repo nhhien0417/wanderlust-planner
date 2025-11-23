@@ -4,7 +4,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { Box, Typography, Chip } from "@mui/material";
-import type { TripTask, TaskStatus } from "../../types";
+import type { TripTask, TaskStatus } from "../../../../types";
 import { SortableTaskCard } from "./SortableTaskCard";
 
 interface KanbanColumnProps {

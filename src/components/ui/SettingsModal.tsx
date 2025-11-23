@@ -15,7 +15,7 @@ import {
   Divider,
 } from "@mui/material";
 import { User, Settings, LogOut, Moon, Sun } from "lucide-react";
-import { useAuthStore } from "../store/useAuthStore";
+import { useAuthStore } from "../../store/useAuthStore";
 import { useNavigate } from "react-router-dom";
 
 interface SettingsModalProps {

@@ -19,7 +19,7 @@ import {
   ExpenseList,
   BudgetChart,
   ExpenseModal,
-} from "../../components/budget";
+} from "./components/budget";
 
 interface TripBudgetProps {
   tripId: string;

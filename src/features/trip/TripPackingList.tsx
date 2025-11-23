@@ -9,7 +9,7 @@ import {
   PackingHeader,
   AddItemForm,
   PackingCategory,
-} from "../../components/packing";
+} from "./components/packing";
 
 interface TripPackingListProps {
   tripId: string;

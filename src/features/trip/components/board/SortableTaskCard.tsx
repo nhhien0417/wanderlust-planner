@@ -3,7 +3,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { Card, Typography, Box, Chip } from "@mui/material";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { format, parseISO } from "date-fns";
-import type { TripTask } from "../../types";
+import type { TripTask } from "../../../../types";
 
 interface SortableTaskCardProps {
   task: TripTask;

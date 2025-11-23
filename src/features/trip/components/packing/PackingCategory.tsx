@@ -7,7 +7,7 @@ import {
   IconButton,
 } from "@mui/material";
 import { CheckCircle2, Trash2 } from "lucide-react";
-import type { PackingItem } from "../../types";
+import type { PackingItem } from "../../../../types";
 import type { ReactNode } from "react";
 
 interface PackingCategoryProps {

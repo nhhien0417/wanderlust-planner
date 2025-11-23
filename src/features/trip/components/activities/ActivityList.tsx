@@ -18,11 +18,11 @@ import {
 import { Box, Typography, Button, Card, Chip } from "@mui/material";
 import { Clock } from "lucide-react";
 import { format, parseISO } from "date-fns";
-import { useTripsStore } from "../../store/useTripsStore";
-import { useActivitiesStore } from "../../store/useActivitiesStore";
-import { DayWeatherCard } from "../DayWeatherCard";
+import { useTripsStore } from "../../../../store/useTripsStore";
+import { useActivitiesStore } from "../../../../store/useActivitiesStore";
 import { ActivityCard } from "./ActivityCard";
 import { SortableActivityItem } from "./SortableActivityItem";
+import { DayWeatherCard } from "../../../weather/components/DayWeatherCard";
 
 interface ActivityListProps {
   tripId: string;

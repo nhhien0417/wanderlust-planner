@@ -14,7 +14,7 @@ import {
   Collapse,
 } from "@mui/material";
 import { Search, Map as MapIcon, MapPin, X } from "lucide-react";
-import { Map } from "../Map";
+import { Map } from "../../../map/components/Map";
 
 interface SearchResult {
   name: string;

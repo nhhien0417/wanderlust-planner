@@ -16,7 +16,7 @@ import {
   MousePointerClick,
   Check,
 } from "lucide-react";
-import { useUIStore } from "../store/useUIStore";
+import { useUIStore } from "../../store/useUIStore";
 
 interface SidebarControlProps {
   isCollapsed: boolean;

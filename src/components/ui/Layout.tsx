@@ -1,8 +1,8 @@
 import { Outlet } from "react-router-dom";
 import Box from "@mui/material/Box";
 import { Sidebar } from "./Sidebar";
-import { CreateTripModal } from "./CreateTripModal";
-import { useUIStore } from "../store/useUIStore";
+import { CreateTripModal } from "../../features/trip/components/CreateTripModal";
+import { useUIStore } from "../../store/useUIStore";
 
 export const Layout = () => {
   const { isCreateTripModalOpen, closeCreateTripModal } = useUIStore();

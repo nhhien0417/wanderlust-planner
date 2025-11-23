@@ -10,8 +10,8 @@ import {
   IconButton,
 } from "@mui/material";
 import { MapPin, Map as MapIcon, X } from "lucide-react";
-import { Map } from "../Map";
-import { reverseGeocode } from "../../api/weatherApi";
+import { Map } from "../../../map/components/Map";
+import { reverseGeocode } from "../../../../api/weatherApi";
 
 interface DestinationSectionProps {
   destination: string;

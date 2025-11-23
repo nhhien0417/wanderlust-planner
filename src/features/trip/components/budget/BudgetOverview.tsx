@@ -1,7 +1,7 @@
 import { Box, Paper, Typography, IconButton, Grid } from "@mui/material";
 import { Wallet, Edit2, DollarSign, TrendingUp, Calendar } from "lucide-react";
-import { formatCurrency } from "../../utils/currency";
-import type { Expense } from "../../types";
+import type { Expense } from "../../../../types";
+import { formatCurrency } from "../../../../utils/currency";
 
 interface BudgetOverviewProps {
   budget: number;

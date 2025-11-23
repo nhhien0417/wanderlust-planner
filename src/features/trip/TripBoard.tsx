@@ -24,7 +24,7 @@ import DialogActions from "@mui/material/DialogActions";
 import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
 import { Plus } from "lucide-react";
-import { KanbanColumn, SortableTaskCard } from "../../components/board";
+import { KanbanColumn, SortableTaskCard } from "./components/board";
 
 interface TripKanbanProps {
   tripId: string;

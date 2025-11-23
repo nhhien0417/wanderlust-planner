@@ -7,9 +7,9 @@ import {
   Tooltip as RechartsTooltip,
   Legend,
 } from "recharts";
-import { formatCurrency } from "../../utils/currency";
-import type { Expense } from "../../types";
 import { CATEGORIES } from "./ExpenseList";
+import type { Expense } from "../../../../types";
+import { formatCurrency } from "../../../../utils/currency";
 
 interface BudgetChartProps {
   expenses: Expense[];

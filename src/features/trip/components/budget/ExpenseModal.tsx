@@ -9,7 +9,7 @@ import {
   MenuItem,
   InputAdornment,
 } from "@mui/material";
-import { getCurrencySymbol } from "../../utils/currency";
+import { getCurrencySymbol } from "../../../../utils/currency";
 import { CATEGORIES } from "./ExpenseList";
 
 export interface ExpenseFormData {

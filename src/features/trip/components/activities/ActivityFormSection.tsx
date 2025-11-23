@@ -15,7 +15,7 @@ import {
   Car,
   Building2,
 } from "lucide-react";
-import type { Activity } from "../../types";
+import type { Activity } from "../../../../types";
 
 const CATEGORIES = [
   { id: "attraction", label: "Attraction", icon: Landmark },

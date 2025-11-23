@@ -11,8 +11,8 @@ import {
   IconButton,
 } from "@mui/material";
 import { Edit2, Trash2 } from "lucide-react";
-import { formatCurrency } from "../../utils/currency";
-import type { Expense } from "../../types";
+import { formatCurrency } from "../../../../utils/currency";
+import type { Expense } from "../../../../types";
 
 export const CATEGORIES = [
   { id: "accommodation", label: "Accommodation", color: "#8884d8" },

@@ -1,6 +1,6 @@
 import { Stack, TextField, MenuItem } from "@mui/material";
-import todayDate from "../../utils/todayDate";
-import { CURRENCIES } from "../../utils/currency";
+import todayDate from "../../../../utils/todayDate";
+import { CURRENCIES } from "../../../../utils/currency";
 
 interface DateBudgetSectionProps {
   startDate: string;

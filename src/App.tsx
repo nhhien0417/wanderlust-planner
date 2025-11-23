@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import { Layout } from "./components/Layout";
+import { Layout } from "./components/ui/Layout";
 import { Dashboard } from "./features/dashboard/Dashboard";
 import { TripDetails } from "./features/trip/TripDetails";
 import { Login } from "./features/auth/Login";

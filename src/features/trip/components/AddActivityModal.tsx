@@ -5,7 +5,7 @@ import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import { X, Plus } from "lucide-react";
-import type { Activity } from "../types";
+import type { Activity } from "../../../types";
 import {
   LocationSection,
   ActivityFormSection,
