@@ -9,31 +9,22 @@ import {
   useSensors,
   type DragStartEvent,
   type DragOverEvent,
-  useDroppable,
 } from "@dnd-kit/core";
-import {
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-  useSortable,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { useTripsStore } from "../../store/useTripsStore";
 import { useTasksStore } from "../../store/useTasksStore";
 import type { TripTask, TaskStatus } from "../../types";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
-import Card from "@mui/material/Card";
-import Chip from "@mui/material/Chip";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
-import { Plus, Calendar as CalendarIcon } from "lucide-react";
-import { format, parseISO } from "date-fns";
+import { Plus } from "lucide-react";
+import { KanbanColumn, SortableTaskCard } from "../../components/board";
 
 interface TripKanbanProps {
   tripId: string;
@@ -44,157 +35,6 @@ const COLUMNS: { id: TaskStatus; title: string; color: string }[] = [
   { id: "in-progress", title: "In Progress", color: "#bfdbfe" },
   { id: "done", title: "Done", color: "#bbf7d0" },
 ];
-
-const SortableTaskCard = ({
-  task,
-  onClick,
-}: {
-  task: TripTask;
-  onClick: () => void;
-}) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: task.id, data: { type: "Task", task } });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  };
-
-  return (
-    <Card
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-      onClick={onClick}
-      sx={{
-        p: 2,
-        mb: 2,
-        cursor: "grab",
-        "&:hover": { boxShadow: 3 },
-        borderLeft: `4px solid ${
-          task.priority === "high"
-            ? "#ef4444"
-            : task.priority === "medium"
-            ? "#f59e0b"
-            : "#3b82f6"
-        }`,
-      }}
-    >
-      <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-        {task.title}
-      </Typography>
-      {task.description && (
-        <Typography
-          variant="body2"
-          color="text.secondary"
-          sx={{
-            mb: 1,
-            display: "-webkit-box",
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: "vertical",
-            overflow: "hidden",
-          }}
-        >
-          {task.description}
-        </Typography>
-      )}
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1 }}>
-        {task.dueDate && (
-          <Chip
-            icon={<CalendarIcon size={14} />}
-            label={format(parseISO(task.dueDate), "MMM d")}
-            size="small"
-            variant="outlined"
-          />
-        )}
-        <Chip
-          label={task.priority}
-          size="small"
-          color={
-            task.priority === "high"
-              ? "error"
-              : task.priority === "medium"
-              ? "warning"
-              : "primary"
-          }
-          variant="outlined"
-          sx={{ textTransform: "capitalize" }}
-        />
-      </Box>
-    </Card>
-  );
-};
-
-const KanbanColumn = ({
-  column,
-  tasks,
-  onEditTask,
-}: {
-  column: { id: TaskStatus; title: string; color: string };
-  tasks: TripTask[];
-  onEditTask: (task: TripTask) => void;
-}) => {
-  const { setNodeRef } = useDroppable({
-    id: column.id,
-  });
-
-  return (
-    <Box
-      sx={{
-        flex: 1,
-        backgroundColor: "grey.100",
-        borderRadius: 2,
-        p: 2,
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          mb: 2,
-        }}
-      >
-        <Typography variant="subtitle1" fontWeight="bold">
-          {column.title}
-        </Typography>
-        <Chip
-          label={tasks.length}
-          size="small"
-          sx={{ backgroundColor: "white", fontWeight: "bold" }}
-        />
-      </Box>
-
-      <SortableContext
-        items={tasks.map((t) => t.id)}
-        strategy={verticalListSortingStrategy}
-      >
-        <Box
-          ref={setNodeRef}
-          sx={{ flex: 1, overflowY: "auto", minHeight: 100 }}
-        >
-          {tasks.map((task) => (
-            <SortableTaskCard
-              key={task.id}
-              task={task}
-              onClick={() => onEditTask(task)}
-            />
-          ))}
-        </Box>
-      </SortableContext>
-    </Box>
-  );
-};
 
 export const TripBoard = ({ tripId }: TripKanbanProps) => {
   const trip = useTripsStore((state) =>
