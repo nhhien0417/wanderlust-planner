@@ -1,35 +1,14 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import type { DragEndEvent } from "@dnd-kit/core";
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragOverlay,
-} from "@dnd-kit/core";
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { Clock, X } from "lucide-react";
+import { X } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import type { SelectChangeEvent } from "@mui/material";
 import {
   Box,
   Container,
   Typography,
-  Button,
   IconButton,
   Card,
-  Chip,
-  Tabs,
-  Tab,
-  Badge,
   Dialog,
   DialogContent,
   FormControl,
@@ -43,11 +22,7 @@ import { usePhotosStore } from "../../store/usePhotosStore";
 import { useMembersStore } from "../../store/useMembersStore";
 import { ShareModal } from "../../components/ShareModal";
 import { AddActivityModal } from "../../components/AddActivityModal";
-import { DayWeatherCard } from "../../components/DayWeatherCard";
-import {
-  ActivityCard,
-  SortableActivityItem,
-} from "../../components/activities";
+import { ActivityList } from "../../components/activities";
 import { TripBoard } from "./TripBoard";
 import { TripBudget } from "./TripBudget";
 import { TripPackingList } from "./TripPackingList";
@@ -58,6 +33,7 @@ import { PhotoMetadataForm } from "../gallery/PhotoMetadataForm";
 import { WeatherWidget } from "../weather/WeatherWidget";
 import type { Photo } from "../../types";
 import { TripHeader } from "./TripHeader";
+import { TripTabs } from "./TripTabs";
 
 const EMPTY_PHOTOS: Photo[] = [];
 
@@ -81,8 +57,7 @@ export const TripDetails = ({ tripId: propTripId }: TripDetailsProps) => {
   });
 
   // Activity operations
-  const { addActivity, removeActivity, reorderActivities } =
-    useActivitiesStore();
+  const { addActivity } = useActivitiesStore();
 
   // Photo operations
   const { deletePhoto } = usePhotosStore();
@@ -91,7 +66,6 @@ export const TripDetails = ({ tripId: propTripId }: TripDetailsProps) => {
   const { subscribeToTrip, unsubscribeFromTrip } = useMembersStore();
 
   const [activeDayId, setActiveDayId] = useState<string | null>(null);
-  const [activeId, setActiveId] = useState<string | null>(null);
   const [currentTab, setCurrentTab] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
@@ -100,13 +74,6 @@ export const TripDetails = ({ tripId: propTripId }: TripDetailsProps) => {
   const [photoActivityFilter, setPhotoActivityFilter] = useState("");
   const [showCoverModal, setShowCoverModal] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
 
   // Real-time subscription
   useEffect(() => {
@@ -124,38 +91,10 @@ export const TripDetails = ({ tripId: propTripId }: TripDetailsProps) => {
     );
   }
 
-  const handleDragStart = (event: any) => {
-    setActiveId(event.active.id);
-  };
-
-  const handleDragEnd = (event: DragEndEvent, dayId: string) => {
-    const { active, over } = event;
-    if (active.id !== over?.id) {
-      const day = trip.days.find((d) => d.id === dayId);
-      if (day) {
-        const oldIndex = day.activities.findIndex((a) => a.id === active.id);
-        const newIndex = day.activities.findIndex((a) => a.id === over?.id);
-        const newActivities = arrayMove(day.activities, oldIndex, newIndex);
-        reorderActivities(trip.id, dayId, newActivities);
-      }
-    }
-    setActiveId(null);
-  };
-
   const handleAddActivity = (activityData: any) => {
     if (activeDayId) {
       addActivity(trip.id, activeDayId, activityData);
       setActiveDayId(null);
-    }
-  };
-
-  const handleDeleteActivity = (activityId: string) => {
-    // Find which day this activity belongs to
-    const day = trip.days.find((d) =>
-      d.activities.some((a) => a.id === activityId)
-    );
-    if (day) {
-      removeActivity(trip.id, day.id, activityId);
     }
   };
 
@@ -207,34 +146,12 @@ export const TripDetails = ({ tripId: propTripId }: TripDetailsProps) => {
       </Container>
 
       {/* Tabs */}
-      <Box
-        sx={{
-          borderBottom: 1,
-          borderColor: "divider",
-          bgcolor: "white",
-          mt: 3,
-        }}
-      >
-        <Container maxWidth="lg">
-          <Tabs
-            value={currentTab}
-            onChange={(_, newValue) => setCurrentTab(newValue)}
-            aria-label="trip tabs"
-          >
-            <Tab label="Itinerary" />
-            <Tab label="Board" />
-            <Tab label="Budget" />
-            <Tab label="Packing List" />
-            <Tab
-              label={
-                <Badge badgeContent={photoCount} color="primary">
-                  Photos
-                </Badge>
-              }
-            />
-          </Tabs>
-        </Container>
-      </Box>
+      {/* Tabs */}
+      <TripTabs
+        currentTab={currentTab}
+        onTabChange={setCurrentTab}
+        photoCount={photoCount}
+      />
 
       {/* Content */}
       <Box
@@ -244,159 +161,10 @@ export const TripDetails = ({ tripId: propTripId }: TripDetailsProps) => {
         }}
       >
         <Container maxWidth="lg">
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
-            {trip.days.map((day, index) => (
-              <Box
-                key={day.id}
-                sx={{
-                  display: "flex",
-                  gap: 3,
-                  alignItems: "flex-start",
-                  flexDirection: { xs: "column", md: "row" },
-                }}
-              >
-                {/* Day Indicator */}
-                <Box
-                  sx={{
-                    flexShrink: 0,
-                    width: { xs: "100%", md: 120 },
-                    textAlign: { xs: "left", md: "center" },
-                    pt: 1,
-                  }}
-                >
-                  <Chip
-                    label={`Day ${index + 1}`}
-                    size="small"
-                    sx={{
-                      fontWeight: 700,
-                      background:
-                        "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                      color: "white",
-                      mb: 1,
-                    }}
-                  />
-                  <Typography
-                    variant="h4"
-                    fontWeight="bold"
-                    color="text.primary"
-                  >
-                    {format(parseISO(day.date), "EEE")}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {format(parseISO(day.date), "MMM d")}
-                  </Typography>
-
-                  {/* Day Weather */}
-                  <Box sx={{ mt: 1 }}>
-                    <DayWeatherCard date={day.date} weather={trip.weather} />
-                  </Box>
-                </Box>
-
-                {/* Day Content */}
-                <Card
-                  sx={{
-                    flex: 1,
-                    p: 3,
-                    width: "100%",
-                    transition: "all 0.3s",
-                    "&:hover": {
-                      boxShadow: 6,
-                    },
-                  }}
-                >
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      mb: 3,
-                    }}
-                  >
-                    <Typography variant="h6" fontWeight="bold">
-                      Activities
-                    </Typography>
-                    <Button
-                      variant="contained"
-                      size="small"
-                      onClick={() => setActiveDayId(day.id)}
-                      sx={{
-                        fontWeight: 600,
-                        textTransform: "none",
-                      }}
-                    >
-                      + Add Activity
-                    </Button>
-                  </Box>
-
-                  {day.activities.length === 0 ? (
-                    <Card
-                      variant="outlined"
-                      sx={{
-                        py: 6,
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        borderStyle: "dashed",
-                        borderWidth: 2,
-                        borderColor: "divider",
-                        backgroundColor: "grey.50",
-                      }}
-                    >
-                      <Clock size={32} opacity={0.3} />
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{ mt: 1 }}
-                      >
-                        No activities planned yet
-                      </Typography>
-                    </Card>
-                  ) : (
-                    <DndContext
-                      sensors={sensors}
-                      collisionDetection={closestCenter}
-                      onDragStart={handleDragStart}
-                      onDragEnd={(e) => handleDragEnd(e, day.id)}
-                      modifiers={[]} // Removed restrictToVerticalAxis to allow free movement if needed, or keep it
-                    >
-                      <SortableContext
-                        items={day.activities.map((a) => a.id)}
-                        strategy={verticalListSortingStrategy}
-                      >
-                        <Box
-                          sx={{
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: 2,
-                          }}
-                        >
-                          {day.activities.map((activity) => (
-                            <SortableActivityItem
-                              key={activity.id}
-                              activity={activity}
-                              onDelete={handleDeleteActivity}
-                            />
-                          ))}
-                        </Box>
-                      </SortableContext>
-                      <DragOverlay dropAnimation={null}>
-                        {activeId ? (
-                          <ActivityCard
-                            activity={
-                              day.activities.find((a) => a.id === activeId)!
-                            }
-                            isDragging
-                            isOverlay
-                          />
-                        ) : null}
-                      </DragOverlay>
-                    </DndContext>
-                  )}
-                </Card>
-              </Box>
-            ))}
-          </Box>
+          <ActivityList
+            tripId={trip.id}
+            onAddActivityClick={(dayId) => setActiveDayId(dayId)}
+          />
         </Container>
       </Box>
 
