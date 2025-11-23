@@ -85,6 +85,14 @@ export interface TripMember {
   avatar_url?: string;
 }
 
+export interface Expense {
+  id: string;
+  description: string;
+  amount: number;
+  category: string;
+  date: string;
+}
+
 export interface Trip {
   id: string;
   created_by?: string; // UUID of the user who created the trip
@@ -98,13 +106,7 @@ export interface Trip {
   coordinates?: { lat: number; lng: number }; // Optional coordinates for accurate weather
   days: TripDay[];
   tasks: TripTask[];
-  expenses: {
-    id: string;
-    description: string;
-    amount: number;
-    category: string;
-    date: string;
-  }[];
+  expenses: Expense[];
   packingList: PackingItem[];
   photos?: Photo[];
   weather?: WeatherData[];
