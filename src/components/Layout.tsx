@@ -16,6 +16,7 @@ export const Layout = () => {
           flexGrow: 1,
           overflow: "auto",
           backgroundColor: "background.default",
+          position: "relative",
         }}
       >
         <Outlet />
