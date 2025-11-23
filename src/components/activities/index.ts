@@ -1,3 +1,5 @@
 export { ActivityCard } from "./ActivityCard";
 export { SortableActivityItem } from "./SortableActivityItem";
-export { ActivityList } from "./ActivityList";
+export * from "./ActivityList";
+export * from "./LocationSection";
+export * from "./ActivityFormSection";

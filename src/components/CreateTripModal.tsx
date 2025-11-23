@@ -7,18 +7,15 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
-import InputAdornment from "@mui/material/InputAdornment";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import Collapse from "@mui/material/Collapse";
-import Paper from "@mui/material/Paper";
-import MenuItem from "@mui/material/MenuItem";
-import { X, MapPin, Image as ImageIcon, Map as MapIcon } from "lucide-react";
+import { X, MapPin } from "lucide-react";
 import { useTripsStore } from "../store/useTripsStore";
-import todayDate from "../utils/todayDate";
-import { Map } from "./Map";
-import { reverseGeocode } from "../api/weatherApi";
-import { CURRENCIES } from "../utils/currency";
+import {
+  DestinationSection,
+  DateBudgetSection,
+  CoverImageSection,
+} from "./trip-form";
 
 interface CreateTripModalProps {
   isOpen: boolean;
@@ -37,16 +34,10 @@ export const CreateTripModal = ({ isOpen, onClose }: CreateTripModalProps) => {
     coverImage: "",
   });
 
-  const [showMap, setShowMap] = useState(false);
   const [selectedCoords, setSelectedCoords] = useState<{
     lat: number;
     lng: number;
   } | null>(null);
-
-  const [viewState, setViewState] = useState({
-    center: [16.0544, 108.2022] as [number, number],
-    zoom: 13,
-  });
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -59,20 +50,18 @@ export const CreateTripModal = ({ isOpen, onClose }: CreateTripModalProps) => {
     }
   };
 
-  const handleMapRightClick = async (lat: number, lng: number) => {
-    // Set coordinates
-    setSelectedCoords({ lat, lng });
-    setViewState({ center: [lat, lng], zoom: 15 });
-
-    // Reverse geocode to get city name
-    const cityName = await reverseGeocode(lat, lng);
-    if (cityName) {
-      setFormData({ ...formData, destination: cityName });
+  const handleLocationSelect = (
+    coords: { lat: number; lng: number } | null,
+    address?: string
+  ) => {
+    setSelectedCoords(coords);
+    if (address) {
+      setFormData((prev) => ({ ...prev, destination: address }));
     }
   };
 
-  const handleRemovePin = () => {
-    setSelectedCoords(null);
+  const handleChange = (field: string, value: any) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -101,7 +90,6 @@ export const CreateTripModal = ({ isOpen, onClose }: CreateTripModalProps) => {
       coverImage: "",
     });
     setSelectedCoords(null);
-    setShowMap(false);
   };
 
   return (
@@ -151,256 +139,38 @@ export const CreateTripModal = ({ isOpen, onClose }: CreateTripModalProps) => {
 
       <DialogContent dividers>
         <Box component="form" id="create-trip-form" onSubmit={handleSubmit}>
-          <Stack spacing={2} sx={{ mt: 1 }}>
+          <Stack spacing={3} sx={{ mt: 1 }}>
             <TextField
               required
               fullWidth
               label="Trip Name"
               placeholder="e.g., Summer in Tokyo"
               value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
+              onChange={(e) => handleChange("name", e.target.value)}
             />
 
-            <TextField
-              required
-              fullWidth
-              label="Destination"
-              placeholder="Where to?"
-              value={formData.destination}
-              onChange={(e) =>
-                setFormData({ ...formData, destination: e.target.value })
+            <DestinationSection
+              destination={formData.destination}
+              onDestinationChange={(value) =>
+                handleChange("destination", value)
               }
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <MapPin size={20} />
-                  </InputAdornment>
-                ),
-              }}
+              selectedCoords={selectedCoords}
+              onLocationSelect={handleLocationSelect}
             />
 
-            <Button
-              variant="outlined"
-              onClick={() => setShowMap(!showMap)}
-              startIcon={<MapIcon size={18} />}
-              sx={{ textTransform: "none", fontWeight: 600 }}
-            >
-              {showMap ? "Hide" : "Show"} Map
-            </Button>
+            <DateBudgetSection
+              startDate={formData.startDate}
+              endDate={formData.endDate}
+              budget={formData.budget}
+              currency={formData.currency}
+              onChange={handleChange}
+            />
 
-            {/* Map Section */}
-            <Collapse in={showMap}>
-              <Box>
-                {selectedCoords && (
-                  <Paper
-                    elevation={2}
-                    sx={{
-                      mb: 2,
-                      p: 2,
-                      background:
-                        "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 2,
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        p: 1,
-                        backgroundColor: "primary.main",
-                        borderRadius: 2,
-                        color: "white",
-                      }}
-                    >
-                      <MapPin size={20} />
-                    </Box>
-                    <Box sx={{ flex: 1 }}>
-                      <Typography variant="subtitle2" fontWeight="bold">
-                        Selected Location
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {formData.destination || "Location selected"}
-                      </Typography>
-                    </Box>
-                    <IconButton
-                      size="small"
-                      onClick={handleRemovePin}
-                      sx={{ color: "error.main" }}
-                    >
-                      <X size={18} />
-                    </IconButton>
-                  </Paper>
-                )}
-
-                <Box sx={{ height: 300, borderRadius: 2, overflow: "hidden" }}>
-                  <Map
-                    center={viewState.center}
-                    zoom={viewState.zoom}
-                    onRightClick={handleMapRightClick}
-                    onMarkerRemove={handleRemovePin}
-                    markers={
-                      selectedCoords
-                        ? [
-                            {
-                              id: "selected",
-                              position: [
-                                selectedCoords.lat,
-                                selectedCoords.lng,
-                              ],
-                              title:
-                                formData.destination || "Selected location",
-                            },
-                          ]
-                        : []
-                    }
-                  />
-                </Box>
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  sx={{ display: "block", mt: 1, fontStyle: "italic" }}
-                >
-                  💡 Right-click on the map to select your destination
-                </Typography>
-              </Box>
-            </Collapse>
-
-            <Stack direction="row" spacing={2}>
-              <TextField
-                required
-                fullWidth
-                type="date"
-                label="Start Date"
-                value={formData.startDate}
-                onChange={(e) =>
-                  setFormData({ ...formData, startDate: e.target.value })
-                }
-                inputProps={{ min: todayDate }}
-                InputLabelProps={{ shrink: true }}
-              />
-
-              <TextField
-                required
-                fullWidth
-                type="date"
-                label="End Date"
-                value={formData.endDate}
-                onChange={(e) =>
-                  setFormData({ ...formData, endDate: e.target.value })
-                }
-                inputProps={{ min: formData.startDate }}
-                InputLabelProps={{ shrink: true }}
-              />
-            </Stack>
-
-            <Stack direction="row" spacing={2}>
-              <TextField
-                fullWidth
-                type="number"
-                label="Budget (Optional)"
-                placeholder="0"
-                value={formData.budget}
-                onChange={(e) =>
-                  setFormData({ ...formData, budget: e.target.value })
-                }
-                InputProps={{
-                  inputProps: {
-                    min: 0,
-                  },
-                }}
-              />
-
-              <TextField
-                select
-                required
-                fullWidth
-                label="Currency"
-                value={formData.currency}
-                onChange={(e) =>
-                  setFormData({ ...formData, currency: e.target.value })
-                }
-              >
-                {CURRENCIES.map((currency) => (
-                  <MenuItem key={currency.code} value={currency.code}>
-                    {currency.symbol} - {currency.name}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Stack>
-
-            <Box>
-              <input
-                accept="image/*"
-                style={{ display: "none" }}
-                id="cover-image-upload"
-                type="file"
-                onChange={handleImageUpload}
-              />
-              <label htmlFor="cover-image-upload">
-                <Button
-                  variant="outlined"
-                  component="span"
-                  fullWidth
-                  startIcon={<ImageIcon />}
-                  sx={{
-                    height: 56,
-                    borderStyle: "dashed",
-                    borderColor: formData.coverImage
-                      ? "primary.main"
-                      : "grey.400",
-                    color: formData.coverImage
-                      ? "primary.main"
-                      : "text.secondary",
-                  }}
-                >
-                  {formData.coverImage
-                    ? "Change Cover Image"
-                    : "Upload Cover Image"}
-                </Button>
-              </label>
-              {formData.coverImage && (
-                <Box
-                  sx={{
-                    mt: 2,
-                    position: "relative",
-                    width: "100%",
-                    height: 160,
-                    borderRadius: 2,
-                    overflow: "hidden",
-                  }}
-                >
-                  <Box
-                    component="img"
-                    src={formData.coverImage}
-                    alt="Cover Preview"
-                    sx={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                    }}
-                  />
-                  <IconButton
-                    size="small"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setFormData({ ...formData, coverImage: "" });
-                    }}
-                    sx={{
-                      position: "absolute",
-                      top: 8,
-                      right: 8,
-                      bgcolor: "rgba(0,0,0,0.5)",
-                      color: "white",
-                      "&:hover": { bgcolor: "rgba(0,0,0,0.7)" },
-                    }}
-                  >
-                    <X size={16} />
-                  </IconButton>
-                </Box>
-              )}
-            </Box>
+            <CoverImageSection
+              coverImage={formData.coverImage}
+              onImageChange={handleImageUpload}
+              onImageRemove={() => handleChange("coverImage", "")}
+            />
           </Stack>
         </Box>
       </DialogContent>
