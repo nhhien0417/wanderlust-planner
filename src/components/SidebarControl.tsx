@@ -8,7 +8,6 @@ import {
   ListItemIcon,
   ListItemText,
   Typography,
-  IconButton,
 } from "@mui/material";
 import {
   PanelLeft,
@@ -19,11 +18,15 @@ import {
 } from "lucide-react";
 import { useUIStore } from "../store/useUIStore";
 
-export const SidebarControl = () => {
-  const { sidebarMode, setSidebarMode } = useUIStore();
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+interface SidebarControlProps {
+  isCollapsed: boolean;
+}
 
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+export const SidebarControl = ({ isCollapsed }: SidebarControlProps) => {
+  const { sidebarMode, setSidebarMode } = useUIStore();
+  const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null);
+
+  const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
     setAnchorEl(event.currentTarget);
   };
 
@@ -41,16 +44,43 @@ export const SidebarControl = () => {
 
   return (
     <>
-      <IconButton
+      <ListItemButton
         onClick={handleClick}
-        size="small"
         sx={{
-          color: "text.secondary",
-          "&:hover": { color: "primary.main", bgcolor: "primary.lighter" },
+          borderRadius: 1,
+          minHeight: 40,
+          px: 1,
+          mt: 1,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "flex-start",
+          transition: "background-color 0.2s",
+          "&:hover": { bgcolor: "#2e2e2e" },
         }}
       >
-        <PanelLeft size={20} />
-      </IconButton>
+        <Box
+          sx={{
+            width: 20,
+            height: 20,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+          }}
+        >
+          <PanelLeft size={20} color="#888" />
+        </Box>
+        <ListItemText
+          primary="Sidebar control"
+          sx={{
+            ml: 2,
+            my: 0,
+            opacity: isCollapsed ? 0 : 1,
+            transition: "opacity 0.2s",
+            whiteSpace: "nowrap",
+          }}
+        />
+      </ListItemButton>
 
       <Popover
         id={id}
@@ -59,18 +89,25 @@ export const SidebarControl = () => {
         onClose={handleClose}
         anchorOrigin={{
           vertical: "top",
-          horizontal: "right",
+          horizontal: "left",
         }}
         transformOrigin={{
           vertical: "bottom",
           horizontal: "left",
         }}
         PaperProps={{
-          sx: { width: 220, p: 1, borderRadius: 2 },
+          sx: {
+            width: 225,
+            p: 1,
+            borderRadius: 1,
+            bgcolor: "#2a2a2a",
+            color: "#ededed",
+            border: "1px solid #3e3e3e",
+          },
         }}
       >
         <Box sx={{ px: 2, py: 1 }}>
-          <Typography variant="subtitle2" color="text.secondary">
+          <Typography variant="subtitle2" color="#888">
             Sidebar control
           </Typography>
         </Box>
@@ -79,9 +116,16 @@ export const SidebarControl = () => {
             <ListItemButton
               onClick={() => handleModeSelect("expanded")}
               selected={sidebarMode === "expanded"}
-              sx={{ borderRadius: 1 }}
+              sx={{
+                borderRadius: 1,
+                "&.Mui-selected": {
+                  bgcolor: "#3e3e3e",
+                  "&:hover": { bgcolor: "#4e4e4e" },
+                },
+                "&:hover": { bgcolor: "#3e3e3e" },
+              }}
             >
-              <ListItemIcon sx={{ minWidth: 36 }}>
+              <ListItemIcon sx={{ minWidth: 36, color: "#ededed" }}>
                 <Maximize2 size={18} />
               </ListItemIcon>
               <ListItemText primary="Expanded" />
@@ -92,9 +136,16 @@ export const SidebarControl = () => {
             <ListItemButton
               onClick={() => handleModeSelect("collapsed")}
               selected={sidebarMode === "collapsed"}
-              sx={{ borderRadius: 1 }}
+              sx={{
+                borderRadius: 1,
+                "&.Mui-selected": {
+                  bgcolor: "#3e3e3e",
+                  "&:hover": { bgcolor: "#4e4e4e" },
+                },
+                "&:hover": { bgcolor: "#3e3e3e" },
+              }}
             >
-              <ListItemIcon sx={{ minWidth: 36 }}>
+              <ListItemIcon sx={{ minWidth: 36, color: "#ededed" }}>
                 <Minimize2 size={18} />
               </ListItemIcon>
               <ListItemText primary="Collapsed" />
@@ -105,9 +156,16 @@ export const SidebarControl = () => {
             <ListItemButton
               onClick={() => handleModeSelect("hover")}
               selected={sidebarMode === "hover"}
-              sx={{ borderRadius: 1 }}
+              sx={{
+                borderRadius: 1,
+                "&.Mui-selected": {
+                  bgcolor: "#3e3e3e",
+                  "&:hover": { bgcolor: "#4e4e4e" },
+                },
+                "&:hover": { bgcolor: "#3e3e3e" },
+              }}
             >
-              <ListItemIcon sx={{ minWidth: 36 }}>
+              <ListItemIcon sx={{ minWidth: 36, color: "#ededed" }}>
                 <MousePointerClick size={18} />
               </ListItemIcon>
               <ListItemText primary="Expand on hover" />
