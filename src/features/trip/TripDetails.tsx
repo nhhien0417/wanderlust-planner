@@ -15,6 +15,7 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  CircularProgress,
 } from "@mui/material";
 import { useTripsStore } from "../../store/useTripsStore";
 import { useActivitiesStore } from "../../store/useActivitiesStore";
@@ -51,6 +52,7 @@ export const TripDetails = ({ tripId: propTripId }: TripDetailsProps) => {
   const trip = useTripsStore((state) =>
     state.trips.find((t) => t.id === tripId)
   );
+  const isLoading = useTripsStore((state) => state.isLoading);
   const tripPhotos = useTripsStore((state) => {
     const found = state.trips.find((t) => t.id === tripId);
     return found?.photos ?? EMPTY_PHOTOS;
@@ -82,6 +84,21 @@ export const TripDetails = ({ tripId: propTripId }: TripDetailsProps) => {
       return () => unsubscribeFromTrip(tripId);
     }
   }, [tripId, subscribeToTrip, unsubscribeFromTrip]);
+
+  if (isLoading) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "80vh",
+        }}
+      >
+        <CircularProgress size={60} />
+      </Box>
+    );
+  }
 
   if (!trip) {
     return (
