@@ -15,7 +15,7 @@ export const useUIStore = create<UIState>((set) => ({
   isCreateTripModalOpen: false,
   openCreateTripModal: () => set({ isCreateTripModalOpen: true }),
   closeCreateTripModal: () => set({ isCreateTripModalOpen: false }),
-  sidebarMode: "expanded",
+  sidebarMode: "hover",
   setSidebarMode: (mode) => set({ sidebarMode: mode }),
   isSettingsModalOpen: false,
   openSettingsModal: () => set({ isSettingsModalOpen: true }),

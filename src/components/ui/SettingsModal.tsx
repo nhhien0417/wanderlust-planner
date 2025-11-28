@@ -152,15 +152,25 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                 <Typography color="text.secondary">{user.email}</Typography>
               </Box>
 
-              <Button
-                variant="outlined"
-                color="error"
-                startIcon={<LogOut />}
-                onClick={handleLogout}
-                sx={{ mt: 2 }}
-              >
-                Sign Out
-              </Button>
+              <Box sx={{ display: "flex", gap: 2 }}>
+                <Button
+                  variant="outlined"
+                  color="error"
+                  startIcon={<LogOut />}
+                  onClick={handleLogout}
+                >
+                  Sign Out
+                </Button>
+                <Button
+                  variant="outlined"
+                  onClick={() => {
+                    onClose();
+                    navigate("/update-password");
+                  }}
+                >
+                  Change Password
+                </Button>
+              </Box>
             </Box>
           ) : (
             <Box sx={{ textAlign: "center", py: 4 }}>

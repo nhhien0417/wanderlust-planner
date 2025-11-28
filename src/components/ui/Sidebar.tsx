@@ -7,12 +7,10 @@ import ListItemText from "@mui/material/ListItemText";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 import Tooltip from "@mui/material/Tooltip";
-import { Layout, Calendar, Settings, PlusCircle, LogIn } from "lucide-react";
+import { Layout, Calendar, Settings, PlusCircle } from "lucide-react";
 import { useTripsStore } from "../../store/useTripsStore";
 import { useUIStore } from "../../store/useUIStore";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "../../store/useAuthStore";
-import Avatar from "@mui/material/Avatar";
 import { SettingsModal } from "./SettingsModal";
 import { SidebarControl } from "./SidebarControl";
 
@@ -25,7 +23,7 @@ export const Sidebar = () => {
     openSettingsModal,
     closeSettingsModal,
   } = useUIStore();
-  const { user } = useAuthStore();
+
   const navigate = useNavigate();
   const [isHovered, setIsHovered] = useState(false);
 
@@ -304,88 +302,6 @@ export const Sidebar = () => {
               </ListItemButton>
             </Tooltip>
           </ListItem>
-
-          {user ? (
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                px: 2.5,
-                py: 1,
-              }}
-            >
-              <Tooltip
-                title={isCollapsed ? user.email || "User" : ""}
-                placement="right"
-              >
-                <Avatar
-                  sx={{
-                    width: 24,
-                    height: 24,
-                    bgcolor: "primary.main",
-                    fontSize: 12,
-                    flexShrink: 0,
-                  }}
-                >
-                  {user.email?.[0].toUpperCase()}
-                </Avatar>
-              </Tooltip>
-              <Box
-                sx={{
-                  ml: 2,
-                  opacity: isCollapsed ? 0 : 1,
-                  transition: "opacity 0.2s",
-                  overflow: "hidden",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                <Typography variant="body2" noWrap fontSize="0.85rem">
-                  {user.user_metadata.full_name || "User"}
-                </Typography>
-              </Box>
-            </Box>
-          ) : (
-            <ListItem disablePadding sx={{ px: 1.5 }}>
-              <Tooltip title={isCollapsed ? "Sign In" : ""} placement="right">
-                <ListItemButton
-                  onClick={() => navigate("/login")}
-                  sx={{
-                    borderRadius: 1,
-                    minHeight: 40,
-                    px: 1,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "flex-start",
-                    transition: "background-color 0.2s",
-                    "&:hover": { bgcolor: "#2e2e2e" },
-                  }}
-                >
-                  <Box
-                    sx={{
-                      width: 20,
-                      height: 20,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      flexShrink: 0,
-                    }}
-                  >
-                    <LogIn size={20} color="#888" />
-                  </Box>
-                  <ListItemText
-                    primary="Sign In"
-                    sx={{
-                      ml: 2,
-                      my: 0,
-                      opacity: isCollapsed ? 0 : 1,
-                      transition: "opacity 0.2s",
-                      whiteSpace: "nowrap",
-                    }}
-                  />
-                </ListItemButton>
-              </Tooltip>
-            </ListItem>
-          )}
 
           <ListItem disablePadding sx={{ px: 1.5 }}>
             <SidebarControl isCollapsed={isCollapsed} />
