@@ -46,41 +46,88 @@ export const usePackingStore = create<PackingState>((_set, get) => ({
   addPackingItem: async (tripId, item) => {
     const newItem = { ...item, id: uuidv4(), checked: false };
     useTripsStore.setState((state) => {
-      const newTrips = [...state.trips];
-      const trip = newTrips.find((t) => t.id === tripId);
-      if (trip) {
-        trip.packingList.push(newItem);
-        get().updateJsonbColumn(tripId, "packing_list", trip.packingList);
+      const newTrips = state.trips.map((t) => {
+        if (t.id === tripId) {
+          const newPackingList = [...(t.packingList || []), newItem];
+          get().updateJsonbColumn(tripId, "packing_list", newPackingList);
+          return { ...t, packingList: newPackingList };
+        }
+        return t;
+      });
+
+      if (!useAuthStore.getState().user) {
+        try {
+          localStorage.setItem(
+            "wanderlust-storage",
+            JSON.stringify({
+              state: { trips: newTrips, activeTripId: state.activeTripId },
+              version: 0,
+            })
+          );
+        } catch (e) {
+          console.error("Failed to save to local storage", e);
+        }
       }
-      if (!useAuthStore.getState().user) saveToLocalStorage();
       return { trips: newTrips };
     });
   },
 
   removePackingItem: async (tripId, itemId) => {
     useTripsStore.setState((state) => {
-      const newTrips = [...state.trips];
-      const trip = newTrips.find((t) => t.id === tripId);
-      if (trip) {
-        trip.packingList = trip.packingList.filter((i) => i.id !== itemId);
-        get().updateJsonbColumn(tripId, "packing_list", trip.packingList);
+      const newTrips = state.trips.map((t) => {
+        if (t.id === tripId) {
+          const newPackingList = (t.packingList || []).filter(
+            (i) => i.id !== itemId
+          );
+          get().updateJsonbColumn(tripId, "packing_list", newPackingList);
+          return { ...t, packingList: newPackingList };
+        }
+        return t;
+      });
+
+      if (!useAuthStore.getState().user) {
+        try {
+          localStorage.setItem(
+            "wanderlust-storage",
+            JSON.stringify({
+              state: { trips: newTrips, activeTripId: state.activeTripId },
+              version: 0,
+            })
+          );
+        } catch (e) {
+          console.error("Failed to save to local storage", e);
+        }
       }
-      if (!useAuthStore.getState().user) saveToLocalStorage();
       return { trips: newTrips };
     });
   },
 
   togglePackingItem: async (tripId, itemId) => {
     useTripsStore.setState((state) => {
-      const newTrips = [...state.trips];
-      const trip = newTrips.find((t) => t.id === tripId);
-      if (trip) {
-        trip.packingList = trip.packingList.map((i) =>
-          i.id === itemId ? { ...i, checked: !i.checked } : i
-        );
-        get().updateJsonbColumn(tripId, "packing_list", trip.packingList);
+      const newTrips = state.trips.map((t) => {
+        if (t.id === tripId) {
+          const newPackingList = (t.packingList || []).map((i) =>
+            i.id === itemId ? { ...i, checked: !i.checked } : i
+          );
+          get().updateJsonbColumn(tripId, "packing_list", newPackingList);
+          return { ...t, packingList: newPackingList };
+        }
+        return t;
+      });
+
+      if (!useAuthStore.getState().user) {
+        try {
+          localStorage.setItem(
+            "wanderlust-storage",
+            JSON.stringify({
+              state: { trips: newTrips, activeTripId: state.activeTripId },
+              version: 0,
+            })
+          );
+        } catch (e) {
+          console.error("Failed to save to local storage", e);
+        }
       }
-      if (!useAuthStore.getState().user) saveToLocalStorage();
       return { trips: newTrips };
     });
   },
