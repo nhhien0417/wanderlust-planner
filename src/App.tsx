@@ -11,7 +11,7 @@ import { Box, CircularProgress } from "@mui/material";
 
 function App() {
   const { initialize, loading, user } = useAuthStore();
-  const { fetchTrips } = useTripStore();
+  const { fetchTrips, syncLocalTrips } = useTripStore();
 
   useEffect(() => {
     initialize();
@@ -19,9 +19,15 @@ function App() {
 
   useEffect(() => {
     if (!loading) {
-      fetchTrips();
+      const init = async () => {
+        if (user) {
+          await syncLocalTrips();
+        }
+        fetchTrips();
+      };
+      init();
     }
-  }, [loading, user, fetchTrips]);
+  }, [loading, user, fetchTrips, syncLocalTrips]);
 
   if (loading) {
     return (

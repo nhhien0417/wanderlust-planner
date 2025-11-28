@@ -18,6 +18,7 @@ interface TripsState {
   ) => Promise<void>;
   setActiveTrip: (id: string | null) => void;
   deleteTrip: (id: string) => Promise<void>;
+  syncLocalTrips: () => Promise<void>;
 }
 
 // Helper to generate days between dates
@@ -251,5 +252,104 @@ export const useTripsStore = create<TripsState>((set, get) => ({
         return newState;
       });
     }
+  },
+
+  syncLocalTrips: async () => {
+    const localState = loadFromLocalStorage();
+    if (localState.trips.length === 0) return;
+
+    const user = useAuthStore.getState().user;
+    if (!user) return;
+
+    let allSuccess = true;
+
+    for (const trip of localState.trips) {
+      // Check if trip already exists to avoid duplicates or errors
+      const { data: existing } = await supabase
+        .from("trips")
+        .select("id")
+        .eq("id", trip.id)
+        .single();
+
+      if (existing) continue;
+
+      // Insert Trip
+      const { error: tripError } = await supabase.from("trips").insert({
+        id: trip.id,
+        created_by: user.id,
+        title: trip.name,
+        destination: trip.destination,
+        start_date: trip.startDate,
+        end_date: trip.endDate,
+        cover_image: trip.coverImage,
+        tasks: trip.tasks || [],
+        expenses: trip.expenses || [],
+        packing_list: trip.packingList || [],
+        weather: trip.weather || [],
+        photos: trip.photos || [],
+      });
+
+      if (tripError) {
+        console.error("Error syncing trip:", tripError);
+        allSuccess = false;
+        continue;
+      }
+
+      // Insert Days
+      const dayRows = trip.days.map((d) => ({
+        id: d.id,
+        trip_id: trip.id,
+        date: d.date,
+      }));
+
+      if (dayRows.length > 0) {
+        const { error: daysError } = await supabase
+          .from("trip_days")
+          .insert(dayRows);
+        if (daysError) console.error("Error syncing days:", daysError);
+      }
+
+      // Insert Activities
+      const allActivities = trip.days.flatMap((d) =>
+        d.activities.map((a, index) => ({
+          id: a.id,
+          trip_id: trip.id,
+          day_id: d.id,
+          title: a.title,
+          description: a.description,
+          category: a.category,
+          location_name: a.location?.name,
+          location_lat: a.location?.lat,
+          location_lng: a.location?.lng,
+          start_time: a.startTime,
+          end_time: a.endTime,
+          cost: a.cost,
+          order_index: index,
+        }))
+      );
+
+      if (allActivities.length > 0) {
+        const { error: activitiesError } = await supabase
+          .from("activities")
+          .insert(allActivities);
+        if (activitiesError)
+          console.error("Error syncing activities:", activitiesError);
+      }
+
+      // Insert Member (Owner)
+      await supabase.from("trip_members").insert({
+        trip_id: trip.id,
+        user_id: user.id,
+        role: "owner",
+      });
+    }
+
+    // Clear Local Storage only if all synced successfully
+    if (allSuccess) {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+
+    // Refresh trips
+    get().fetchTrips();
   },
 }));
