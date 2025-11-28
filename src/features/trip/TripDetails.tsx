@@ -161,7 +161,7 @@ export const TripDetails = ({ tripId: propTripId }: TripDetailsProps) => {
       />
 
       <Container maxWidth="lg" sx={{ mt: 3 }}>
-        <WeatherWidget tripId={trip.id} />
+        {/* WeatherWidget moved to tab */}
       </Container>
 
       {/* Tabs */}
@@ -321,6 +321,15 @@ export const TripDetails = ({ tripId: propTripId }: TripDetailsProps) => {
                 </Box>
               </Card>
             </Box>
+          </Container>
+        </Box>
+      )}
+
+      {/* Weather Content */}
+      {currentTab === 5 && (
+        <Box sx={{ py: 4 }}>
+          <Container maxWidth="lg">
+            <WeatherWidget tripId={trip.id} />
           </Container>
         </Box>
       )}

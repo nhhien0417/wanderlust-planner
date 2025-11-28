@@ -23,6 +23,7 @@ export const DayWeatherCard = ({ date, weather }: DayWeatherCardProps) => {
     }
     // Try parsing as Date and format
     const d = new Date(dateInput);
+    if (isNaN(d.getTime())) return dateInput; // Return original if invalid
     const year = d.getFullYear();
     const month = String(d.getMonth() + 1).padStart(2, "0");
     const day = String(d.getDate()).padStart(2, "0");
@@ -38,12 +39,19 @@ export const DayWeatherCard = ({ date, weather }: DayWeatherCardProps) => {
     <Paper
       elevation={0}
       sx={{
-        p: 1,
-        background: "linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)",
-        borderRadius: 1,
+        p: 1.5,
+        background: "rgba(255, 255, 255, 0.6)",
+        backdropFilter: "blur(4px)",
+        borderRadius: 2,
         border: "1px solid",
-        borderColor: "primary.100",
-        maxWidth: 100,
+        borderColor: "divider",
+        maxWidth: 110,
+        transition: "transform 0.2s",
+        "&:hover": {
+          transform: "scale(1.02)",
+          bgcolor: "white",
+          boxShadow: 1,
+        },
       }}
     >
       <Box
@@ -54,26 +62,34 @@ export const DayWeatherCard = ({ date, weather }: DayWeatherCardProps) => {
           gap: 0.5,
         }}
       >
-        <Typography variant="h4" sx={{ fontSize: "1.5rem" }}>
+        <Typography variant="h3" sx={{ fontSize: "2rem", lineHeight: 1 }}>
           {getWeatherIcon(dayWeather.weatherCode)}
         </Typography>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-          <Thermometer size={12} style={{ color: "#ef4444" }} />
-          <Typography variant="caption" fontWeight="bold" color="primary.900">
-            {Math.round(dayWeather.maxTemp)}°/{Math.round(dayWeather.minTemp)}°
+          <Thermometer size={14} className="text-red-500" />
+          <Typography variant="body2" fontWeight="700" color="text.primary">
+            {Math.round(dayWeather.maxTemp)}°
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            /{Math.round(dayWeather.minTemp)}°
           </Typography>
         </Box>
 
         {dayWeather.precipitationProbability > 0 && (
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-            <CloudRain size={10} style={{ color: "#3b82f6" }} />
-            <Typography
-              variant="caption"
-              color="info.main"
-              fontSize="0.65rem"
-              fontWeight="600"
-            >
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 0.5,
+              bgcolor: "primary.50",
+              px: 0.8,
+              py: 0.2,
+              borderRadius: 1,
+            }}
+          >
+            <CloudRain size={12} className="text-blue-500" />
+            <Typography variant="caption" color="primary.700" fontWeight="700">
               {dayWeather.precipitationProbability}%
             </Typography>
           </Box>

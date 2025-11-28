@@ -74,6 +74,11 @@ export interface WeatherData {
   minTemp: number;
   weatherCode: number;
   precipitationProbability: number;
+  sunrise?: string;
+  sunset?: string;
+  uvIndexMax?: number;
+  windSpeedMax?: number;
+  humidityMax?: number;
 }
 
 export interface TripMember {
@@ -110,6 +115,7 @@ export interface Trip {
   packingList: PackingItem[];
   photos?: Photo[];
   weather?: WeatherData[];
+  weatherLastUpdated?: string; // ISO string timestamp
   members?: TripMember[];
 }
 

@@ -37,6 +37,7 @@ export const TripTabs = ({
               </Badge>
             }
           />
+          <Tab label="Weather" />
         </Tabs>
       </Container>
     </Box>
