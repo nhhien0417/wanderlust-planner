@@ -35,6 +35,7 @@ create table trips (
   start_date date not null,
   end_date date not null,
   cover_image text,
+  budget numeric default 0,
   tasks jsonb[] default array[]::jsonb[],
   expenses jsonb[] default array[]::jsonb[],
   packing_list jsonb[] default array[]::jsonb[],

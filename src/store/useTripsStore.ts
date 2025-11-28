@@ -115,7 +115,7 @@ export const useTripsStore = create<TripsState>((set, get) => ({
         startDate: t.start_date,
         endDate: t.end_date,
         coverImage: t.cover_image,
-        budget: 0,
+        budget: t.budget || 0,
         days: t.days
           .map((d: any) => ({
             id: d.id,
@@ -178,6 +178,7 @@ export const useTripsStore = create<TripsState>((set, get) => ({
         start_date: tripData.startDate,
         end_date: tripData.endDate,
         cover_image: tripData.coverImage,
+        budget: tripData.budget || 0,
         tasks: [],
         expenses: [],
         packing_list: [],
@@ -282,6 +283,7 @@ export const useTripsStore = create<TripsState>((set, get) => ({
         start_date: trip.startDate,
         end_date: trip.endDate,
         cover_image: trip.coverImage,
+        budget: trip.budget || 0,
         tasks: trip.tasks || [],
         expenses: trip.expenses || [],
         packing_list: trip.packingList || [],
