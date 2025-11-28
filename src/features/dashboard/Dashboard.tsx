@@ -18,7 +18,7 @@ export const Dashboard = () => {
   const navigate = useNavigate();
 
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
+    <Container maxWidth="lg" sx={{ py: 4 }}>
       {/* Header */}
       <Box
         sx={{

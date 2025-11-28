@@ -1,5 +1,5 @@
 import { Box, Typography, Grid, Card, CardContent } from "@mui/material";
-import { CloudRain } from "lucide-react";
+import { CloudRain, Wind } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { getWeatherIcon } from "../../../../api/weatherApi";
 import type { WeatherData } from "../../../../api/weatherApi";
@@ -39,6 +39,7 @@ export const DailyForecast = ({ forecast }: DailyForecastProps) => {
                   flexDirection: "column",
                   alignItems: "center",
                   p: 2,
+                  "&:last-child": { pb: 2 },
                 }}
               >
                 <Typography
@@ -49,7 +50,7 @@ export const DailyForecast = ({ forecast }: DailyForecastProps) => {
                 >
                   {format(parseISO(day.date), "EEE, MMM d")}
                 </Typography>
-                <Typography variant="h2" sx={{ my: 2 }}>
+                <Typography variant="h3" sx={{ my: 1 }}>
                   {getWeatherIcon(day.weatherCode)}
                 </Typography>
                 <Box
@@ -57,7 +58,7 @@ export const DailyForecast = ({ forecast }: DailyForecastProps) => {
                     display: "flex",
                     alignItems: "baseline",
                     gap: 0.5,
-                    mb: 1,
+                    mb: 2,
                   }}
                 >
                   <Typography variant="h6" fontWeight="bold">
@@ -67,25 +68,43 @@ export const DailyForecast = ({ forecast }: DailyForecastProps) => {
                     /{Math.round(day.minTemp)}°
                   </Typography>
                 </Box>
-                {day.precipitationProbability > 0 && (
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 0.5,
-                      color: "primary.main",
-                      bgcolor: "primary.50",
-                      px: 1,
-                      py: 0.5,
-                      borderRadius: 1,
-                    }}
-                  >
-                    <CloudRain size={14} />
-                    <Typography variant="caption" fontWeight="bold">
-                      {day.precipitationProbability}%
-                    </Typography>
-                  </Box>
-                )}
+
+                <Grid container spacing={1} sx={{ width: "100%" }}>
+                  <Grid size={{ xs: 6 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        bgcolor: "grey.50",
+                        p: 1,
+                        borderRadius: 1,
+                      }}
+                    >
+                      <CloudRain size={14} color="#3b82f6" />
+                      <Typography variant="caption" fontWeight="bold" mt={0.5}>
+                        {day.precipitationProbability}%
+                      </Typography>
+                    </Box>
+                  </Grid>
+                  <Grid size={{ xs: 6 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        bgcolor: "grey.50",
+                        p: 1,
+                        borderRadius: 1,
+                      }}
+                    >
+                      <Wind size={14} color="#64748b" />
+                      <Typography variant="caption" fontWeight="bold" mt={0.5}>
+                        {day.windSpeedMax ? Math.round(day.windSpeedMax) : "--"}
+                      </Typography>
+                    </Box>
+                  </Grid>
+                </Grid>
               </CardContent>
             </Card>
           </Grid>

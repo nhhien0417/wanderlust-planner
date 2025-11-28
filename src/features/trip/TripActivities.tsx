@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Box, Container } from "@mui/material";
+import { Container } from "@mui/material";
 import { useTripsStore } from "../../store/useTripsStore";
 import { useActivitiesStore } from "../../store/useActivitiesStore";
 import { AddActivityModal } from "./components/AddActivityModal";
