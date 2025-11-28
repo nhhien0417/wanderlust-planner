@@ -237,6 +237,7 @@ export const LocationSection = ({
             center={viewState.center}
             zoom={viewState.zoom}
             onLocationSelect={handleMapClick}
+            onRightClick={handleMapClick}
             markers={
               selectedLocation
                 ? [
@@ -250,6 +251,13 @@ export const LocationSection = ({
             }
           />
         </Box>
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          sx={{ display: "block", mt: 1, fontStyle: "italic" }}
+        >
+          💡 Right-click on the map to select location
+        </Typography>
       </Collapse>
     </Box>
   );

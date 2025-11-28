@@ -67,8 +67,14 @@ export const TripMap = ({ tripId }: TripMapProps) => {
 
   const handleMapClick = async (lat: number, lng: number) => {
     if (!isAddMode) return;
+    await addMarker(lat, lng);
+  };
 
-    // Reverse geocode to get location name
+  const handleMapRightClick = async (lat: number, lng: number) => {
+    await addMarker(lat, lng);
+  };
+
+  const addMarker = async (lat: number, lng: number) => {
     try {
       const response = await fetch(
         `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
@@ -163,7 +169,7 @@ export const TripMap = ({ tripId }: TripMapProps) => {
           <Typography variant="body2">
             {isAddMode
               ? "📍 Click anywhere on the map to add a marker"
-              : "👆 Toggle 'Add Marker Mode' below to place markers on the map"}
+              : "👆 Right-click on the map to add a marker, or toggle 'Add Marker Mode'"}
           </Typography>
         </Box>
       </Paper>
@@ -353,6 +359,7 @@ export const TripMap = ({ tripId }: TripMapProps) => {
             zoom={viewState.zoom}
             markers={allMarkers}
             onLocationSelect={handleMapClick}
+            onRightClick={handleMapRightClick}
           />
         </Box>
       </Box>
