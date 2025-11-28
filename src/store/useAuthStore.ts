@@ -7,13 +7,14 @@ interface AuthState {
   session: Session | null;
   loading: boolean;
   initialize: () => Promise<void>;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
   signUp: (
     email: string,
     password: string,
     fullName: string
   ) => Promise<{ error: any }>;
+  signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<{ error: any }>;
+  resetPassword: (email: string) => Promise<{ error: any }>;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -34,7 +35,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     });
   },
 
-  signIn: async (email, password) => {
+  signIn: async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -42,7 +43,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     return { error };
   },
 
-  signUp: async (email, password, fullName) => {
+  signUp: async (email: string, password: string, fullName: string) => {
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -58,6 +59,13 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   signOut: async () => {
     const { error } = await supabase.auth.signOut();
+    return { error };
+  },
+
+  resetPassword: async (email: string) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + "/reset-password",
+    });
     return { error };
   },
 }));

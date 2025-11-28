@@ -5,6 +5,7 @@ import { Dashboard } from "./features/dashboard/Dashboard";
 import { TripDetails } from "./features/trip/TripDetails";
 import { Login } from "./features/auth/Login";
 import { Signup } from "./features/auth/Signup";
+import { ForgotPassword } from "./features/auth/ForgotPassword";
 import { useAuthStore } from "./store/useAuthStore";
 import { useTripStore } from "./store/useTripStore";
 import { Box, CircularProgress } from "@mui/material";
@@ -48,6 +49,7 @@ function App() {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/" element={<Layout />}>
         <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
