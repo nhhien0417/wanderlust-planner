@@ -52,6 +52,7 @@ export const TripDetails = ({ tripId: propTripId }: TripDetailsProps) => {
   const trip = useTripsStore((state) =>
     state.trips.find((t) => t.id === tripId)
   );
+  const setActiveTrip = useTripsStore((state) => state.setActiveTrip);
   const isLoading = useTripsStore((state) => state.isLoading);
   const tripPhotos = useTripsStore((state) => {
     const found = state.trips.find((t) => t.id === tripId);
@@ -80,10 +81,11 @@ export const TripDetails = ({ tripId: propTripId }: TripDetailsProps) => {
   // Real-time subscription
   useEffect(() => {
     if (tripId) {
+      setActiveTrip(tripId);
       subscribeToTrip(tripId);
       return () => unsubscribeFromTrip(tripId);
     }
-  }, [tripId, subscribeToTrip, unsubscribeFromTrip]);
+  }, [tripId, subscribeToTrip, unsubscribeFromTrip, setActiveTrip]);
 
   if (isLoading) {
     return (

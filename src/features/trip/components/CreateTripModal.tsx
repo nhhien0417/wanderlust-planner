@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
@@ -23,6 +24,7 @@ interface CreateTripModalProps {
 }
 
 export const CreateTripModal = ({ isOpen, onClose }: CreateTripModalProps) => {
+  const navigate = useNavigate();
   const { addTrip } = useTripsStore();
   const [formData, setFormData] = useState({
     name: "",
@@ -64,10 +66,10 @@ export const CreateTripModal = ({ isOpen, onClose }: CreateTripModalProps) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    addTrip({
+    const newTripId = await addTrip({
       name: formData.name,
       destination: formData.destination,
       startDate: new Date(formData.startDate).toISOString(),
@@ -79,6 +81,10 @@ export const CreateTripModal = ({ isOpen, onClose }: CreateTripModalProps) => {
     });
 
     onClose();
+
+    if (newTripId) {
+      navigate(`/trip/${newTripId}`);
+    }
     // Reset form
     setFormData({
       name: "",

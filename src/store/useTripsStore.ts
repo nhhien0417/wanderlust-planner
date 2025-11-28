@@ -15,7 +15,7 @@ interface TripsState {
   fetchTrips: () => Promise<void>;
   addTrip: (
     trip: Omit<Trip, "id" | "days" | "tasks" | "expenses" | "packingList">
-  ) => Promise<void>;
+  ) => Promise<string | undefined>;
   setActiveTrip: (id: string | null) => void;
   deleteTrip: (id: string) => Promise<void>;
   syncLocalTrips: () => Promise<void>;
@@ -188,7 +188,7 @@ export const useTripsStore = create<TripsState>((set, get) => ({
 
       if (tripError) {
         console.error("Error creating trip:", tripError);
-        return;
+        return undefined;
       }
 
       // Insert Days
@@ -211,20 +211,21 @@ export const useTripsStore = create<TripsState>((set, get) => ({
       });
 
       set((state) => ({
-        trips: [...state.trips, newTrip],
+        trips: [newTrip, ...state.trips],
         activeTripId: newTripId,
       }));
     } else {
-      // Local Storage
       set((state) => {
         const newState = {
-          trips: [...state.trips, newTrip],
+          trips: [newTrip, ...state.trips],
           activeTripId: newTripId,
         };
         saveToLocalStorage(newState);
         return newState;
       });
     }
+
+    return newTripId;
   },
 
   setActiveTrip: (id) => {
