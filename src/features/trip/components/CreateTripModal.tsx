@@ -17,6 +17,7 @@ import {
   CoverImageSection,
 } from "./trip-form";
 import { useTripsStore } from "../../../store/useTripsStore";
+import { useWeatherStore } from "../../../store/useWeatherStore";
 
 interface CreateTripModalProps {
   isOpen: boolean;
@@ -83,6 +84,7 @@ export const CreateTripModal = ({ isOpen, onClose }: CreateTripModalProps) => {
     onClose();
 
     if (newTripId) {
+      useWeatherStore.getState().fetchTripWeather(newTripId);
       navigate(`/trip/${newTripId}`);
     }
     // Reset form
