@@ -30,7 +30,7 @@ function App() {
       };
       init();
     }
-  }, [loading, user, fetchTrips, syncLocalTrips]);
+  }, [loading, user?.id, fetchTrips, syncLocalTrips]);
 
   if (loading) {
     return (
