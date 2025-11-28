@@ -90,7 +90,16 @@ export const Sidebar = () => {
 
         {/* Navigation */}
         <Box
-          sx={{ flexGrow: 1, overflowY: "auto", py: 2, overflowX: "hidden" }}
+          sx={{
+            flexGrow: 1,
+            overflowY: "auto",
+            py: 2,
+            overflowX: "hidden",
+            scrollbarWidth: "none",
+            "&::-webkit-scrollbar": {
+              display: "none",
+            },
+          }}
         >
           <List disablePadding>
             <ListItem disablePadding sx={{ px: 1.5, mb: 0.5 }}>
