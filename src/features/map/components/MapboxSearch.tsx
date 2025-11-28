@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Box,
   TextField,
@@ -51,6 +51,8 @@ export const MapboxSearch = ({
     }
   };
 
+  const inputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     const searchMapbox = async () => {
       if (!query.trim()) {
@@ -71,7 +73,9 @@ export const MapboxSearch = ({
         const response = await fetch(url);
         const data = await response.json();
         setResults(data.features || []);
-        if (document.activeElement?.tagName === "INPUT") {
+
+        // Only show results if THIS input is focused
+        if (document.activeElement === inputRef.current) {
           setShowResults(true);
         }
       } catch (error) {
@@ -95,6 +99,7 @@ export const MapboxSearch = ({
     <ClickAwayListener onClickAway={() => setShowResults(false)}>
       <Box sx={{ position: "relative", width: "100%", zIndex: 1000 }}>
         <TextField
+          inputRef={inputRef}
           fullWidth
           placeholder="Search places..."
           value={query}

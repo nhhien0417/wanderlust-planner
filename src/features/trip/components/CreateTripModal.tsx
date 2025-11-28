@@ -194,6 +194,7 @@ export const CreateTripModal = ({ isOpen, onClose }: CreateTripModalProps) => {
           form="create-trip-form"
           variant="contained"
           size="large"
+          disabled={!selectedCoords}
           sx={{
             minWidth: 150,
             fontWeight: 700,
