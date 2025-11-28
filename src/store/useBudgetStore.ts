@@ -50,12 +50,18 @@ export const useBudgetStore = create<BudgetState>((_set, get) => ({
   addExpense: async (tripId, expense) => {
     const newExpense = { ...expense, id: uuidv4() };
     useTripsStore.setState((state) => {
-      const newTrips = [...state.trips];
-      const trip = newTrips.find((t) => t.id === tripId);
-      if (trip) {
-        trip.expenses.push(newExpense);
-        get().updateJsonbColumn(tripId, "expenses", trip.expenses);
-      }
+      const newTrips = state.trips.map((t) => {
+        if (t.id === tripId) {
+          const updatedTrip = {
+            ...t,
+            expenses: [...t.expenses, newExpense],
+          };
+          get().updateJsonbColumn(tripId, "expenses", updatedTrip.expenses);
+          return updatedTrip;
+        }
+        return t;
+      });
+
       if (!useAuthStore.getState().user) saveToLocalStorage();
       return { trips: newTrips };
     });
@@ -63,12 +69,18 @@ export const useBudgetStore = create<BudgetState>((_set, get) => ({
 
   removeExpense: async (tripId, expenseId) => {
     useTripsStore.setState((state) => {
-      const newTrips = [...state.trips];
-      const trip = newTrips.find((t) => t.id === tripId);
-      if (trip) {
-        trip.expenses = trip.expenses.filter((e) => e.id !== expenseId);
-        get().updateJsonbColumn(tripId, "expenses", trip.expenses);
-      }
+      const newTrips = state.trips.map((t) => {
+        if (t.id === tripId) {
+          const updatedTrip = {
+            ...t,
+            expenses: t.expenses.filter((e) => e.id !== expenseId),
+          };
+          get().updateJsonbColumn(tripId, "expenses", updatedTrip.expenses);
+          return updatedTrip;
+        }
+        return t;
+      });
+
       if (!useAuthStore.getState().user) saveToLocalStorage();
       return { trips: newTrips };
     });
@@ -76,14 +88,20 @@ export const useBudgetStore = create<BudgetState>((_set, get) => ({
 
   updateExpense: async (tripId, expenseId, updates) => {
     useTripsStore.setState((state) => {
-      const newTrips = [...state.trips];
-      const trip = newTrips.find((t) => t.id === tripId);
-      if (trip) {
-        trip.expenses = trip.expenses.map((e) =>
-          e.id === expenseId ? { ...e, ...updates } : e
-        );
-        get().updateJsonbColumn(tripId, "expenses", trip.expenses);
-      }
+      const newTrips = state.trips.map((t) => {
+        if (t.id === tripId) {
+          const updatedTrip = {
+            ...t,
+            expenses: t.expenses.map((e) =>
+              e.id === expenseId ? { ...e, ...updates } : e
+            ),
+          };
+          get().updateJsonbColumn(tripId, "expenses", updatedTrip.expenses);
+          return updatedTrip;
+        }
+        return t;
+      });
+
       if (!useAuthStore.getState().user) saveToLocalStorage();
       return { trips: newTrips };
     });
@@ -91,11 +109,15 @@ export const useBudgetStore = create<BudgetState>((_set, get) => ({
 
   setBudget: async (tripId, amount) => {
     useTripsStore.setState((state) => {
-      const newTrips = [...state.trips];
-      const trip = newTrips.find((t) => t.id === tripId);
-      if (trip) {
-        trip.budget = amount;
-      }
+      const newTrips = state.trips.map((t) => {
+        if (t.id === tripId) {
+          const updatedTrip = { ...t, budget: amount };
+          get().updateJsonbColumn(tripId, "budget", amount);
+          return updatedTrip;
+        }
+        return t;
+      });
+
       if (!useAuthStore.getState().user) saveToLocalStorage();
       return { trips: newTrips };
     });
