@@ -1,17 +1,15 @@
 import { useState } from "react";
 import {
   Box,
-  TextField,
   Button,
-  InputAdornment,
   Collapse,
   Paper,
   Typography,
   IconButton,
 } from "@mui/material";
 import { MapPin, Map as MapIcon, X } from "lucide-react";
-import { Map } from "../../../map/components/Map";
-import { reverseGeocode } from "../../../../api/weatherApi";
+import { MapboxSearch } from "../../../map/components/MapboxSearch";
+import { MapboxMap } from "../../../map/Map";
 
 interface DestinationSectionProps {
   destination: string;
@@ -35,44 +33,54 @@ export const DestinationSection = ({
     zoom: 13,
   });
 
-  const handleMapRightClick = async (lat: number, lng: number) => {
-    // Reverse geocode to get city name
-    const cityName = await reverseGeocode(lat, lng);
-    onLocationSelect({ lat, lng }, cityName || undefined);
+  const handleMapLocationSelect = (lat: number, lng: number, name?: string) => {
+    // If name is provided (from POI or Search), use it.
+    // Otherwise keep existing destination or use a generic one if empty
+    const newDestination =
+      name || destination || `Location at ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+
+    onLocationSelect({ lat, lng }, newDestination);
+    onDestinationChange(newDestination);
+    setViewState({ center: [lat, lng], zoom: 15 });
+  };
+
+  const handleSearchSelect = (lat: number, lng: number, name: string) => {
+    onLocationSelect({ lat, lng }, name);
+    onDestinationChange(name);
     setViewState({ center: [lat, lng], zoom: 15 });
   };
 
   const handleRemovePin = () => {
     onLocationSelect(null);
+    onDestinationChange("");
   };
 
   return (
     <Box>
-      <TextField
-        required
-        fullWidth
-        label="Destination"
-        placeholder="Where to?"
-        value={destination}
-        onChange={(e) => onDestinationChange(e.target.value)}
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <MapPin size={20} />
-            </InputAdornment>
-          ),
-        }}
-        sx={{ mb: 2 }}
-      />
-
-      <Button
-        variant="outlined"
-        onClick={() => setShowMap(!showMap)}
-        startIcon={<MapIcon size={18} />}
-        sx={{ textTransform: "none", fontWeight: 600, mb: 2 }}
-      >
-        {showMap ? "Hide" : "Show"} Map
-      </Button>
+      <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+        <Box sx={{ flex: 1 }}>
+          <MapboxSearch
+            value={destination}
+            onChange={onDestinationChange}
+            onLocationSelect={handleSearchSelect}
+            proximity={{ lat: viewState.center[0], lng: viewState.center[1] }}
+          />
+        </Box>
+        <Button
+          variant="outlined"
+          onClick={() => setShowMap(!showMap)}
+          startIcon={<MapIcon size={18} />}
+          sx={{
+            textTransform: "none",
+            fontWeight: 600,
+            whiteSpace: "nowrap",
+            minWidth: "fit-content",
+            height: "40px", // Match search height roughly
+          }}
+        >
+          {showMap ? "Hide" : "Show"} Map
+        </Button>
+      </Box>
 
       {/* Map Section */}
       <Collapse in={showMap}>
@@ -117,11 +125,11 @@ export const DestinationSection = ({
             </Paper>
           )}
 
-          <Box sx={{ height: 300, borderRadius: 2, overflow: "hidden" }}>
-            <Map
+          <Box sx={{ borderRadius: 2, overflow: "hidden" }}>
+            <MapboxMap
               center={viewState.center}
               zoom={viewState.zoom}
-              onRightClick={handleMapRightClick}
+              onLocationSelect={handleMapLocationSelect}
               onMarkerRemove={handleRemovePin}
               markers={
                 selectedCoords
@@ -136,13 +144,6 @@ export const DestinationSection = ({
               }
             />
           </Box>
-          <Typography
-            variant="caption"
-            color="text.secondary"
-            sx={{ display: "block", mt: 1, fontStyle: "italic" }}
-          >
-            💡 Right-click on the map to select your destination
-          </Typography>
         </Box>
       </Collapse>
     </Box>

@@ -2,26 +2,14 @@ import { useState } from "react";
 import {
   Box,
   Typography,
-  TextField,
-  Button,
-  InputAdornment,
-  Paper,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
   IconButton,
   Collapse,
+  Button,
+  Paper,
 } from "@mui/material";
-import { Search, Map as MapIcon, MapPin, X } from "lucide-react";
-import { Map } from "../../../map/components/Map";
-
-interface SearchResult {
-  name: string;
-  displayName: string;
-  lat: number;
-  lng: number;
-}
+import { Map as MapIcon, MapPin, X } from "lucide-react";
+import { MapboxSearch } from "../../../map/components/MapboxSearch";
+import { MapboxMap } from "../../../map/Map";
 
 export interface LocationData {
   name: string;
@@ -39,92 +27,33 @@ export const LocationSection = ({
   selectedLocation,
   onLocationSelect,
 }: LocationSectionProps) => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
   const [showMap, setShowMap] = useState(false);
   const [viewState, setViewState] = useState({
     center: [16.0544, 108.2022] as [number, number],
     zoom: 13,
   });
 
-  const handleSearch = async () => {
-    if (!searchQuery.trim()) {
-      setSearchResults([]);
-      return;
-    }
-
-    setIsSearching(true);
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-          searchQuery
-        )}&limit=5`
-      );
-      const data = await response.json();
-
-      const results: SearchResult[] = data.map((item: any) => ({
-        name: item.name || item.display_name.split(",")[0],
-        displayName: item.display_name,
-        lat: parseFloat(item.lat),
-        lng: parseFloat(item.lon),
-      }));
-
-      setSearchResults(results);
-    } catch (error) {
-      console.error("Search failed:", error);
-      setSearchResults([]);
-    } finally {
-      setIsSearching(false);
-    }
-  };
-
-  const handleSelectLocation = (result: SearchResult) => {
+  const handleSearchSelect = (lat: number, lng: number, name: string) => {
     const location: LocationData = {
-      name: result.name,
-      lat: result.lat,
-      lng: result.lng,
-      address: result.displayName,
+      name: name.split(",")[0],
+      lat,
+      lng,
+      address: name,
     };
-
     onLocationSelect(location);
-
-    setViewState({
-      center: [result.lat, result.lng],
-      zoom: 15,
-    });
-    setSearchResults([]);
-    setSearchQuery("");
+    setViewState({ center: [lat, lng], zoom: 15 });
   };
 
-  const handleMapClick = async (lat: number, lng: number) => {
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
-      );
-      const data = await response.json();
-      const name =
-        data.display_name || `Location at ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-
-      const location: LocationData = {
-        name: name.split(",")[0],
-        lat,
-        lng,
-        address: name,
-      };
-
-      onLocationSelect(location);
-    } catch (error) {
-      console.error("Reverse geocoding failed:", error);
-      const name = `Location at ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-      const location: LocationData = {
-        name,
-        lat,
-        lng,
-        address: name,
-      };
-      onLocationSelect(location);
-    }
+  const handleMapLocationSelect = (lat: number, lng: number, name?: string) => {
+    const locationName =
+      name || `Location at ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+    const location: LocationData = {
+      name: locationName.split(",")[0],
+      lat,
+      lng,
+      address: locationName,
+    };
+    onLocationSelect(location);
   };
 
   return (
@@ -132,62 +61,29 @@ export const LocationSection = ({
       <Typography variant="subtitle1" fontWeight={600} gutterBottom>
         Location
       </Typography>
-      <Box sx={{ display: "flex", gap: 1, height: 55 }}>
-        <TextField
-          fullWidth
-          placeholder="Search for a place..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Search size={20} />
-              </InputAdornment>
-            ),
-          }}
-          sx={{ backgroundColor: "white", height: 55 }}
-        />
-        <Button
-          variant="contained"
-          onClick={handleSearch}
-          disabled={isSearching || !searchQuery.trim()}
-          sx={{ minWidth: 100, height: 55 }}
-        >
-          {isSearching ? "..." : "Search"}
-        </Button>
+
+      <Box sx={{ display: "flex", gap: 2, alignItems: "flex-start", mb: 2 }}>
+        <Box sx={{ flex: 1 }}>
+          <MapboxSearch
+            onLocationSelect={handleSearchSelect}
+            proximity={{ lat: viewState.center[0], lng: viewState.center[1] }}
+          />
+        </Box>
         <Button
           variant="outlined"
           onClick={() => setShowMap(!showMap)}
           startIcon={<MapIcon size={18} />}
-          sx={{ minWidth: 150, height: 55 }}
+          sx={{
+            minWidth: "fit-content",
+            height: "40px", // Match search height
+            whiteSpace: "nowrap",
+            textTransform: "none",
+            fontWeight: 600,
+          }}
         >
           {showMap ? "Hide" : "Show"} Map
         </Button>
       </Box>
-
-      {/* Search Results */}
-      {searchResults.length > 0 && (
-        <Paper sx={{ mt: 2, maxHeight: 200, overflow: "auto" }}>
-          <List dense>
-            {searchResults.map((result, index) => (
-              <ListItem key={index} disablePadding>
-                <ListItemButton onClick={() => handleSelectLocation(result)}>
-                  <MapPin size={16} style={{ marginRight: 8 }} />
-                  <ListItemText
-                    primary={result.name}
-                    secondary={result.displayName}
-                    secondaryTypographyProps={{
-                      noWrap: true,
-                      fontSize: "0.75rem",
-                    }}
-                  />
-                </ListItemButton>
-              </ListItem>
-            ))}
-          </List>
-        </Paper>
-      )}
 
       {/* Selected Location */}
       {selectedLocation && (
@@ -232,12 +128,11 @@ export const LocationSection = ({
 
       {/* Map */}
       <Collapse in={showMap}>
-        <Box sx={{ mt: 2, height: 300, borderRadius: 2, overflow: "hidden" }}>
-          <Map
+        <Box sx={{ mt: 2, borderRadius: 2, overflow: "hidden" }}>
+          <MapboxMap
             center={viewState.center}
             zoom={viewState.zoom}
-            onLocationSelect={handleMapClick}
-            onRightClick={handleMapClick}
+            onLocationSelect={handleMapLocationSelect}
             markers={
               selectedLocation
                 ? [
@@ -251,13 +146,6 @@ export const LocationSection = ({
             }
           />
         </Box>
-        <Typography
-          variant="caption"
-          color="text.secondary"
-          sx={{ display: "block", mt: 1, fontStyle: "italic" }}
-        >
-          💡 Right-click on the map to select location
-        </Typography>
       </Collapse>
     </Box>
   );
