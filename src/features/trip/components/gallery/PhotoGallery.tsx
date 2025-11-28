@@ -9,11 +9,11 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { MoreVertical, Image as ImageIcon, PlayCircle } from "lucide-react";
-import { isVideo } from "../../utils/mediaUtils";
-import { useTripsStore } from "../../store/useTripsStore";
-import { usePhotosStore } from "../../store/usePhotosStore";
-import { photoStorage } from "../../utils/photoStorage";
-import type { Photo } from "../../types";
+import { isVideo } from "../../../../utils/mediaUtils";
+import { useTripsStore } from "../../../../store/useTripsStore";
+import { usePhotosStore } from "../../../../store/usePhotosStore";
+import { photoStorage } from "../../../../utils/photoStorage";
+import type { Photo } from "../../../../types";
 
 const EMPTY_PHOTOS: Photo[] = [];
 

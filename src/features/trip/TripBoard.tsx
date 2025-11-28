@@ -25,6 +25,7 @@ import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
 import { Plus } from "lucide-react";
 import { KanbanColumn, SortableTaskCard } from "./components/board";
+import { Container } from "@mui/material";
 
 interface TripKanbanProps {
   tripId: string;
@@ -144,129 +145,136 @@ export const TripBoard = ({ tripId }: TripKanbanProps) => {
   };
 
   return (
-    <Box sx={{ height: "100%", overflowX: "auto", p: 3 }}>
-      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
-        <Typography variant="h5" fontWeight="bold">
-          Trip Board
-        </Typography>
-        <Button
-          variant="contained"
-          startIcon={<Plus />}
-          onClick={() => setIsModalOpen(true)}
-        >
-          New Task
-        </Button>
-      </Box>
-
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCorners}
-        onDragStart={handleDragStart}
-        onDragOver={handleDragOver}
-        onDragEnd={handleDragEnd}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            gap: 3,
-            height: "calc(100% - 80px)",
-            minWidth: 900,
-          }}
-        >
-          {COLUMNS.map((column) => (
-            <KanbanColumn
-              key={column.id}
-              column={column}
-              tasks={trip.tasks.filter((t) => t.status === column.id)}
-              onEditTask={(task) => {
-                setEditingTask(task);
-                setNewTaskData({
-                  title: task.title,
-                  description: task.description || "",
-                  priority: task.priority,
-                  dueDate: task.dueDate || "",
-                  status: task.status,
-                });
-                setIsModalOpen(true);
-              }}
-            />
-          ))}
+    <Container maxWidth="lg">
+      <Box sx={{ height: "100%", overflowX: "auto" }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
+          <Typography variant="h5" fontWeight="bold">
+            Trip Board
+          </Typography>
+          <Button
+            variant="contained"
+            startIcon={<Plus />}
+            onClick={() => setIsModalOpen(true)}
+          >
+            New Task
+          </Button>
         </Box>
 
-        <DragOverlay>
-          {activeId ? (
-            <SortableTaskCard
-              task={trip.tasks.find((t) => t.id === activeId)!}
-              onClick={() => {}}
-            />
-          ) : null}
-        </DragOverlay>
-      </DndContext>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCorners}
+          onDragStart={handleDragStart}
+          onDragOver={handleDragOver}
+          onDragEnd={handleDragEnd}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              gap: 3,
+              height: "calc(100% - 80px)",
+              minWidth: 900,
+            }}
+          >
+            {COLUMNS.map((column) => (
+              <KanbanColumn
+                key={column.id}
+                column={column}
+                tasks={trip.tasks.filter((t) => t.status === column.id)}
+                onEditTask={(task) => {
+                  setEditingTask(task);
+                  setNewTaskData({
+                    title: task.title,
+                    description: task.description || "",
+                    priority: task.priority,
+                    dueDate: task.dueDate || "",
+                    status: task.status,
+                  });
+                  setIsModalOpen(true);
+                }}
+              />
+            ))}
+          </Box>
 
-      <Dialog
-        open={isModalOpen}
-        onClose={handleCloseModal}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>{editingTask ? "Edit Task" : "New Task"}</DialogTitle>
-        <DialogContent>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}>
-            <TextField
-              label="Title"
-              fullWidth
-              value={newTaskData.title}
-              onChange={(e) =>
-                setNewTaskData({ ...newTaskData, title: e.target.value })
-              }
-            />
-            <TextField
-              label="Description"
-              fullWidth
-              multiline
-              rows={3}
-              value={newTaskData.description}
-              onChange={(e) =>
-                setNewTaskData({ ...newTaskData, description: e.target.value })
-              }
-            />
-            <Box sx={{ display: "flex", gap: 2 }}>
+          <DragOverlay>
+            {activeId ? (
+              <SortableTaskCard
+                task={trip.tasks.find((t) => t.id === activeId)!}
+                onClick={() => {}}
+              />
+            ) : null}
+          </DragOverlay>
+        </DndContext>
+
+        <Dialog
+          open={isModalOpen}
+          onClose={handleCloseModal}
+          maxWidth="sm"
+          fullWidth
+        >
+          <DialogTitle>{editingTask ? "Edit Task" : "New Task"}</DialogTitle>
+          <DialogContent>
+            <Box
+              sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}
+            >
               <TextField
-                select
-                label="Priority"
+                label="Title"
                 fullWidth
-                value={newTaskData.priority}
+                value={newTaskData.title}
+                onChange={(e) =>
+                  setNewTaskData({ ...newTaskData, title: e.target.value })
+                }
+              />
+              <TextField
+                label="Description"
+                fullWidth
+                multiline
+                rows={3}
+                value={newTaskData.description}
                 onChange={(e) =>
                   setNewTaskData({
                     ...newTaskData,
-                    priority: e.target.value as any,
+                    description: e.target.value,
                   })
                 }
-              >
-                <MenuItem value="low">Low</MenuItem>
-                <MenuItem value="medium">Medium</MenuItem>
-                <MenuItem value="high">High</MenuItem>
-              </TextField>
-              <TextField
-                type="date"
-                label="Due Date"
-                fullWidth
-                InputLabelProps={{ shrink: true }}
-                value={newTaskData.dueDate}
-                onChange={(e) =>
-                  setNewTaskData({ ...newTaskData, dueDate: e.target.value })
-                }
               />
+              <Box sx={{ display: "flex", gap: 2 }}>
+                <TextField
+                  select
+                  label="Priority"
+                  fullWidth
+                  value={newTaskData.priority}
+                  onChange={(e) =>
+                    setNewTaskData({
+                      ...newTaskData,
+                      priority: e.target.value as any,
+                    })
+                  }
+                >
+                  <MenuItem value="low">Low</MenuItem>
+                  <MenuItem value="medium">Medium</MenuItem>
+                  <MenuItem value="high">High</MenuItem>
+                </TextField>
+                <TextField
+                  type="date"
+                  label="Due Date"
+                  fullWidth
+                  InputLabelProps={{ shrink: true }}
+                  value={newTaskData.dueDate}
+                  onChange={(e) =>
+                    setNewTaskData({ ...newTaskData, dueDate: e.target.value })
+                  }
+                />
+              </Box>
             </Box>
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseModal}>Cancel</Button>
-          <Button onClick={handleSaveTask} variant="contained">
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseModal}>Cancel</Button>
+            <Button onClick={handleSaveTask} variant="contained">
+              Save
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Box>
+    </Container>
   );
 };

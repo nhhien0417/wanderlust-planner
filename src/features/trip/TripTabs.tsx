@@ -30,6 +30,7 @@ export const TripTabs = ({
           <Tab label="Board" />
           <Tab label="Budget" />
           <Tab label="Packing List" />
+          <Tab label="Weather" />
           <Tab
             label={
               <Badge badgeContent={photoCount} color="primary">
@@ -37,7 +38,6 @@ export const TripTabs = ({
               </Badge>
             }
           />
-          <Tab label="Weather" />
         </Tabs>
       </Container>
     </Box>

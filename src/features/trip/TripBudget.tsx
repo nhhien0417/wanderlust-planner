@@ -20,6 +20,7 @@ import {
   BudgetChart,
   ExpenseModal,
 } from "./components/budget";
+import { Container } from "@mui/material";
 
 interface TripBudgetProps {
   tripId: string;
@@ -99,93 +100,95 @@ export const TripBudget = ({ tripId }: TripBudgetProps) => {
   };
 
   return (
-    <Box sx={{ p: 3, height: "100%", overflowY: "auto" }}>
-      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
-        <Typography variant="h5" fontWeight="bold">
-          Budget Tracker
-        </Typography>
-        <Button
-          variant="contained"
-          startIcon={<Plus />}
-          onClick={() => setIsAddModalOpen(true)}
-        >
-          Add Expense
-        </Button>
-      </Box>
-
-      <BudgetProgressBar totalSpent={totalSpent} budget={trip.budget} />
-
-      <BudgetOverview
-        budget={trip.budget}
-        expenses={trip.expenses}
-        currency={trip.currency || "USD"}
-        onEditBudget={() => {
-          setNewBudget(trip.budget.toString());
-          setIsEditBudgetOpen(true);
-        }}
-      />
-
-      <Grid container spacing={3}>
-        <Grid size={{ xs: 12, md: 7 }}>
-          <ExpenseList
-            expenses={trip.expenses}
-            currency={trip.currency || "USD"}
-            onEdit={handleEditExpense}
-            onDelete={(id) => removeExpense(tripId, id)}
-          />
-        </Grid>
-
-        <Grid size={{ xs: 12, md: 5 }}>
-          <BudgetChart
-            expenses={trip.expenses}
-            currency={trip.currency || "USD"}
-          />
-        </Grid>
-      </Grid>
-
-      <ExpenseModal
-        isOpen={isAddModalOpen}
-        onClose={handleCloseModal}
-        onSave={handleSaveExpense}
-        formData={expenseData}
-        onChange={setExpenseData}
-        isEditing={!!editingExpense}
-        currency={trip.currency || "USD"}
-      />
-
-      {/* Edit Budget Modal */}
-      <Dialog
-        open={isEditBudgetOpen}
-        onClose={() => setIsEditBudgetOpen(false)}
-        maxWidth="xs"
-        fullWidth
-      >
-        <DialogTitle>Set Trip Budget</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Budget Amount"
-            type="number"
-            fullWidth
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  {getCurrencySymbol(trip.currency)}
-                </InputAdornment>
-              ),
-            }}
-            value={newBudget}
-            onChange={(e) => setNewBudget(e.target.value)}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setIsEditBudgetOpen(false)}>Cancel</Button>
-          <Button onClick={handleUpdateBudget} variant="contained">
-            Save
+    <Container maxWidth="lg">
+      <Box sx={{ height: "100%", overflowY: "auto" }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
+          <Typography variant="h5" fontWeight="bold">
+            Budget Tracker
+          </Typography>
+          <Button
+            variant="contained"
+            startIcon={<Plus />}
+            onClick={() => setIsAddModalOpen(true)}
+          >
+            Add Expense
           </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+        </Box>
+
+        <BudgetProgressBar totalSpent={totalSpent} budget={trip.budget} />
+
+        <BudgetOverview
+          budget={trip.budget}
+          expenses={trip.expenses}
+          currency={trip.currency || "USD"}
+          onEditBudget={() => {
+            setNewBudget(trip.budget.toString());
+            setIsEditBudgetOpen(true);
+          }}
+        />
+
+        <Grid container spacing={3}>
+          <Grid size={{ xs: 12, md: 7 }}>
+            <ExpenseList
+              expenses={trip.expenses}
+              currency={trip.currency || "USD"}
+              onEdit={handleEditExpense}
+              onDelete={(id) => removeExpense(tripId, id)}
+            />
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 5 }}>
+            <BudgetChart
+              expenses={trip.expenses}
+              currency={trip.currency || "USD"}
+            />
+          </Grid>
+        </Grid>
+
+        <ExpenseModal
+          isOpen={isAddModalOpen}
+          onClose={handleCloseModal}
+          onSave={handleSaveExpense}
+          formData={expenseData}
+          onChange={setExpenseData}
+          isEditing={!!editingExpense}
+          currency={trip.currency || "USD"}
+        />
+
+        {/* Edit Budget Modal */}
+        <Dialog
+          open={isEditBudgetOpen}
+          onClose={() => setIsEditBudgetOpen(false)}
+          maxWidth="xs"
+          fullWidth
+        >
+          <DialogTitle>Set Trip Budget</DialogTitle>
+          <DialogContent>
+            <TextField
+              autoFocus
+              margin="dense"
+              label="Budget Amount"
+              type="number"
+              fullWidth
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    {getCurrencySymbol(trip.currency)}
+                  </InputAdornment>
+                ),
+              }}
+              value={newBudget}
+              onChange={(e) => setNewBudget(e.target.value)}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setIsEditBudgetOpen(false)}>Cancel</Button>
+            <Button onClick={handleUpdateBudget} variant="contained">
+              Save
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Box>
+    </Container>
   );
 };

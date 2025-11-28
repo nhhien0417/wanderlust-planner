@@ -10,6 +10,7 @@ import {
   AddItemForm,
   PackingCategory,
 } from "./components/packing";
+import { Container } from "@mui/material";
 
 interface TripPackingListProps {
   tripId: string;
@@ -104,28 +105,30 @@ export const TripPackingList = ({ tripId }: TripPackingListProps) => {
   };
 
   return (
-    <Box sx={{ p: 3, height: "100%", overflowY: "auto" }}>
-      <PackingHeader
-        progress={progress}
-        onGenerate={() => generatePackingList(tripId)}
-        onExport={handleExportPDF}
-        hasItems={!!trip.packingList && trip.packingList.length > 0}
-      />
+    <Container maxWidth="lg">
+      <Box sx={{ height: "100%", overflowY: "auto" }}>
+        <PackingHeader
+          progress={progress}
+          onGenerate={() => generatePackingList(tripId)}
+          onExport={handleExportPDF}
+          hasItems={!!trip.packingList && trip.packingList.length > 0}
+        />
 
-      <AddItemForm onAdd={handleAddItem} />
+        <AddItemForm onAdd={handleAddItem} />
 
-      <Grid container spacing={3}>
-        {CATEGORIES_CONFIG.map((category) => (
-          <Grid size={{ xs: 12, md: 6, lg: 4 }} key={category.id}>
-            <PackingCategory
-              category={category}
-              items={itemsByCategory[category.id] || []}
-              onToggle={(id) => togglePackingItem(tripId, id)}
-              onDelete={(id) => removePackingItem(tripId, id)}
-            />
-          </Grid>
-        ))}
-      </Grid>
-    </Box>
+        <Grid container spacing={3}>
+          {CATEGORIES_CONFIG.map((category) => (
+            <Grid size={{ xs: 12, md: 6, lg: 4 }} key={category.id}>
+              <PackingCategory
+                category={category}
+                items={itemsByCategory[category.id] || []}
+                onToggle={(id) => togglePackingItem(tripId, id)}
+                onDelete={(id) => removePackingItem(tripId, id)}
+              />
+            </Grid>
+          ))}
+        </Grid>
+      </Box>
+    </Container>
   );
 };

@@ -9,9 +9,9 @@ import {
   MenuItem,
   Box,
 } from "@mui/material";
-import { useTripsStore } from "../../store/useTripsStore";
-import { usePhotosStore } from "../../store/usePhotosStore";
-import type { Photo } from "../../types";
+import { useTripsStore } from "../../../../store/useTripsStore";
+import { usePhotosStore } from "../../../../store/usePhotosStore";
+import type { Photo } from "../../../../types";
 
 interface PhotoMetadataFormProps {
   tripId: string;

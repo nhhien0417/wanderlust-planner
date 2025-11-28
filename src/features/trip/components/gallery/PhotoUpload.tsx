@@ -9,9 +9,9 @@ import {
 } from "@mui/material";
 import { Upload, X, Image as ImageIcon } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
-import { photoStorage } from "../../utils/photoStorage";
-import { usePhotosStore } from "../../store/usePhotosStore";
-import type { Photo } from "../../types";
+import { photoStorage } from "../../../../utils/photoStorage";
+import { usePhotosStore } from "../../../../store/usePhotosStore";
+import type { Photo } from "../../../../types";
 
 interface PhotoUploadProps {
   tripId: string;

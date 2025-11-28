@@ -9,9 +9,9 @@ import {
   Trash2,
   Edit2,
 } from "lucide-react";
-import type { Photo } from "../../types";
-import { photoStorage } from "../../utils/photoStorage";
-import { isVideo } from "../../utils/mediaUtils";
+import type { Photo } from "../../../../types";
+import { photoStorage } from "../../../../utils/photoStorage";
+import { isVideo } from "../../../../utils/mediaUtils";
 
 interface PhotoLightboxProps {
   photos: Photo[];
