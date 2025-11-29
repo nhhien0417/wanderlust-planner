@@ -296,7 +296,7 @@ export const useTripsStore = create<TripsState>((set, get) => ({
         .from("trips")
         .select("id")
         .eq("id", trip.id)
-        .single();
+        .maybeSingle();
 
       if (existing) continue;
 

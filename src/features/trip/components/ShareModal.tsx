@@ -165,7 +165,46 @@ export const ShareModal = ({ open, onClose, tripId }: ShareModalProps) => {
         </IconButton>
       </DialogTitle>
       <DialogContent>
-        {/* Invite Section (Only for Owners and Editors) */}
+        {!currentUser ? (
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              py: 4,
+              textAlign: "center",
+            }}
+          >
+            <Avatar
+              sx={{
+                bgcolor: "primary.light",
+                color: "primary.main",
+                width: 56,
+                height: 56,
+                mb: 2,
+              }}
+            >
+              <UserPlus size={32} />
+            </Avatar>
+            <Typography variant="h6" gutterBottom>
+              Sign in to Share
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 3, maxWidth: 300 }}>
+              Please sign in to invite friends and collaborate on this trip together.
+            </Typography>
+            <Button
+              variant="contained"
+              onClick={() => navigate(`/login?redirectTo=/trips/${tripId}`)}
+              fullWidth
+              sx={{ maxWidth: 200 }}
+            >
+              Sign In
+            </Button>
+          </Box>
+        ) : (
+          <>
+            {/* Invite Section (Only for Owners and Editors) */}
         {(isOwner || currentMember?.role === "editor") && (
           <Box sx={{ mb: 3, mt: 1 }}>
             <Typography variant="subtitle2" gutterBottom>
@@ -333,6 +372,8 @@ export const ShareModal = ({ open, onClose, tripId }: ShareModalProps) => {
               Leave Trip
             </Button>
           </Box>
+        )}
+          </>
         )}
       </DialogContent>
     </Dialog>
