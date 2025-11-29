@@ -163,7 +163,7 @@ export const Sidebar = () => {
                     selected={activeTripId === trip.id}
                     onClick={() => {
                       setActiveTrip(trip.id);
-                      navigate(`/trip/${trip.id}`);
+                      navigate(`/trips/${trip.id}`);
                     }}
                     sx={{
                       borderRadius: 1,

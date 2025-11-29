@@ -119,7 +119,7 @@ export const Dashboard = () => {
                   },
                 }}
               >
-                <CardActionArea onClick={() => navigate(`/trip/${trip.id}`)}>
+                <CardActionArea onClick={() => navigate(`/trips/${trip.id}`)}>
                   <Box sx={{ position: "relative" }}>
                     <CardMedia
                       component="img"

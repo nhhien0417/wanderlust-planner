@@ -85,7 +85,7 @@ export const CreateTripModal = ({ isOpen, onClose }: CreateTripModalProps) => {
 
     if (newTripId) {
       useWeatherStore.getState().fetchTripWeather(newTripId);
-      navigate(`/trip/${newTripId}`);
+      navigate(`/trips/${newTripId}`);
     }
     // Reset form
     setFormData({
