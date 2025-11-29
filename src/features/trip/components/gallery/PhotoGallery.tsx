@@ -25,6 +25,7 @@ interface PhotoGalleryProps {
   onPhotosChange?: (photos: Photo[]) => void;
   filterByActivityId?: string;
   filterByDayId?: string;
+  readonly?: boolean;
 }
 
 export const PhotoGallery = ({
@@ -35,6 +36,7 @@ export const PhotoGallery = ({
   onPhotosChange,
   filterByActivityId,
   filterByDayId,
+  readonly,
 }: PhotoGalleryProps) => {
   const trip = useTripsStore((state) =>
     state.trips.find((t) => t.id === tripId)
@@ -263,22 +265,24 @@ export const PhotoGallery = ({
             </Box>
 
             {/* Menu Button */}
-            <IconButton
-              size="small"
-              onClick={(e) => handleMenuClick(e, photo)}
-              sx={{
-                position: "absolute",
-                top: 8,
-                right: 8,
-                backgroundColor: "rgba(0,0,0,0.5)",
-                color: "white",
-                "&:hover": {
-                  backgroundColor: "rgba(0,0,0,0.7)",
-                },
-              }}
-            >
-              <MoreVertical size={18} />
-            </IconButton>
+            {!readonly && (
+              <IconButton
+                size="small"
+                onClick={(e) => handleMenuClick(e, photo)}
+                sx={{
+                  position: "absolute",
+                  top: 8,
+                  right: 8,
+                  backgroundColor: "rgba(0,0,0,0.5)",
+                  color: "white",
+                  "&:hover": {
+                    backgroundColor: "rgba(0,0,0,0.7)",
+                  },
+                }}
+              >
+                <MoreVertical size={18} />
+              </IconButton>
+            )}
           </Paper>
         ))}
       </Box>

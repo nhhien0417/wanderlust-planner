@@ -11,12 +11,14 @@ interface KanbanColumnProps {
   column: { id: TaskStatus; title: string; color: string };
   tasks: TripTask[];
   onEditTask: (task: TripTask) => void;
+  readonly?: boolean;
 }
 
 export const KanbanColumn = ({
   column,
   tasks,
   onEditTask,
+  readonly,
 }: KanbanColumnProps) => {
   const { setNodeRef } = useDroppable({
     id: column.id,
@@ -63,7 +65,8 @@ export const KanbanColumn = ({
             <SortableTaskCard
               key={task.id}
               task={task}
-              onClick={() => onEditTask(task)}
+              onClick={() => !readonly && onEditTask(task)}
+              readonly={readonly}
             />
           ))}
         </Box>

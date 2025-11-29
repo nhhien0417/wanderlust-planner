@@ -6,11 +6,13 @@ import type { Activity } from "../../../../types";
 interface SortableActivityItemProps {
   activity: Activity;
   onDelete?: (id: string) => void;
+  disabled?: boolean;
 }
 
 export const SortableActivityItem = ({
   activity,
   onDelete,
+  disabled,
 }: SortableActivityItemProps) => {
   const {
     attributes,
@@ -19,11 +21,12 @@ export const SortableActivityItem = ({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: activity.id });
+  } = useSortable({ id: activity.id, disabled });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
+    opacity: isDragging ? 0.5 : 1,
   };
 
   return (
@@ -32,7 +35,7 @@ export const SortableActivityItem = ({
         activity={activity}
         isDragging={isDragging}
         onDelete={onDelete}
-        showDragHandle={true}
+        showDragHandle={!disabled}
       />
     </div>
   );

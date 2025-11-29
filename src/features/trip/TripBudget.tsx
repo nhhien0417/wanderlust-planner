@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useTripsStore } from "../../store/useTripsStore";
 import { useBudgetStore } from "../../store/useBudgetStore";
+import { useAuthStore } from "../../store/useAuthStore";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
@@ -32,6 +33,7 @@ export const TripBudget = ({ tripId }: TripBudgetProps) => {
   );
   const { addExpense, removeExpense, updateExpense, setBudget } =
     useBudgetStore();
+  const { user } = useAuthStore();
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditBudgetOpen, setIsEditBudgetOpen] = useState(false);
@@ -44,6 +46,14 @@ export const TripBudget = ({ tripId }: TripBudgetProps) => {
     description: "",
     date: new Date().toISOString().split("T")[0],
   });
+
+  const currentMember = useMemo(
+    () => trip?.members?.find((m) => m.user_id === user?.id),
+    [trip, user]
+  );
+
+  const canEdit =
+    currentMember?.role === "owner" || currentMember?.role === "editor";
 
   if (!trip) return null;
 
@@ -82,6 +92,7 @@ export const TripBudget = ({ tripId }: TripBudgetProps) => {
   };
 
   const handleEditExpense = (expense: any) => {
+    if (!canEdit) return;
     setEditingExpense(expense.id);
     setExpenseData({
       category: expense.category,
@@ -106,13 +117,15 @@ export const TripBudget = ({ tripId }: TripBudgetProps) => {
           <Typography variant="h5" fontWeight="bold">
             Budget Tracker
           </Typography>
-          <Button
-            variant="contained"
-            startIcon={<Plus />}
-            onClick={() => setIsAddModalOpen(true)}
-          >
-            Add Expense
-          </Button>
+          {canEdit && (
+            <Button
+              variant="contained"
+              startIcon={<Plus />}
+              onClick={() => setIsAddModalOpen(true)}
+            >
+              Add Expense
+            </Button>
+          )}
         </Box>
 
         <BudgetProgressBar totalSpent={totalSpent} budget={trip.budget} />
@@ -122,9 +135,11 @@ export const TripBudget = ({ tripId }: TripBudgetProps) => {
           expenses={trip.expenses}
           currency={trip.currency || "USD"}
           onEditBudget={() => {
+            if (!canEdit) return;
             setNewBudget(trip.budget.toString());
             setIsEditBudgetOpen(true);
           }}
+          readonly={!canEdit}
         />
 
         <Grid container spacing={3}>
@@ -133,7 +148,8 @@ export const TripBudget = ({ tripId }: TripBudgetProps) => {
               expenses={trip.expenses}
               currency={trip.currency || "USD"}
               onEdit={handleEditExpense}
-              onDelete={(id) => removeExpense(tripId, id)}
+              onDelete={(id) => canEdit && removeExpense(tripId, id)}
+              readonly={!canEdit}
             />
           </Grid>
 

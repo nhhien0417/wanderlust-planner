@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useTripsStore } from "../../store/useTripsStore";
 import { usePackingStore } from "../../store/usePackingStore";
+import { useAuthStore } from "../../store/useAuthStore";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import { Shirt, Plug, FileText, Bath, Package, HeartPulse } from "lucide-react";
@@ -59,6 +60,15 @@ export const TripPackingList = ({ tripId }: TripPackingListProps) => {
     togglePackingItem,
     generatePackingList,
   } = usePackingStore();
+  const { user } = useAuthStore();
+
+  const currentMember = useMemo(
+    () => trip?.members?.find((m) => m.user_id === user?.id),
+    [trip, user]
+  );
+
+  const canEdit =
+    currentMember?.role === "owner" || currentMember?.role === "editor";
 
   if (!trip) return null;
 
@@ -109,12 +119,13 @@ export const TripPackingList = ({ tripId }: TripPackingListProps) => {
       <Box sx={{ height: "100%", overflowY: "auto" }}>
         <PackingHeader
           progress={progress}
-          onGenerate={() => generatePackingList(tripId)}
+          onGenerate={() => canEdit && generatePackingList(tripId)}
           onExport={handleExportPDF}
           hasItems={!!trip.packingList && trip.packingList.length > 0}
+          readonly={!canEdit}
         />
 
-        <AddItemForm onAdd={handleAddItem} />
+        {canEdit && <AddItemForm onAdd={handleAddItem} />}
 
         <Grid container spacing={3}>
           {CATEGORIES_CONFIG.map((category) => (
@@ -122,8 +133,9 @@ export const TripPackingList = ({ tripId }: TripPackingListProps) => {
               <PackingCategory
                 category={category}
                 items={itemsByCategory[category.id] || []}
-                onToggle={(id) => togglePackingItem(tripId, id)}
-                onDelete={(id) => removePackingItem(tripId, id)}
+                onToggle={(id) => canEdit && togglePackingItem(tripId, id)}
+                onDelete={(id) => canEdit && removePackingItem(tripId, id)}
+                readonly={!canEdit}
               />
             </Grid>
           ))}

@@ -20,6 +20,7 @@ interface PhotoLightboxProps {
   onClose: () => void;
   onDelete?: (photoId: string) => void;
   onEdit?: (photo: Photo) => void;
+  readonly?: boolean;
 }
 
 export const PhotoLightbox = ({
@@ -29,6 +30,7 @@ export const PhotoLightbox = ({
   onClose,
   onDelete,
   onEdit,
+  readonly,
 }: PhotoLightboxProps) => {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [zoom, setZoom] = useState(1);
@@ -195,7 +197,7 @@ export const PhotoLightbox = ({
           <IconButton onClick={handleZoomIn} sx={{ color: "white" }}>
             <ZoomIn size={20} />
           </IconButton>
-          {onEdit && (
+          {!readonly && onEdit && (
             <IconButton
               onClick={() => onEdit(currentPhoto)}
               sx={{ color: "white" }}
@@ -203,7 +205,7 @@ export const PhotoLightbox = ({
               <Edit2 size={20} />
             </IconButton>
           )}
-          {onDelete && (
+          {!readonly && onDelete && (
             <IconButton onClick={handleDelete} sx={{ color: "white" }}>
               <Trash2 size={20} />
             </IconButton>

@@ -8,9 +8,14 @@ import type { TripTask } from "../../../../types";
 interface SortableTaskCardProps {
   task: TripTask;
   onClick: () => void;
+  readonly?: boolean;
 }
 
-export const SortableTaskCard = ({ task, onClick }: SortableTaskCardProps) => {
+export const SortableTaskCard = ({
+  task,
+  onClick,
+  readonly,
+}: SortableTaskCardProps) => {
   const {
     attributes,
     listeners,
@@ -18,7 +23,11 @@ export const SortableTaskCard = ({ task, onClick }: SortableTaskCardProps) => {
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: task.id, data: { type: "Task", task } });
+  } = useSortable({
+    id: task.id,
+    data: { type: "Task", task },
+    disabled: readonly,
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -36,7 +45,7 @@ export const SortableTaskCard = ({ task, onClick }: SortableTaskCardProps) => {
       sx={{
         p: 2,
         mb: 2,
-        cursor: "grab",
+        cursor: readonly ? "default" : "grab",
         "&:hover": { boxShadow: 3 },
         borderLeft: `4px solid ${
           task.priority === "high"

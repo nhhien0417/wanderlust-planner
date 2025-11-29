@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -13,6 +13,7 @@ import {
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { useTripsStore } from "../../store/useTripsStore";
 import { useTasksStore } from "../../store/useTasksStore";
+import { useAuthStore } from "../../store/useAuthStore";
 import type { TripTask, TaskStatus } from "../../types";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -42,6 +43,7 @@ export const TripBoard = ({ tripId }: TripKanbanProps) => {
     state.trips.find((t) => t.id === tripId)
   );
   const { addTask, updateTask, updateTaskStatus } = useTasksStore();
+  const { user } = useAuthStore();
 
   const [activeId, setActiveId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -65,13 +67,23 @@ export const TripBoard = ({ tripId }: TripKanbanProps) => {
     })
   );
 
+  const currentMember = useMemo(
+    () => trip?.members?.find((m) => m.user_id === user?.id),
+    [trip, user]
+  );
+
+  const canEdit =
+    currentMember?.role === "owner" || currentMember?.role === "editor";
+
   if (!trip) return null;
 
   const handleDragStart = (event: DragStartEvent) => {
+    if (!canEdit) return;
     setActiveId(event.active.id as string);
   };
 
   const handleDragOver = (event: DragOverEvent) => {
+    if (!canEdit) return;
     const { active, over } = event;
     if (!over) return;
 
@@ -151,13 +163,15 @@ export const TripBoard = ({ tripId }: TripKanbanProps) => {
           <Typography variant="h5" fontWeight="bold">
             Trip Board
           </Typography>
-          <Button
-            variant="contained"
-            startIcon={<Plus />}
-            onClick={() => setIsModalOpen(true)}
-          >
-            New Task
-          </Button>
+          {canEdit && (
+            <Button
+              variant="contained"
+              startIcon={<Plus />}
+              onClick={() => setIsModalOpen(true)}
+            >
+              New Task
+            </Button>
+          )}
         </Box>
 
         <DndContext
@@ -181,6 +195,7 @@ export const TripBoard = ({ tripId }: TripKanbanProps) => {
                 column={column}
                 tasks={trip.tasks.filter((t) => t.status === column.id)}
                 onEditTask={(task) => {
+                  if (!canEdit) return;
                   setEditingTask(task);
                   setNewTaskData({
                     title: task.title,
@@ -191,6 +206,7 @@ export const TripBoard = ({ tripId }: TripKanbanProps) => {
                   });
                   setIsModalOpen(true);
                 }}
+                readonly={!canEdit}
               />
             ))}
           </Box>
@@ -200,6 +216,7 @@ export const TripBoard = ({ tripId }: TripKanbanProps) => {
               <SortableTaskCard
                 task={trip.tasks.find((t) => t.id === activeId)!}
                 onClick={() => {}}
+                readonly={!canEdit}
               />
             ) : null}
           </DragOverlay>

@@ -28,6 +28,7 @@ interface ExpenseListProps {
   currency: string;
   onEdit: (expense: Expense) => void;
   onDelete: (id: string) => void;
+  readonly?: boolean;
 }
 
 export const ExpenseList = ({
@@ -35,6 +36,7 @@ export const ExpenseList = ({
   currency,
   onEdit,
   onDelete,
+  readonly,
 }: ExpenseListProps) => {
   return (
     <Paper sx={{ borderRadius: 2, overflow: "hidden" }}>
@@ -51,13 +53,17 @@ export const ExpenseList = ({
               <TableCell>Description</TableCell>
               <TableCell>Date</TableCell>
               <TableCell align="right">Amount</TableCell>
-              <TableCell align="right">Actions</TableCell>
+              {!readonly && <TableCell align="right">Actions</TableCell>}
             </TableRow>
           </TableHead>
           <TableBody>
             {expenses.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
+                <TableCell
+                  colSpan={readonly ? 4 : 5}
+                  align="center"
+                  sx={{ py: 4 }}
+                >
                   <Typography color="text.secondary">
                     No expenses recorded yet
                   </Typography>
@@ -87,18 +93,20 @@ export const ExpenseList = ({
                   <TableCell align="right" sx={{ fontWeight: "bold" }}>
                     {formatCurrency(expense.amount, currency)}
                   </TableCell>
-                  <TableCell align="right">
-                    <IconButton size="small" onClick={() => onEdit(expense)}>
-                      <Edit2 size={16} />
-                    </IconButton>
-                    <IconButton
-                      size="small"
-                      color="error"
-                      onClick={() => onDelete(expense.id)}
-                    >
-                      <Trash2 size={16} />
-                    </IconButton>
-                  </TableCell>
+                  {!readonly && (
+                    <TableCell align="right">
+                      <IconButton size="small" onClick={() => onEdit(expense)}>
+                        <Edit2 size={16} />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        color="error"
+                        onClick={() => onDelete(expense.id)}
+                      >
+                        <Trash2 size={16} />
+                      </IconButton>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))
             )}

@@ -8,6 +8,7 @@ interface BudgetOverviewProps {
   expenses: Expense[];
   currency: string;
   onEditBudget: () => void;
+  readonly?: boolean;
 }
 
 export const BudgetOverview = ({
@@ -15,6 +16,7 @@ export const BudgetOverview = ({
   expenses,
   currency,
   onEditBudget,
+  readonly,
 }: BudgetOverviewProps) => {
   const totalSpent = expenses.reduce((acc, curr) => acc + curr.amount, 0);
   const remainingBudget = budget - totalSpent;
@@ -52,9 +54,11 @@ export const BudgetOverview = ({
             >
               <Wallet size={20} />
             </Box>
-            <IconButton size="small" onClick={onEditBudget}>
-              <Edit2 size={16} />
-            </IconButton>
+            {!readonly && (
+              <IconButton size="small" onClick={onEditBudget}>
+                <Edit2 size={16} />
+              </IconButton>
+            )}
           </Box>
           <Box>
             <Typography variant="h5" fontWeight="bold">

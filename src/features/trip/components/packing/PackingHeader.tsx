@@ -6,6 +6,7 @@ interface PackingHeaderProps {
   onGenerate: () => void;
   onExport: () => void;
   hasItems: boolean;
+  readonly?: boolean;
 }
 
 export const PackingHeader = ({
@@ -13,6 +14,7 @@ export const PackingHeader = ({
   onGenerate,
   onExport,
   hasItems,
+  readonly,
 }: PackingHeaderProps) => {
   return (
     <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
@@ -34,13 +36,15 @@ export const PackingHeader = ({
         </Box>
       </Box>
       <Box sx={{ display: "flex", gap: 2 }}>
-        <Button
-          variant="outlined"
-          startIcon={<ListChecks />}
-          onClick={onGenerate}
-        >
-          Generate List
-        </Button>
+        {!readonly && (
+          <Button
+            variant="outlined"
+            startIcon={<ListChecks />}
+            onClick={onGenerate}
+          >
+            Generate List
+          </Button>
+        )}
         <Button
           variant="contained"
           startIcon={<FileDown />}

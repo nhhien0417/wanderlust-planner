@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { format, parseISO } from "date-fns";
 import type { SelectChangeEvent } from "@mui/material";
 import {
@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import { useTripsStore } from "../../store/useTripsStore";
 import { usePhotosStore } from "../../store/usePhotosStore";
+import { useAuthStore } from "../../store/useAuthStore";
 import { PhotoGallery } from "./components/gallery/PhotoGallery";
 import { PhotoUpload } from "./components/gallery/PhotoUpload";
 import { PhotoLightbox } from "./components/gallery/PhotoLightbox";
@@ -35,12 +36,21 @@ export const TripGallery = ({ tripId }: TripGalleryProps) => {
   });
 
   const { deletePhoto } = usePhotosStore();
+  const { user } = useAuthStore();
 
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [editingPhoto, setEditingPhoto] = useState<Photo | null>(null);
   const [photoDayFilter, setPhotoDayFilter] = useState("");
   const [photoActivityFilter, setPhotoActivityFilter] = useState("");
+
+  const currentMember = useMemo(
+    () => trip?.members?.find((m) => m.user_id === user?.id),
+    [trip, user]
+  );
+
+  const canEdit =
+    currentMember?.role === "owner" || currentMember?.role === "editor";
 
   if (!trip) return null;
 
@@ -59,6 +69,7 @@ export const TripGallery = ({ tripId }: TripGalleryProps) => {
   };
 
   const handlePhotoDelete = async (photoId: string) => {
+    if (!canEdit) return;
     await deletePhoto(trip.id, photoId);
     if (filteredPhotos.length <= 1) {
       setLightboxOpen(false);
@@ -66,6 +77,7 @@ export const TripGallery = ({ tripId }: TripGalleryProps) => {
   };
 
   const handlePhotoEdit = (photo: Photo) => {
+    if (!canEdit) return;
     setEditingPhoto(photo);
   };
 
@@ -77,23 +89,25 @@ export const TripGallery = ({ tripId }: TripGalleryProps) => {
       <Box
         sx={{
           display: "grid",
-          gridTemplateColumns: { xs: "1fr", md: "360px 1fr" },
+          gridTemplateColumns: { xs: "1fr", md: canEdit ? "360px 1fr" : "1fr" },
           gap: 3,
         }}
       >
-        <Card sx={{ p: 2 }}>
-          <Typography variant="h6" fontWeight="bold" gutterBottom>
-            Upload Photos
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            Attach uploads to a day or activity to keep memories organized.
-          </Typography>
-          <PhotoUpload
-            tripId={trip.id}
-            dayId={photoDayFilter || undefined}
-            activityId={photoActivityFilter || undefined}
-          />
-        </Card>
+        {canEdit && (
+          <Card sx={{ p: 2 }}>
+            <Typography variant="h6" fontWeight="bold" gutterBottom>
+              Upload Photos
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              Attach uploads to a day or activity to keep memories organized.
+            </Typography>
+            <PhotoUpload
+              tripId={trip.id}
+              dayId={photoDayFilter || undefined}
+              activityId={photoActivityFilter || undefined}
+            />
+          </Card>
+        )}
 
         <Card sx={{ p: 2 }}>
           <Box
@@ -171,6 +185,7 @@ export const TripGallery = ({ tripId }: TripGalleryProps) => {
               photos={filteredPhotos}
               onPhotoClick={handlePhotoClick}
               onEditPhoto={handlePhotoEdit}
+              readonly={!canEdit}
             />
           </Box>
         </Card>
@@ -183,6 +198,7 @@ export const TripGallery = ({ tripId }: TripGalleryProps) => {
         onClose={() => setLightboxOpen(false)}
         onDelete={handlePhotoDelete}
         onEdit={handlePhotoEdit}
+        readonly={!canEdit}
       />
 
       {editingPhoto && (

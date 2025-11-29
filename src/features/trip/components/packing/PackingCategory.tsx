@@ -15,6 +15,7 @@ interface PackingCategoryProps {
   items: PackingItem[];
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
+  readonly?: boolean;
 }
 
 export const PackingCategory = ({
@@ -22,6 +23,7 @@ export const PackingCategory = ({
   items,
   onToggle,
   onDelete,
+  readonly,
 }: PackingCategoryProps) => {
   return (
     <Paper
@@ -89,6 +91,7 @@ export const PackingCategory = ({
                 <Checkbox
                   checked={item.checked}
                   onChange={() => onToggle(item.id)}
+                  disabled={readonly}
                   size="small"
                   icon={
                     <Box
@@ -113,14 +116,16 @@ export const PackingCategory = ({
                   {item.name}
                 </Typography>
               </Box>
-              <IconButton
-                size="small"
-                color="error"
-                onClick={() => onDelete(item.id)}
-                sx={{ opacity: 0.5, "&:hover": { opacity: 1 } }}
-              >
-                <Trash2 size={14} />
-              </IconButton>
+              {!readonly && (
+                <IconButton
+                  size="small"
+                  color="error"
+                  onClick={() => onDelete(item.id)}
+                  sx={{ opacity: 0.5, "&:hover": { opacity: 1 } }}
+                >
+                  <Trash2 size={14} />
+                </IconButton>
+              )}
             </Box>
           ))
         )}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   DndContext,
   closestCenter,
@@ -20,6 +20,7 @@ import { Clock } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { useTripsStore } from "../../../../store/useTripsStore";
 import { useActivitiesStore } from "../../../../store/useActivitiesStore";
+import { useAuthStore } from "../../../../store/useAuthStore";
 import { ActivityCard } from "./ActivityCard";
 import { SortableActivityItem } from "./SortableActivityItem";
 import { DayWeatherCard } from "../../../weather/components/DayWeatherCard";
@@ -37,6 +38,7 @@ export const ActivityList = ({
     state.trips.find((t) => t.id === tripId)
   );
   const { reorderActivities, removeActivity } = useActivitiesStore();
+  const { user } = useAuthStore();
 
   const [activeId, setActiveId] = useState<string | null>(null);
 
@@ -47,13 +49,23 @@ export const ActivityList = ({
     })
   );
 
+  const currentMember = useMemo(
+    () => trip?.members?.find((m) => m.user_id === user?.id),
+    [trip, user]
+  );
+
+  const canEdit =
+    currentMember?.role === "owner" || currentMember?.role === "editor";
+
   if (!trip) return null;
 
   const handleDragStart = (event: any) => {
+    if (!canEdit) return;
     setActiveId(event.active.id);
   };
 
   const handleDragEnd = (event: DragEndEvent, dayId: string) => {
+    if (!canEdit) return;
     const { active, over } = event;
     if (active.id !== over?.id) {
       const day = trip.days.find((d) => d.id === dayId);
@@ -68,6 +80,7 @@ export const ActivityList = ({
   };
 
   const handleDeleteActivity = (dayId: string, activityId: string) => {
+    if (!canEdit) return;
     removeActivity(trip.id, dayId, activityId);
   };
 
@@ -138,17 +151,19 @@ export const ActivityList = ({
               <Typography variant="h6" fontWeight="bold">
                 Activities
               </Typography>
-              <Button
-                variant="contained"
-                size="small"
-                onClick={() => onAddActivityClick(day.id)}
-                sx={{
-                  fontWeight: 600,
-                  textTransform: "none",
-                }}
-              >
-                + Add Activity
-              </Button>
+              {canEdit && (
+                <Button
+                  variant="contained"
+                  size="small"
+                  onClick={() => onAddActivityClick(day.id)}
+                  sx={{
+                    fontWeight: 600,
+                    textTransform: "none",
+                  }}
+                >
+                  + Add Activity
+                </Button>
+              )}
             </Box>
 
             {day.activities.length === 0 ? (
@@ -186,6 +201,7 @@ export const ActivityList = ({
                 <SortableContext
                   items={day.activities.map((a) => a.id)}
                   strategy={verticalListSortingStrategy}
+                  disabled={!canEdit}
                 >
                   <Box
                     sx={{
@@ -198,7 +214,12 @@ export const ActivityList = ({
                       <SortableActivityItem
                         key={activity.id}
                         activity={activity}
-                        onDelete={(id) => handleDeleteActivity(day.id, id)}
+                        onDelete={
+                          canEdit
+                            ? (id) => handleDeleteActivity(day.id, id)
+                            : undefined
+                        }
+                        disabled={!canEdit}
                       />
                     ))}
                   </Box>
