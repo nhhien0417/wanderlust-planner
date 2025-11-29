@@ -1,5 +1,9 @@
 import { useState } from "react";
-import { Link as RouterLink, useNavigate } from "react-router-dom";
+import {
+  Link as RouterLink,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import {
   Box,
   Button,
@@ -19,6 +23,9 @@ import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 
 export const Login = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get("redirectTo");
+
   const { signIn } = useAuthStore();
   const { syncLocalTrips, fetchTrips } = useTripStore();
 
@@ -43,7 +50,7 @@ export const Login = () => {
       // Fetch fresh data
       await fetchTrips();
 
-      navigate("/dashboard");
+      navigate(redirectTo || "/dashboard");
     } catch (err: any) {
       setError(err.message || "Failed to sign in");
     } finally {
@@ -150,7 +157,13 @@ export const Login = () => {
         </Button>
 
         <Box sx={{ textAlign: "center" }}>
-          <Link component={RouterLink} to="/signup" variant="body2">
+          <Link
+            component={RouterLink}
+            to={`/signup${
+              redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ""
+            }`}
+            variant="body2"
+          >
             {"Don't have an account? Sign Up"}
           </Link>
         </Box>

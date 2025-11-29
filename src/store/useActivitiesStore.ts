@@ -46,26 +46,7 @@ export const useActivitiesStore = create<ActivitiesState>((_set, _get) => ({
       ...activityData,
     };
 
-    if (user) {
-      // Supabase Insert
-      await supabase.from("activities").insert({
-        id: newActivityId,
-        trip_id: tripId,
-        day_id: dayId,
-        title: activityData.title,
-        description: activityData.description,
-        category: activityData.category,
-        location_name: activityData.location?.name,
-        location_lat: activityData.location?.lat,
-        location_lng: activityData.location?.lng,
-        start_time: activityData.startTime,
-        end_time: activityData.endTime,
-        cost: activityData.cost,
-        order_index: 999, // Append to end
-      });
-    }
-
-    // Update trips store
+    // Optimistic Update
     useTripsStore.setState((state) => {
       const newTrips = [...state.trips];
       const trip = newTrips.find((t) => t.id === tripId);
@@ -78,6 +59,49 @@ export const useActivitiesStore = create<ActivitiesState>((_set, _get) => ({
       if (!user) saveToLocalStorage();
       return { trips: newTrips };
     });
+
+    if (user) {
+      try {
+        // Supabase Insert
+        const { error } = await supabase.from("activities").insert({
+          id: newActivityId,
+          trip_id: tripId,
+          day_id: dayId,
+          title: activityData.title,
+          description: activityData.description,
+          category: activityData.category,
+          location_name: activityData.location?.name,
+          location_lat: activityData.location?.lat,
+          location_lng: activityData.location?.lng,
+          start_time: activityData.startTime,
+          end_time: activityData.endTime,
+          cost: activityData.cost,
+          order_index: 999, // Append to end
+        });
+
+        if (error) throw error;
+      } catch (error) {
+        console.error("Error adding activity:", error);
+        // Revert Optimistic Update
+        useTripsStore.setState((state) => {
+          const newTrips = [...state.trips];
+          const trip = newTrips.find((t) => t.id === tripId);
+          if (trip) {
+            const day = trip.days.find((d) => d.id === dayId);
+            if (day) {
+              day.activities = day.activities.filter(
+                (a) => a.id !== newActivityId
+              );
+            }
+          }
+          return { trips: newTrips };
+        });
+        // Ideally show a toast here, but store shouldn't handle UI directly.
+        // We could throw, but that might crash the UI if not caught.
+        // For now, console error is enough as the revert will show the user it failed.
+        alert("Failed to add activity. You might not have permission.");
+      }
+    }
   },
 
   removeActivity: async (tripId, dayId, activityId) => {

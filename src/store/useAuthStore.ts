@@ -10,7 +10,8 @@ interface AuthState {
   signUp: (
     email: string,
     password: string,
-    fullName: string
+    fullName: string,
+    options?: { emailRedirectTo?: string }
   ) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<{ error: any }>;
@@ -44,7 +45,12 @@ export const useAuthStore = create<AuthState>((set) => ({
     return { error };
   },
 
-  signUp: async (email: string, password: string, fullName: string) => {
+  signUp: async (
+    email: string,
+    password: string,
+    fullName: string,
+    options?: { emailRedirectTo?: string }
+  ) => {
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -52,6 +58,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         data: {
           full_name: fullName,
         },
+        emailRedirectTo: options?.emailRedirectTo,
       },
     });
 

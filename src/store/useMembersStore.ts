@@ -7,6 +7,7 @@ interface MembersState {
   removeMember: (tripId: string, userId: string) => Promise<void>;
   subscribeToTrip: (tripId: string) => void;
   unsubscribeFromTrip: (tripId: string) => void;
+  createInvite: (tripId: string, role?: string) => Promise<string>;
 }
 
 // Store RealtimeChannel subscriptions
@@ -88,5 +89,24 @@ export const useMembersStore = create<MembersState>(() => ({
       supabase.removeChannel(channel);
       subscriptions.delete(tripId);
     }
+  },
+  createInvite: async (tripId: string, role: string = "editor") => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) throw new Error("User not authenticated");
+
+    const { data, error } = await supabase
+      .from("trip_invites")
+      .insert({
+        trip_id: tripId,
+        created_by: user.id,
+        role,
+      })
+      .select("token")
+      .single();
+
+    if (error) throw error;
+    return data.token;
   },
 }));

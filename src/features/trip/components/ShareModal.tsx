@@ -14,8 +14,18 @@ import {
   Typography,
   Box,
   Alert,
+  Divider,
+  Tooltip,
 } from "@mui/material";
-import { X, UserPlus, Trash2, Shield } from "lucide-react";
+import {
+  X,
+  UserPlus,
+  Trash2,
+  Shield,
+  Link as LinkIcon,
+  Copy,
+  Check,
+} from "lucide-react";
 import { useMembersStore } from "../../../store/useMembersStore";
 import { useTripsStore } from "../../../store/useTripsStore";
 
@@ -29,8 +39,10 @@ export const ShareModal = ({ open, onClose, tripId }: ShareModalProps) => {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [inviteLink, setInviteLink] = useState("");
+  const [copied, setCopied] = useState(false);
 
-  const { inviteMember, removeMember } = useMembersStore();
+  const { inviteMember, removeMember, createInvite } = useMembersStore();
 
   const trips = useTripsStore((state) => state.trips);
   const members = useMemo(() => {
@@ -50,6 +62,22 @@ export const ShareModal = ({ open, onClose, tripId }: ShareModalProps) => {
     } catch (err: any) {
       setError(err.message || "Failed to invite user");
     }
+  };
+
+  const handleGenerateLink = async () => {
+    try {
+      const token = await createInvite(tripId, "editor");
+      const link = `${window.location.origin}/join/${token}`;
+      setInviteLink(link);
+    } catch (err: any) {
+      setError(err.message || "Failed to generate link");
+    }
+  };
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(inviteLink);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const handleRemove = async (memberId: string) => {
@@ -104,6 +132,45 @@ export const ShareModal = ({ open, onClose, tripId }: ShareModalProps) => {
             </Alert>
           )}
         </Box>
+
+        <Divider sx={{ my: 2 }} />
+
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="subtitle2" gutterBottom>
+            Invite by Link
+          </Typography>
+          {!inviteLink ? (
+            <Button
+              variant="outlined"
+              startIcon={<LinkIcon size={18} />}
+              onClick={handleGenerateLink}
+              fullWidth
+            >
+              Generate Invite Link
+            </Button>
+          ) : (
+            <Box sx={{ display: "flex", gap: 1 }}>
+              <TextField
+                fullWidth
+                size="small"
+                value={inviteLink}
+                InputProps={{
+                  readOnly: true,
+                }}
+              />
+              <Tooltip title={copied ? "Copied!" : "Copy Link"}>
+                <IconButton
+                  onClick={handleCopyLink}
+                  color={copied ? "success" : "default"}
+                >
+                  {copied ? <Check size={20} /> : <Copy size={20} />}
+                </IconButton>
+              </Tooltip>
+            </Box>
+          )}
+        </Box>
+
+        <Divider sx={{ my: 2 }} />
 
         <Typography variant="subtitle2" gutterBottom>
           Members

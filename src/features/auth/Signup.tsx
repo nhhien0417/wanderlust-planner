@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useSearchParams } from "react-router-dom";
 import {
   Box,
   Button,
@@ -18,6 +18,8 @@ import { Mail, Lock, User, Eye, EyeOff } from "lucide-react";
 
 export const Signup = () => {
   const { signUp } = useAuthStore();
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get("redirectTo");
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -65,7 +67,16 @@ export const Signup = () => {
     setLoading(true);
 
     try {
-      const { error } = await signUp(email, password, fullName);
+      let emailRedirectTo = undefined;
+      if (redirectTo) {
+        emailRedirectTo = redirectTo.startsWith("http")
+          ? redirectTo
+          : `${window.location.origin}${redirectTo}`;
+      }
+
+      const { error } = await signUp(email, password, fullName, {
+        emailRedirectTo,
+      });
       if (error) throw error;
       setSuccess(true);
     } catch (err: any) {
@@ -89,7 +100,9 @@ export const Signup = () => {
           </Typography>
           <Button
             component={RouterLink}
-            to="/login"
+            to={`/login${
+              redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ""
+            }`}
             fullWidth
             variant="contained"
           >
@@ -237,7 +250,13 @@ export const Signup = () => {
         </Button>
 
         <Box sx={{ textAlign: "center" }}>
-          <Link component={RouterLink} to="/login" variant="body2">
+          <Link
+            component={RouterLink}
+            to={`/login${
+              redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ""
+            }`}
+            variant="body2"
+          >
             {"Already have an account? Sign In"}
           </Link>
         </Box>
