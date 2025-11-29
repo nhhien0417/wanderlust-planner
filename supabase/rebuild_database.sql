@@ -5,6 +5,7 @@
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 DROP FUNCTION IF EXISTS public.handle_new_user() CASCADE;
 DROP FUNCTION IF EXISTS public.is_trip_member(UUID) CASCADE;
+DROP FUNCTION IF EXISTS public.accept_trip_invite(UUID) CASCADE;
 
 DROP TABLE IF EXISTS public.activities CASCADE;
 DROP TABLE IF EXISTS public.trip_days CASCADE;
@@ -85,7 +86,7 @@ create table activities (
 create table trip_invites (
   id uuid default uuid_generate_v4() primary key,
   trip_id uuid references trips(id) on delete cascade not null,
-  email text not null,
+  email text,
   role text check (role in ('editor', 'viewer')) not null,
   token uuid default uuid_generate_v4() not null,
   status text check (status in ('pending', 'accepted', 'expired')) default 'pending',
@@ -100,9 +101,9 @@ alter table trips enable row level security;
 alter table trip_members enable row level security;
 alter table trip_days enable row level security;
 alter table activities enable row level security;
-alter table trip_invites enable row level security;www
+alter table trip_invites enable row level security;
 
--- 4. HELPER FUNCTIONS (For RLS)
+-- 4. HELPER FUNCTIONS (For RLS & Logic)
 CREATE OR REPLACE FUNCTION public.is_trip_member(_trip_id UUID)
 RETURNS BOOLEAN AS $$
 BEGIN
@@ -114,6 +115,52 @@ BEGIN
   );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Function to accept an invite securely (bypassing RLS)
+create or replace function public.accept_trip_invite(invite_token uuid)
+returns uuid
+language plpgsql
+security definer
+as $$
+declare
+  invite_record record;
+  current_user_id uuid;
+begin
+  current_user_id := auth.uid();
+  
+  -- 1. Check if user is authenticated
+  if current_user_id is null then
+    raise exception 'Not authenticated';
+  end if;
+
+  -- 2. Get invite
+  select * into invite_record
+  from public.trip_invites
+  where token = invite_token
+  and status = 'pending';
+  
+  if invite_record is null then
+    raise exception 'Invalid or expired invite link';
+  end if;
+  
+  -- 3. Check expiration
+  if invite_record.expires_at < now() then
+    raise exception 'Invite link has expired';
+  end if;
+  
+  -- 4. Add to members
+  insert into public.trip_members (trip_id, user_id, role)
+  values (invite_record.trip_id, current_user_id, invite_record.role)
+  on conflict (trip_id, user_id) do nothing;
+  
+  -- 5. Update invite status
+  update public.trip_invites
+  set status = 'accepted'
+  where id = invite_record.id;
+  
+  return invite_record.trip_id;
+end;
+$$;
 
 -- 5. RLS POLICIES
 
