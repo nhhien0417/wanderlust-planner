@@ -96,8 +96,8 @@ export const TripDetails = ({ tripId: propTripId }: TripDetailsProps) => {
       {/* Hero Section */}
       <TripHeader
         trip={trip}
-        onShare={() => setIsShareModalOpen(true)}
-        onChangeCover={() => setShowCoverModal(true)}
+        onShareClick={() => setIsShareModalOpen(true)}
+        onCoverClick={() => setShowCoverModal(true)}
       />
 
       {/* Tabs */}

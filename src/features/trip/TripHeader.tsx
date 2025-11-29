@@ -1,52 +1,63 @@
-import { Box, Container, Typography, Button } from "@mui/material";
-import { Calendar, MapPin, DollarSign, Share } from "lucide-react";
-import { format, parseISO } from "date-fns";
+import { Box, Typography, Button, Paper } from "@mui/material";
+import { Calendar, MapPin, Share2, Image as ImageIcon } from "lucide-react";
 import type { Trip } from "../../types";
 
 interface TripHeaderProps {
   trip: Trip;
-  onShare: () => void;
-  onChangeCover: () => void;
+  onShareClick: () => void;
+  onCoverClick: () => void;
 }
 
 export const TripHeader = ({
   trip,
-  onShare,
-  onChangeCover,
+  onShareClick,
+  onCoverClick,
 }: TripHeaderProps) => {
   return (
-    <Box
+    <Paper
       sx={{
-        height: 300,
         position: "relative",
-        backgroundImage: `url(${
-          trip.coverImage ||
-          "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1200&q=80"
-        })`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        "&::before": {
-          content: '""',
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background:
-            "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.7) 100%)",
-        },
+        height: 300,
+        borderRadius: 0,
+        overflow: "hidden",
+        mb: 4,
       }}
     >
-      <Container
-        maxWidth="lg"
+      {trip.coverImage ? (
+        <Box
+          component="img"
+          src={trip.coverImage}
+          alt={trip.name}
+          sx={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+          }}
+        />
+      ) : (
+        <Box
+          sx={{
+            width: "100%",
+            height: "100%",
+            bgcolor: "primary.main",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <ImageIcon size={64} color="white" opacity={0.5} />
+        </Box>
+      )}
+
+      <Box
         sx={{
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "flex-end",
-          pb: 4,
-          position: "relative",
-          zIndex: 1,
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          background: "linear-gradient(to top, rgba(0,0,0,0.8), transparent)",
+          p: 4,
+          color: "white",
         }}
       >
         <Box
@@ -56,64 +67,56 @@ export const TripHeader = ({
             alignItems: "flex-end",
           }}
         >
-          <Box sx={{ color: "white" }}>
-            <Typography variant="h2" fontWeight="bold" gutterBottom>
+          <Box>
+            <Typography variant="h3" fontWeight="bold" gutterBottom>
               {trip.name}
             </Typography>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 3,
-                flexWrap: "wrap",
-              }}
-            >
+            <Box sx={{ display: "flex", gap: 3 }}>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                 <MapPin size={20} />
-                <Typography variant="h6">{trip.destination}</Typography>
+                <Typography>{trip.destination}</Typography>
               </Box>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                 <Calendar size={20} />
-                <Typography variant="h6">
-                  {format(parseISO(trip.startDate), "MMM d")} -{" "}
-                  {format(parseISO(trip.endDate), "MMM d, yyyy")}
+                <Typography>
+                  {new Date(trip.startDate).toLocaleDateString()} -{" "}
+                  {new Date(trip.endDate).toLocaleDateString()}
                 </Typography>
               </Box>
-              {trip.budget > 0 && (
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <DollarSign size={20} />
-                  <Typography variant="h6">
-                    ${trip.budget.toLocaleString()}
-                  </Typography>
-                </Box>
-              )}
             </Box>
           </Box>
-          <Box sx={{ display: "flex", gap: 2 }}>
+
+          <Box sx={{ display: "flex", gap: 1 }}>
             <Button
               variant="contained"
-              startIcon={<Share size={18} />}
-              onClick={onShare}
+              startIcon={<Share2 size={18} />}
+              onClick={onShareClick}
               sx={{
-                bgcolor: "rgba(255, 255, 255, 0.2)",
-                backdropFilter: "blur(10px)",
-                "&:hover": {
-                  bgcolor: "rgba(255, 255, 255, 0.3)",
-                },
+                bgcolor: "white",
+                color: "black",
+                "&:hover": { bgcolor: "grey.200" },
               }}
             >
               Share
             </Button>
             <Button
+              onClick={onCoverClick}
               variant="outlined"
-              sx={{ color: "white", borderColor: "rgba(255,255,255,0.5)" }}
-              onClick={onChangeCover}
+              startIcon={<ImageIcon size={18} />}
+              sx={{
+                color: "white",
+                borderColor: "white",
+                "&:hover": {
+                  borderColor: "grey.300",
+                  bgcolor: "rgba(255,255,255,0.1)",
+                },
+              }}
             >
-              View Cover
+              Cover Image
             </Button>
           </Box>
         </Box>
-      </Container>
-    </Box>
+      </Box>
+    </Paper>
   );
 };

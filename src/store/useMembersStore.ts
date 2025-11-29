@@ -3,8 +3,14 @@ import { supabase } from "../../supabase/supabase";
 import { useTripsStore } from "./useTripsStore";
 
 interface MembersState {
-  inviteMember: (tripId: string, email: string) => Promise<void>;
+  inviteMember: (tripId: string, email: string, role?: string) => Promise<void>;
   removeMember: (tripId: string, userId: string) => Promise<void>;
+  updateMemberRole: (
+    tripId: string,
+    userId: string,
+    role: string
+  ) => Promise<void>;
+  leaveTrip: (tripId: string) => Promise<void>;
   subscribeToTrip: (tripId: string) => void;
   unsubscribeFromTrip: (tripId: string) => void;
   createInvite: (tripId: string, role?: string) => Promise<string>;
@@ -14,7 +20,7 @@ interface MembersState {
 const subscriptions = new Map<string, any>();
 
 export const useMembersStore = create<MembersState>(() => ({
-  inviteMember: async (tripId, email) => {
+  inviteMember: async (tripId, email, role = "editor") => {
     const { data: userData, error: userError } = await supabase
       .from("profiles")
       .select("id")
@@ -22,30 +28,58 @@ export const useMembersStore = create<MembersState>(() => ({
       .single();
 
     if (userError || !userData) {
-      console.error("User not found");
-      return;
+      throw new Error("User not found. Please ensure they have signed up.");
     }
 
     const { error } = await supabase.from("trip_members").insert({
       trip_id: tripId,
       user_id: userData.id,
-      role: "editor",
+      role,
     });
 
-    if (error) {
-      console.error("Error inviting member:", error);
-    } else {
-      // Refresh trips to get updated members
-      await useTripsStore.getState().fetchTrips();
-    }
+    if (error) throw error;
+    await useTripsStore.getState().fetchTrips();
   },
 
   removeMember: async (tripId, userId) => {
-    await supabase
+    const { error } = await supabase
       .from("trip_members")
       .delete()
       .eq("trip_id", tripId)
       .eq("user_id", userId);
+
+    if (error) throw error;
+    await useTripsStore.getState().fetchTrips();
+  },
+
+  updateMemberRole: async (tripId, userId, role) => {
+    const { error } = await supabase
+      .from("trip_members")
+      .update({ role })
+      .eq("trip_id", tripId)
+      .eq("user_id", userId);
+
+    if (error) throw error;
+    await useTripsStore.getState().fetchTrips();
+  },
+
+  leaveTrip: async (tripId) => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) throw new Error("User not authenticated");
+
+    const { error } = await supabase
+      .from("trip_members")
+      .delete()
+      .eq("trip_id", tripId)
+      .eq("user_id", user.id);
+
+    if (error) throw error;
+
+    useTripsStore.setState((state) => ({
+      trips: state.trips.filter((t) => t.id !== tripId),
+    }));
   },
 
   subscribeToTrip: (tripId) => {
@@ -62,7 +96,6 @@ export const useMembersStore = create<MembersState>(() => ({
           filter: `id=eq.${tripId}`,
         },
         () => {
-          // Refresh trips when changes detected
           useTripsStore.getState().fetchTrips();
         }
       )
@@ -72,6 +105,18 @@ export const useMembersStore = create<MembersState>(() => ({
           event: "*",
           schema: "public",
           table: "activities",
+          filter: `trip_id=eq.${tripId}`,
+        },
+        () => {
+          useTripsStore.getState().fetchTrips();
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "trip_members",
           filter: `trip_id=eq.${tripId}`,
         },
         () => {
