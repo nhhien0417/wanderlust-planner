@@ -9,6 +9,7 @@ DROP FUNCTION IF EXISTS public.is_trip_member(UUID) CASCADE;
 DROP TABLE IF EXISTS public.activities CASCADE;
 DROP TABLE IF EXISTS public.trip_days CASCADE;
 DROP TABLE IF EXISTS public.trip_members CASCADE;
+DROP TABLE IF EXISTS public.trip_invites CASCADE;
 DROP TABLE IF EXISTS public.trips CASCADE;
 DROP TABLE IF EXISTS public.profiles CASCADE;
 
@@ -40,6 +41,7 @@ create table trips (
   expenses jsonb[] default array[]::jsonb[],
   packing_list jsonb[] default array[]::jsonb[],
   weather jsonb[] default array[]::jsonb[],
+  weather_last_updated timestamp with time zone,
   photos jsonb[] default array[]::jsonb[],
   created_at timestamp with time zone default now(),
   updated_at timestamp with time zone default now()
@@ -79,12 +81,26 @@ create table activities (
   created_at timestamp with time zone default now()
 );
 
+-- TRIP INVITES
+create table trip_invites (
+  id uuid default uuid_generate_v4() primary key,
+  trip_id uuid references trips(id) on delete cascade not null,
+  email text not null,
+  role text check (role in ('editor', 'viewer')) not null,
+  token uuid default uuid_generate_v4() not null,
+  status text check (status in ('pending', 'accepted', 'expired')) default 'pending',
+  created_by uuid references profiles(id) not null,
+  created_at timestamp with time zone default now(),
+  expires_at timestamp with time zone default (now() + interval '7 days')
+);
+
 -- 3. ENABLE RLS
 alter table profiles enable row level security;
 alter table trips enable row level security;
 alter table trip_members enable row level security;
 alter table trip_days enable row level security;
 alter table activities enable row level security;
+alter table trip_invites enable row level security;www
 
 -- 4. HELPER FUNCTIONS (For RLS)
 CREATE OR REPLACE FUNCTION public.is_trip_member(_trip_id UUID)
@@ -162,6 +178,15 @@ create policy "Activities viewable by members." on activities for select using (
 create policy "Members can modify activities." on activities for all using (
   auth.uid() IN (SELECT created_by FROM public.trips WHERE id = trip_id) OR
   EXISTS (SELECT 1 FROM public.trip_members m WHERE m.trip_id = activities.trip_id AND m.user_id = auth.uid() AND m.role IN ('owner', 'editor'))
+);
+
+-- TRIP INVITES
+-- Viewable by members
+create policy "Trip invites viewable by members." on trip_invites for select using ( public.is_trip_member(trip_id) );
+-- Creators and Owners can insert
+create policy "Trip creators and owners can invite." on trip_invites for insert with check (
+  auth.uid() IN (SELECT created_by FROM public.trips WHERE id = trip_id) OR
+  EXISTS (SELECT 1 FROM public.trip_members m WHERE m.trip_id = trip_invites.trip_id AND m.user_id = auth.uid() AND m.role = 'owner')
 );
 
 -- 6. TRIGGERS
