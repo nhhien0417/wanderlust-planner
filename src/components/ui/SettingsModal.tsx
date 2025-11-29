@@ -57,7 +57,7 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
   const handleLogout = async () => {
     await signOut();
     onClose();
-    navigate("/login");
+    navigate("/dashboard");
   };
 
   return (
