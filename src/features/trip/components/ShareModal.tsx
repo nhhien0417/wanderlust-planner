@@ -81,8 +81,13 @@ export const ShareModal = ({ open, onClose, tripId }: ShareModalProps) => {
     setLoading(true);
 
     try {
-      await inviteMember(tripId, email, role);
-      setSuccess(`Added ${email} as ${role}`);
+      const result = await inviteMember(tripId, email, role);
+      if (result?.inviteLink) {
+        setSuccess(`Invitation created! Link: ${result.inviteLink}`);
+        setInviteLink(result.inviteLink); // Also populate the link field
+      } else {
+        setSuccess(`Invitation sent to ${email}`);
+      }
       setEmail("");
     } catch (err: any) {
       setError(err.message || "Failed to invite user");

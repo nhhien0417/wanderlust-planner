@@ -3,118 +3,90 @@ import { useParams, useNavigate } from "react-router-dom";
 import {
   Box,
   Typography,
-  CircularProgress,
   Button,
+  CircularProgress,
   Paper,
 } from "@mui/material";
-import { supabase } from "../../../supabase/supabase";
+import { useMembersStore } from "../../store/useMembersStore";
 import { useAuthStore } from "../../store/useAuthStore";
-import { useTripsStore } from "../../store/useTripsStore";
 
 export const JoinTrip = () => {
-  const { token } = useParams<{ token: string }>();
+  const { token } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuthStore();
-  const { fetchTrips } = useTripsStore();
-
+  const { acceptInvite } = useMembersStore();
+  const { user, loading: authLoading } = useAuthStore();
   const [status, setStatus] = useState<"loading" | "success" | "error">(
     "loading"
   );
-  const [message, setMessage] = useState("Joining trip...");
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
-    const joinTrip = async () => {
-      if (!token) {
-        setStatus("error");
-        setMessage("Invalid invite link.");
-        return;
-      }
+    if (authLoading) return;
 
-      if (!user) {
-        // Redirect to signup if not logged in, preserving the join token
-        const returnUrl = encodeURIComponent(`/join/${token}`);
-        navigate(`/signup?redirectTo=${returnUrl}`);
-        return;
-      }
+    if (!user) {
+      // Redirect to login if not authenticated, preserving the join URL
+      navigate(`/login?redirectTo=${encodeURIComponent(`/join/${token}`)}`);
+      return;
+    }
 
+    const join = async () => {
+      if (!token) return;
       try {
-        const { data, error } = await supabase.rpc("join_trip_via_token", {
-          invite_token: token,
-        });
-
-        if (error) throw error;
-
-        if (data && data.success) {
-          setStatus("success");
-          setMessage("Successfully joined the trip!");
-          await fetchTrips(); // Refresh trips to show the new one
-          setTimeout(() => {
-            navigate(`/trip/${data.trip_id}`);
-          }, 1500);
-        } else {
-          setStatus("error");
-          setMessage(data?.message || "Failed to join trip.");
-        }
+        const tripId = await acceptInvite(token);
+        setStatus("success");
+        setTimeout(() => {
+          navigate(`/trips/${tripId}`);
+        }, 2000);
       } catch (err: any) {
-        console.error("Error joining trip:", err);
         setStatus("error");
-        setMessage(err.message || "An unexpected error occurred.");
+        setMessage(err.message || "Failed to join trip");
       }
     };
 
-    joinTrip();
-  }, [token, user, navigate, fetchTrips]);
+    join();
+  }, [token, user, authLoading, navigate, acceptInvite]);
+
+  if (authLoading) return null;
 
   return (
     <Box
       sx={{
-        minHeight: "100vh",
+        height: "100vh",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        bgcolor: "background.default",
-        p: 3,
+        bgcolor: "grey.100",
       }}
     >
-      <Paper
-        elevation={3}
-        sx={{
-          p: 4,
-          maxWidth: 400,
-          width: "100%",
-          textAlign: "center",
-          borderRadius: 2,
-        }}
-      >
+      <Paper sx={{ p: 4, maxWidth: 400, width: "100%", textAlign: "center" }}>
         {status === "loading" && (
           <>
-            <CircularProgress size={40} sx={{ mb: 2 }} />
-            <Typography variant="h6">{message}</Typography>
+            <CircularProgress sx={{ mb: 2 }} />
+            <Typography>Joining trip...</Typography>
           </>
         )}
 
         {status === "success" && (
           <>
-            <Typography variant="h5" color="success.main" gutterBottom>
-              Welcome Aboard!
+            <Typography variant="h6" color="success.main" gutterBottom>
+              Successfully Joined!
             </Typography>
-            <Typography color="text.secondary">{message}</Typography>
-            <Typography variant="caption" sx={{ display: "block", mt: 2 }}>
-              Redirecting to trip...
+            <Typography color="text.secondary">
+              Redirecting to trip details...
             </Typography>
           </>
         )}
 
         {status === "error" && (
           <>
-            <Typography variant="h5" color="error.main" gutterBottom>
-              Oops!
+            <Typography variant="h6" color="error" gutterBottom>
+              Unable to Join
             </Typography>
-            <Typography color="text.secondary" paragraph>
+            <Typography color="text.secondary" sx={{ mb: 3 }}>
               {message}
             </Typography>
-            <Button variant="contained" onClick={() => navigate("/")}>
-              Go Home
+            <Button variant="contained" onClick={() => navigate("/dashboard")}>
+              Go to Dashboard
             </Button>
           </>
         )}

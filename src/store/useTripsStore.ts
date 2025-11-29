@@ -132,6 +132,7 @@ export const useTripsStore = create<TripsState>((set, get) => ({
         expenses: t.expenses || [],
         packingList: t.packing_list || [],
         weather: t.weather || [],
+        weatherLastUpdated: t.weather_last_updated,
         photos: t.photos || [],
         members:
           t.members?.map((m: any) => ({
@@ -165,7 +166,18 @@ export const useTripsStore = create<TripsState>((set, get) => ({
       expenses: [],
       packingList: [],
       photos: [],
-      members: [],
+      members: user
+        ? [
+            {
+              user_id: user.id,
+              trip_id: newTripId,
+              role: "owner",
+              email: user.email,
+              full_name: user.user_metadata?.full_name,
+              avatar_url: user.user_metadata?.avatar_url,
+            },
+          ]
+        : [],
     };
 
     if (user) {
@@ -201,28 +213,41 @@ export const useTripsStore = create<TripsState>((set, get) => ({
       const { error: daysError } = await supabase
         .from("trip_days")
         .insert(dayRows);
-      if (daysError) console.error("Error creating days:", daysError);
+      if (daysError) {
+        console.error("Error creating days:", daysError);
+        // Optional: Rollback trip?
+      }
 
       // Add creator as owner in trip_members
-      await supabase.from("trip_members").insert({
-        trip_id: newTripId,
-        user_id: user.id,
-        role: "owner",
-      });
+      const { error: memberError } = await supabase
+        .from("trip_members")
+        .insert({
+          trip_id: newTripId,
+          user_id: user.id,
+          role: "owner",
+        });
+      if (memberError) {
+        console.error("Error adding member:", memberError);
+      }
 
       set((state) => ({
         trips: [newTrip, ...state.trips],
         activeTripId: newTripId,
       }));
     } else {
-      set((state) => {
-        const newState = {
-          trips: [newTrip, ...state.trips],
-          activeTripId: newTripId,
-        };
-        saveToLocalStorage(newState);
-        return newState;
-      });
+      try {
+        set((state) => {
+          const newState = {
+            trips: [newTrip, ...state.trips],
+            activeTripId: newTripId,
+          };
+          saveToLocalStorage(newState);
+          return newState;
+        });
+      } catch (error) {
+        console.error("Error saving trip to local storage:", error);
+        return undefined;
+      }
     }
 
     return newTripId;

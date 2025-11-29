@@ -3,7 +3,7 @@ import { supabase } from "../../supabase/supabase";
 import { useTripsStore } from "./useTripsStore";
 
 interface MembersState {
-  inviteMember: (tripId: string, email: string, role?: string) => Promise<void>;
+  inviteMember: (tripId: string, email: string, role?: string) => Promise<any>;
   removeMember: (tripId: string, userId: string) => Promise<void>;
   updateMemberRole: (
     tripId: string,
@@ -14,6 +14,7 @@ interface MembersState {
   subscribeToTrip: (tripId: string) => void;
   unsubscribeFromTrip: (tripId: string) => void;
   createInvite: (tripId: string, role?: string) => Promise<string>;
+  acceptInvite: (token: string) => Promise<string>;
 }
 
 // Store RealtimeChannel subscriptions
@@ -21,24 +22,15 @@ const subscriptions = new Map<string, any>();
 
 export const useMembersStore = create<MembersState>(() => ({
   inviteMember: async (tripId, email, role = "editor") => {
-    const { data: userData, error: userError } = await supabase
-      .from("profiles")
-      .select("id")
-      .eq("email", email)
-      .single();
-
-    if (userError || !userData) {
-      throw new Error("User not found. Please ensure they have signed up.");
-    }
-
-    const { error } = await supabase.from("trip_members").insert({
-      trip_id: tripId,
-      user_id: userData.id,
-      role,
+    const { data, error } = await supabase.functions.invoke("send-invite", {
+      body: { tripId, email, role },
     });
 
     if (error) throw error;
+    if (data?.error) throw new Error(data.error);
+
     await useTripsStore.getState().fetchTrips();
+    return data;
   },
 
   removeMember: async (tripId, userId) => {
@@ -153,5 +145,16 @@ export const useMembersStore = create<MembersState>(() => ({
 
     if (error) throw error;
     return data.token;
+  },
+
+  acceptInvite: async (token: string) => {
+    const { data: tripId, error } = await supabase.rpc("accept_trip_invite", {
+      invite_token: token,
+    });
+
+    if (error) throw error;
+
+    await useTripsStore.getState().fetchTrips();
+    return tripId;
   },
 }));
