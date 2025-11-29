@@ -288,8 +288,6 @@ export const useTripsStore = create<TripsState>((set, get) => ({
     const user = useAuthStore.getState().user;
     if (!user) return;
 
-    let allSuccess = true;
-
     for (const trip of localState.trips) {
       // Check if trip already exists to avoid duplicates or errors
       const { data: existing } = await supabase
@@ -319,7 +317,6 @@ export const useTripsStore = create<TripsState>((set, get) => ({
 
       if (tripError) {
         console.error("Error syncing trip:", tripError);
-        allSuccess = false;
         continue;
       }
 
@@ -372,12 +369,6 @@ export const useTripsStore = create<TripsState>((set, get) => ({
       });
     }
 
-    // Clear Local Storage only if all synced successfully
-    if (allSuccess) {
-      localStorage.removeItem(STORAGE_KEY);
-    }
-
-    // Refresh trips
     get().fetchTrips();
   },
 }));
